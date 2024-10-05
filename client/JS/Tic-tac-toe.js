@@ -1,8 +1,46 @@
 const gridItems = document.querySelectorAll('.grid-item');
 const score = document.getElementById('score');
+var gameModeModal = document.getElementById('gameModeModal');
+var page = document.getElementById('page');
 let player_score = 0;
 let enemy_score = 0;
+let start = false;
+let single = false;
+let multi = false;
+let turn = 1;
 
+
+function hideModal()
+{
+	gameModeModal.classList.remove('show');
+	gameModeModal.style.display = 'none';
+	page.classList.remove('blur');
+	start = true;
+}
+
+document.addEventListener("DOMContentLoaded", function()
+{
+
+	gameModeModal.classList.add('show');
+        gameModeModal.style.display = 'block';
+        gameModeModal.setAttribute('aria-modal', 'true');
+        gameModeModal.setAttribute('role', 'dialog');
+        page.classList.add('blur'); // Add blur effect to the background
+
+        var singleplayerBtn = document.getElementById('singleplayer-btn');
+        var multiplayerBtn = document.getElementById('multiplayer-btn');
+
+	singleplayerBtn.addEventListener('click', function ()
+	{
+		single = true;
+		hideModal();
+	});
+	multiplayerBtn.addEventListener('click', function()
+	{
+		multi = true;
+		hideModal();
+	});
+});
 
 function freeSpace()
 {
@@ -125,14 +163,29 @@ gridItems.forEach((item, index) =>
 	{
 		if (item.textContent.trim() === '')
 		{
-
-			item.textContent = "X";
-			let random = Math.floor(Math.random() * 9);
-			if (freeSpace() == 1)
+			if (single)
 			{
-				while (gridItems[random].textContent.trim() == 'X' || gridItems[random].textContent.trim() == 'O')
-					random = Math.floor(Math.random() * 9);
-				gridItems[random].textContent = "O";
+				item.textContent = "X";
+				let random = Math.floor(Math.random() * 9);
+				if (freeSpace() == 1 && single)
+				{
+					while (gridItems[random].textContent.trim() == 'X' || gridItems[random].textContent.trim() == 'O')
+						random = Math.floor(Math.random() * 9);
+					gridItems[random].textContent = "O";
+				}
+			}
+			else if (multi)
+			{
+				if (turn === 1)
+				{
+					turn = 2;
+					item.textContent = "X"
+				}
+				else if (turn === 2)
+				{
+					turn = 1;
+					item.textContent = "O"
+				}
 			}
 			winner = checkWinCondition();
 			if (winner)

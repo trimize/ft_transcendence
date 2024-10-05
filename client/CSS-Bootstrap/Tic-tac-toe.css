@@ -88,3 +88,34 @@
 	transition: background-color 0.3s ease;
 	background-color: #242323;
 }
+
+#page.blur
+{
+	filter: blur(5px);
+	transition: filter 0.8s ease-in-out;
+}
+
+.modal-content
+{
+	background-color: #fff;
+	border-radius: 10px;
+	text-align: center;
+	padding: 2rem;
+}
+
+#gameModeModal
+{
+	z-index: 12;
+}
+
+.modal-content h2
+{
+	font-family: 'Press Start 2P', sans-serif;
+	margin-bottom: 2rem;
+}
+
+.modal-content .btn
+{
+	margin: 10px;
+	font-family: 'Press Start 2P', sans-serif;
+}
