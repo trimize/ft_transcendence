@@ -4,18 +4,16 @@ DB_CONTAINER_NAME=my-postgres-container
 DB_PORT=5432
 SERVER_DIR=server/tcd_back
 
-.PHONY: all build-db run-db migrate runserver
+.PHONY: all clean compose-up compose-down
 
-all: build-db run-db migrate runserver
+all: clean compose-up
 
-build-db:
-    cd database && docker build -t $(DB_IMAGE_NAME) .
+clean:
+	-docker rm -f $(shell docker ps -aq)
+	-docker rmi -f $(shell docker images -q)
 
-run-db:
-    docker run -d --name $(DB_CONTAINER_NAME) -p $(DB_PORT):$(DB_PORT) $(DB_IMAGE_NAME)
+compose-up:
+	docker-compose up --build -d
 
-migrate:
-    cd $(SERVER_DIR) && python3 manage.py makemigrations && python3 manage.py migrate
-
-runserver:
-    cd $(SERVER_DIR) && python3 manage.py runserver
+compose-down:
+	docker-compose down
