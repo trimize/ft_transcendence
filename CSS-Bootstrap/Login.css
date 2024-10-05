@@ -35,3 +35,46 @@
 {
 	background-color: #495057; /* Darker background on hover */
 }
+
+.connect-form
+{
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	height: 80vh;
+}
+
+.connect-form input[type="text"],
+.connect-form input[type="password"]
+{
+	width: 100%;
+	padding: 10px;
+	margin: 10px 0;
+	border-radius: 5px;
+	border: 1px solid #ced4da;
+}
+
+.connect-form button
+{
+	width: 100%;
+	padding: 10px;
+	margin-top: 10px;
+	border-radius: 5px;
+	background-color: #007bff;
+	color: white;
+	border: none;
+}
+
+
+.register-link
+{
+	position: absolute;
+	bottom: 20px;
+	right: 20px;
+}
+
+.text-center
+{
+	color: aliceblue;
+}

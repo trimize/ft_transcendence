@@ -35,3 +35,44 @@
 {
 	background-color: #495057; /* Darker background on hover */
 }
+
+.register-form
+{
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	height: 80vh;
+}
+
+.register-form input[type="text"],
+.register-form input[type="password"],
+.register-form input[type="email"]
+{
+	width: 100%;
+	padding: 10px;
+	margin: 10px 0;
+	border-radius: 5px;
+	border: 1px solid #ced4da;
+}
+
+.register-form button
+{
+	width: 100%;
+	padding: 10px;
+	margin-top: 10px;
+	border-radius: 5px;
+	background-color: #007bff;
+	color: white;
+	border: none;
+}
+
+.login-link
+{
+	margin-top: 15px;
+}
+
+#Register_text
+{
+	color: aliceblue;
+}

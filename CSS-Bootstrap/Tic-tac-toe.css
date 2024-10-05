@@ -21,6 +21,21 @@
 	/*color: rgb(0, 0, 0);*/
 }
 
+.dropdown-menu
+{
+	background-color: #343a40; /* Match navbar dark theme */
+}
+
+.dropdown-item
+{
+	color: #fff;
+}
+
+.dropdown-item:hover
+{
+	background-color: #495057; /* Darker background on hover */
+}
+
 .content-area
 {
 	min-height: calc(100vh - 60px);
