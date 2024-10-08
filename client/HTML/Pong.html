@@ -12,8 +12,13 @@
 	</head>
 	<body>
 		<div class="container-fluid" id="page">
-			<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-				<!-- Dropdown for the "H" -->
+
+			<!--The vanigation bar-->
+
+			<nav class="navbar navbar-expand-lg navbar-dark bg-dark" id="navbar">
+
+				<!--Dropdown-->
+
 				<div class="dropdown">
 					<a class="navbar-brand dropdown-toggle" href="#" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 					H
@@ -25,8 +30,9 @@
 					<a class="dropdown-item" href="./Customize.html">Customize</a>
 					</div>
 				</div>
-			
-				<!-- Rest of the navbar -->
+
+				<!--Game selection-->
+
 				<div class="collapse navbar-collapse d-flex align-items-stretch">
 					<ul class="navbar-nav w-100 flex-grow-1">
 					<li class="nav-item flex-fill">
@@ -38,19 +44,65 @@
 					</ul>
 				</div>
 			</nav>
+
+			<!--The Game area with powers divs-->
+
 			<div class="content-area p-4" id="contentArea">
 				<div class="rectangle" id="player"></div>
 				<div id="score">0 : 0</div>
 				<div class="moving-square" id="moving-square"></div>
 				<div class="rectangle" id="enemy"></div>
+				
+				<div class="bottom-left-container">
+					<div class="bottom-left" id="player_speed">Player Speed</div>
+					<div class="bottom-left" id="ball_speed">Ball Speed</div>
+				</div>
+					
+				<div class="bottom-right-container">
+					<div class="bottom-right" id="enemy_speed">Player Speed</div>
+					<div class="bottom-right" id="enemy_ball_speed">Ball Speed</div>
+				</div>
 			</div>
 		</div>
+
+		<!--Gamemode selection divs-->
+
 		<div class="modal fade" id="gameModeModal" tabindex="-1" role="dialog" aria-labelledby="gameModeModalLabel" aria-hidden="true">
 			<div class="modal-dialog modal-dialog-centered" role="document">
 				<div class="modal-content">
 					<h2>Select Game Mode</h2>
 					<button type="button" class="btn btn-primary" id="singleplayer-btn">Singleplayer</button>
 					<button type="button" class="btn btn-success" id="multiplayer-btn">Multiplayer</button>
+				</div>
+			</div>
+		</div>
+
+		<!--Game settings divs-->
+
+		<div class="modal fade" id="customizationModal" tabindex="-1" role="dialog" aria-labelledby="customizationModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered" role="document">
+				<div class="modal-content">
+					<h2>Customize Game</h2>
+					<!-- Example game customization options -->
+					<div class="d-flex align-items-center justify-content-between">
+						<label for="ballSpeed">Ball Speed</label>
+						<input type="range" id="ballSpeed" class="form-control w-50" min="5" max="20">
+					</div>
+					<div class="d-flex align-items-center justify-content-between">
+						<label for="toggleOption">Enable ball acceleration</label>
+						<div class="custom-control custom-switch ml-3">
+							<input id="ballACC" type="checkbox" class="custom-control-input">
+							<label class="custom-control-label" for="ballACC"></label>
+						</div>
+						<label for="toggleOption">Enable powers</label>
+						<div class="custom-control custom-switch ml-3">
+							<input id="powers" type="checkbox" class="custom-control-input">
+							<label class="custom-control-label" for="powers"></label>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button id="start-button" type="button" class="btn btn-primary" data-dismiss="modal">Start Game</button>
+					</div>
 				</div>
 			</div>
 		</div>

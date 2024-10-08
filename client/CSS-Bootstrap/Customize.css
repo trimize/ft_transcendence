@@ -1,0 +1,73 @@
+#page
+{
+	background-color: rgb(2, 49, 49);
+	display: flex;
+	width: 100vw;
+}
+
+.nav-item-hover
+{
+	padding: 10px 20px;
+	border-radius: 5px;
+	transition: background-color 0.3s ease;
+	display: flex; /* Make the link a flex container */
+	justify-content: center; /* Center horizontally */
+	align-items: center; /* Center vertically */
+	height: 100%; /* Ensure it takes full height */
+}
+    
+.nav-item-hover:hover
+{
+	background-color: #696868;
+	/*color: rgb(0, 0, 0);*/
+}
+
+.dropdown-menu
+{
+	background-color: #343a40; /* Match navbar dark theme */
+}
+
+.dropdown-item
+{
+	color: #fff;
+}
+
+.dropdown-item:hover
+{
+	background-color: #495057; /* Darker background on hover */
+}
+
+
+
+
+
+.customization-box
+{
+	/*position: relative;*/
+	height : 50vh;
+	width: 50vw;
+	color: aliceblue;
+	text-align: center;
+	font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+	background-color: #272727; /* Background color of the div */
+}
+
+#first
+{
+	float: left;
+}
+
+#second
+{
+	float: right;
+}
+      
+#third
+{
+	float: left;
+}
+
+#fourth
+{
+	float: right;
+}
