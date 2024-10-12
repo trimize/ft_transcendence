@@ -1,3 +1,5 @@
+import { fetchUserData } from './Profile.js';
+
 const gridItems = document.querySelectorAll('.grid-item');
 const score = document.getElementById('score');
 var gameModeModal = document.getElementById('gameModeModal');
@@ -18,9 +20,14 @@ function hideModal()
 	start = true;
 }
 
+
+
 document.addEventListener("DOMContentLoaded", function()
 {
-
+	fetchUserData().then(data =>
+	{
+		
+	})
 	gameModeModal.classList.add('show');
         gameModeModal.style.display = 'block';
         gameModeModal.setAttribute('aria-modal', 'true');

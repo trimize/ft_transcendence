@@ -30,5 +30,15 @@ services:
       DATABASE_HOST: db
       DATABASE_PORT: 5432
 
+  nginx:
+    build:
+      context: ./client
+    container_name: my-nginx-container
+    ports:
+      - "8080:80"
+      - "4443:443"
+    volumes:
+      - ./client/ssl:/etc/nginx/ssl
+
 volumes:
   postgres_data:

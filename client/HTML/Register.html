@@ -5,7 +5,8 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>REGISTER</title>
 		<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-		<link rel="stylesheet" href="../CSS-Bootstrap/Register.css">
+		<!--<link rel="stylesheet" href="../CSS-Bootstrap/Register.css">-->
+		<link rel="stylesheet" href="/css/Register.css">
 	</head>
 	<body>
 	<div class="container-fluid" id="page">
@@ -15,10 +16,10 @@
 			H
 			</a>
 			<div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-				<a class="dropdown-item" href="./Landing.html">Landing</a>
-				<a class="dropdown-item" href="./Connect.html">Connect</a>
-				<a class="dropdown-item" href="./Leaderboard.html">Leaderboard</a>
-				<a class="dropdown-item" href="./Customize.html">Customize</a>
+				<a class="dropdown-item" href="/Landing">Landing</a>
+				<a class="dropdown-item" href="/Connect">Connect</a>
+				<a class="dropdown-item" href="/Leaderboard">Leaderboard</a>
+				<a class="dropdown-item" href="/Customize">Customize</a>
 			</div>
 		</div>
 
@@ -26,10 +27,10 @@
 		<div class="collapse navbar-collapse d-flex align-items-stretch">
 			<ul class="navbar-nav w-100 flex-grow-1">
 				<li class="nav-item flex-fill">
-					<a class="nav-link nav-item-hover" href="./Pong.html">PONG</a>
+					<a class="nav-link nav-item-hover" href="/Pong">PONG</a>
 				</li>
 				<li class="nav-item flex-fill">
-					<a class="nav-link nav-item-hover" href="./Tic-tac-toe.html">TIC-TAC-TOE</a>
+					<a class="nav-link nav-item-hover" href="/Tic-tac-toe">TIC-TAC-TOE</a>
 				</li>
 			</ul>
 		</div>
@@ -37,22 +38,23 @@
 
 		<!-- Register Form -->
 		<div class="register-form">
-			<form action="localhost:8000/api/add_user" method="POST">
+			<form id="registerForm">
 				<h2 class="text-center" id="Register_text">Register</h2>
-				<input type="text" name="username" placeholder="Username" required>
+				<input type="text" name="name" placeholder="Username" required>
 				<input type="email" name="email" placeholder="Email" required>
 				<input type="password" name="password" placeholder="Password" required>
 				<button type="submit" class="btn btn-primary">Register</button>
-
+			    
 				<!-- Link to Login page -->
 				<div class="text-center login-link">
-					<a href="./Login.html" class="btn btn-link">Already have an account? Login here</a>
+				    <a href="/Login" class="btn btn-link">Already have an account? Login here</a>
 				</div>
 			</form>
 		</div>
 	</div>
 
 	<!-- Bootstrap JS and dependencies -->
+	<script src="/js/register.js"></script>
 	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
 	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
