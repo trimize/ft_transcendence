@@ -6,6 +6,7 @@ from ..models import User
 from ..serializer import UserSerializer
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def get_users(request):
 	users = User.objects.all()
 	serializer = UserSerializer(users, many=True)
@@ -21,25 +22,29 @@ def create_user(request):
 
 @api_view(['POST'])
 def login_user(request):
-    email = request.data.get('email')
+    username = request.data.get('username')
     password = request.data.get('password')
-    
-    if email is None or password is None:
-        return Response({'error': 'Please provide both email and password'}, status=status.HTTP_400_BAD_REQUEST)
-    
-    user = authenticate(email=email, password=password)
-    
+    user = authenticate(username=username, password=password)
+
     if user is not None:
-        serializer = UserSerializer(user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        if TOTPDevice.objects.filter(user=user, confirmed=True).exists():
+            # User has 2FA enabled, prompt for 2FA token
+            return Response({'message': '2FA required'}, status=status.HTTP_200_OK)
+        else:
+            # User does not have 2FA enabled, return tokens
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            }, status=status.HTTP_200_OK)
     else:
         return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
-def update_user(request, pk):
+def update_user(request):
     try:
-        user = User.objects.get(pk=pk)
+        user = request.user
     except User.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -86,37 +91,37 @@ def search_user(request, username):
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
-def add_friend(request, pk, new_friend):
+def add_friend(request, new_friend):
     try:
-        user = User.objects.get(pk=pk)
+        user = request.user
+        friend = User.objects.get(pk=new_friend)
     except User.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
-    friend = User.objects.get(pk=new_friend)
     user.friends.add(friend)
     return Response(status=status.HTTP_204_NO_CONTENT)
 
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
-def remove_friend(request, pk, friend):
+def remove_friend(request, friend):
     try:
-        user = User.objects.get(pk=pk)
+        user = request.user
+        friend = User.objects.get(pk=friend)
     except User.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
-    friend = User.objects.get(pk=friend)
     user.friends.remove(friend)
     return Response(status=status.HTTP_204_NO_CONTENT)
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
-def block_friend(request, pk, friend):
+def block_friend(request, friend):
     try:
-        user = User.objects.get(pk=pk)
+        user = request.user
+        friend = User.objects.get(pk=friend)
     except User.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
-    friend = User.objects.get(pk=friend)
 
     if user.blocked_friends.filter(pk=friend).exists():
         user.blocked_friends.remove(friend)
@@ -127,9 +132,9 @@ def block_friend(request, pk, friend):
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
-def update_pong_ball(request, pk, pong_ball):
+def update_pong_ball(request, pong_ball):
     try:
-        user = User.objects.get(pk=pk)
+        user = request.user
     except User.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -139,9 +144,9 @@ def update_pong_ball(request, pk, pong_ball):
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
-def update_pong_slider(request, pk, pong_slider):
+def update_pong_slider(request, pong_slider):
     try:
-        user = User.objects.get(pk=pk)
+        user = request.user
     except User.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -151,9 +156,9 @@ def update_pong_slider(request, pk, pong_slider):
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
-def update_tic_tac_toe_sign(request, pk, tic_tac_toe_sign):
+def update_tic_tac_toe_sign(request, tic_tac_toe_sign):
     try:
-        user = User.objects.get(pk=pk)
+        user = request.user
     except User.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -163,9 +168,9 @@ def update_tic_tac_toe_sign(request, pk, tic_tac_toe_sign):
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
-def update_tic_tac_toe_background(request, pk, tic_tac_toe_background):
+def update_tic_tac_toe_background(request, tic_tac_toe_background):
     try:
-        user = User.objects.get(pk=pk)
+        user = request.user
     except User.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
