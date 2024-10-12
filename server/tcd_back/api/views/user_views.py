@@ -1,4 +1,5 @@
-from rest_framework.decorators import api_view
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
 from ..models import User
@@ -18,7 +19,24 @@ def create_user(request):
 		return Response(serializer.data, status=status.HTTP_201_CREATED)
 	return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['POST'])
+def login_user(request):
+    email = request.data.get('email')
+    password = request.data.get('password')
+    
+    if email is None or password is None:
+        return Response({'error': 'Please provide both email and password'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    user = authenticate(email=email, password=password)
+    
+    if user is not None:
+        serializer = UserSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    else:
+        return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+
 @api_view(['PUT'])
+@permission_classes([IsAuthenticated])
 def update_user(request, pk):
     try:
         user = User.objects.get(pk=pk)
@@ -31,17 +49,18 @@ def update_user(request, pk):
         return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['DELETE'])
-def delete_user(request, pk):
-    try:
-        user = User.objects.get(pk=pk)
-    except User.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+# @api_view(['DELETE'])
+# def delete_user(request, pk):
+#     try:
+#         user = User.objects.get(pk=pk)
+#     except User.DoesNotExist:
+#         return Response(status=status.HTTP_404_NOT_FOUND)
 
-    user.delete()
-    return Response(status=status.HTTP_204_NO_CONTENT)
+#     user.delete()
+#     return Response(status=status.HTTP_204_NO_CONTENT)
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def get_user(request, pk):
     try:
         user = User.objects.get(pk=pk)
@@ -52,12 +71,14 @@ def get_user(request, pk):
     return Response(serializer.data)
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def search_user(request, name):
     user = User.objects.filter(name__icontains=name)
     serializer = UserSerializer(user, many=True)
     return Response(serializer.data)
 
 @api_view(['PUT'])
+@permission_classes([IsAuthenticated])
 def add_friend(request, pk, new_friend):
     try:
         user = User.objects.get(pk=pk)
@@ -69,6 +90,7 @@ def add_friend(request, pk, new_friend):
     return Response(status=status.HTTP_204_NO_CONTENT)
 
 @api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
 def remove_friend(request, pk, friend):
     try:
         user = User.objects.get(pk=pk)
@@ -80,6 +102,7 @@ def remove_friend(request, pk, friend):
     return Response(status=status.HTTP_204_NO_CONTENT)
 
 @api_view(['PUT'])
+@permission_classes([IsAuthenticated])
 def block_friend(request, pk, friend):
     try:
         user = User.objects.get(pk=pk)
@@ -96,6 +119,7 @@ def block_friend(request, pk, friend):
     return Response(status=status.HTTP_204_NO_CONTENT)
 
 @api_view(['PUT'])
+@permission_classes([IsAuthenticated])
 def update_pong_ball(request, pk, pong_ball):
     try:
         user = User.objects.get(pk=pk)
@@ -107,6 +131,7 @@ def update_pong_ball(request, pk, pong_ball):
     return Response(status=status.HTTP_204_NO_CONTENT)
 
 @api_view(['PUT'])
+@permission_classes([IsAuthenticated])
 def update_pong_slider(request, pk, pong_slider):
     try:
         user = User.objects.get(pk=pk)
@@ -118,6 +143,7 @@ def update_pong_slider(request, pk, pong_slider):
     return Response(status=status.HTTP_204_NO_CONTENT)
 
 @api_view(['PUT'])
+@permission_classes([IsAuthenticated])
 def update_tic_tac_toe_sign(request, pk, tic_tac_toe_sign):
     try:
         user = User.objects.get(pk=pk)
@@ -129,6 +155,7 @@ def update_tic_tac_toe_sign(request, pk, tic_tac_toe_sign):
     return Response(status=status.HTTP_204_NO_CONTENT)
 
 @api_view(['PUT'])
+@permission_classes([IsAuthenticated])
 def update_tic_tac_toe_background(request, pk, tic_tac_toe_background):
     try:
         user = User.objects.get(pk=pk)
@@ -138,3 +165,25 @@ def update_tic_tac_toe_background(request, pk, tic_tac_toe_background):
     user.tic_tac_toe_background = tic_tac_toe_background
     user.save()
     return Response(status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_wins(request, pk):
+    try:
+        user = User.objects.get(pk=pk)
+    except User.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    wins = user.player1_matches.filter(player1_score__gt=F('player2_score')).count() + user.player2_matches.filter(player2_score__gt=F('player1_score')).count()
+    return Response(wins)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_losses(request, pk):
+    try:
+        user = User.objects.get(pk=pk)
+    except User.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    losses = user.player1_matches.filter(player1_score__lt=F('player2_score')).count() + user.player2_matches.filter(player2_score__lt=F('player1_score')).count()
+    return Response(losses)

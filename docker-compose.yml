@@ -5,29 +5,30 @@ services:
     image: postgres:13
     container_name: my-postgres-container
     environment:
-      POSTGRES_DB: mydatabase
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: tcd_db
+      POSTGRES_USER: transcendence
+      POSTGRES_PASSWORD: 123456
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
 
   web:
-    build:
-      context: ./server
-    container_name: my-django-backend-container
-    command: >
-      sh -c "python manage.py makemigrations &&
-             python manage.py migrate &&
-             python manage.py runserver 0.0.0.0:8000"
+    build: ./server/
+    command: sh -c "python manage.py makemigrations api && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     volumes:
-      - ./server/tcd_back:/app
+      - ./server:/app
+    working_dir: /app/tcd_back
     ports:
       - "8000:8000"
     depends_on:
       - db
     environment:
-      - DATABASE_NAME=mydatabase
-      - DATABASE_USER=myuser
-      - DATABASE_PASSWORD=mypassword
-      - DATABASE_HOST=db
-      - DATABASE_PORT=5432
+      DATABASE_NAME: tcd_db
+      DATABASE_USER: transcendence
+      DATABASE_PASSWORD: 123456
+      DATABASE_HOST: db
+      DATABASE_PORT: 5432
+
+volumes:
+  postgres_data:
