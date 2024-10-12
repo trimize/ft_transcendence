@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
+from django.db.models import F
 
 class UserManager(BaseUserManager):
     def create_user(self, username, email, password=None, **extra_fields):
@@ -37,6 +38,14 @@ class User(AbstractBaseUser):
 
     def __str__(self):
         return self.username
+
+    @property
+    def wins(self):
+        return self.player1_matches.filter(player1_score__gt=F('player2_score')).count() + self.player2_matches.filter(player2_score__gt=F('player1_score')).count()
+
+    @property
+    def losses(self):
+        return self.player1_matches.filter(player1_score__lt=F('player2_score')).count() + self.player2_matches.filter(player2_score__lt=F('player1_score')).count()
 
 class Match_Record(models.Model):
 	id = models.AutoField(primary_key=True)

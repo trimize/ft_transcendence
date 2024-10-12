@@ -72,8 +72,15 @@ def get_user(request, pk):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def search_user(request, name):
-    user = User.objects.filter(name__icontains=name)
+def get_user_info(request):
+    user = request.user
+    serializer = UserSerializer(user)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def search_user(request, username):
+    user = User.objects.filter(username__icontains=username)
     serializer = UserSerializer(user, many=True)
     return Response(serializer.data)
 
@@ -166,24 +173,24 @@ def update_tic_tac_toe_background(request, pk, tic_tac_toe_background):
     user.save()
     return Response(status=status.HTTP_204_NO_CONTENT)
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_user_wins(request, pk):
-    try:
-        user = User.objects.get(pk=pk)
-    except User.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+# @api_view(['GET'])
+# @permission_classes([IsAuthenticated])
+# def get_user_wins(request, pk):
+#     try:
+#         user = User.objects.get(pk=pk)
+#     except User.DoesNotExist:
+#         return Response(status=status.HTTP_404_NOT_FOUND)
 
-    wins = user.player1_matches.filter(player1_score__gt=F('player2_score')).count() + user.player2_matches.filter(player2_score__gt=F('player1_score')).count()
-    return Response(wins)
+#     wins = user.player1_matches.filter(player1_score__gt=F('player2_score')).count() + user.player2_matches.filter(player2_score__gt=F('player1_score')).count()
+#     return Response(wins)
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_user_losses(request, pk):
-    try:
-        user = User.objects.get(pk=pk)
-    except User.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+# @api_view(['GET'])
+# @permission_classes([IsAuthenticated])
+# def get_user_losses(request, pk):
+#     try:
+#         user = User.objects.get(pk=pk)
+#     except User.DoesNotExist:
+#         return Response(status=status.HTTP_404_NOT_FOUND)
 
-    losses = user.player1_matches.filter(player1_score__lt=F('player2_score')).count() + user.player2_matches.filter(player2_score__lt=F('player1_score')).count()
-    return Response(losses)
+#     losses = user.player1_matches.filter(player1_score__lt=F('player2_score')).count() + user.player2_matches.filter(player2_score__lt=F('player1_score')).count()
+#     return Response(losses)
