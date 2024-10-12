@@ -1,8 +1,8 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from .models import User
-from .serializer import UserSerializer
+from ..models import User
+from ..serializer import UserSerializer
 
 @api_view(['GET'])
 def get_users(request):
@@ -40,3 +40,19 @@ def delete_user(request, pk):
 
     user.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['GET'])
+def get_user(request, pk):
+    try:
+        user = User.objects.get(pk=pk)
+    except User.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    serializer = UserSerializer(user)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def search_user(request, name):
+    user = User.objects.filter(name__icontains=name)
+    serializer = UserSerializer(user, many=True)
+    return Response(serializer.data)
