@@ -6,14 +6,14 @@ user_channels = {}
 class SocketConsumer(AsyncWebsocketConsumer):
 	async def connect(self):
 		user_id = self.scope['user'].id
-        user_channels[user_id] = self.channel_name
+		user_channels[user_id] = self.channel_name
 		await self.accept()
 
 	async def disconnect(self, close_code):
-	    # Leave room group
+		# Leave room group
 		user_id = self.scope['user'].id
-        if user_id in user_channels:
-            del user_channels[user_id]
+		if user_id in user_channels:
+			del user_channels[user_id]
 
 	async def receive(self, text_data):
 		try:
@@ -56,17 +56,17 @@ class SocketConsumer(AsyncWebsocketConsumer):
 					invitee_channel_name
 				)
 				# if invitee_id in user_channels:
-                #     invitee_channel_name = user_channels[invitee_id]
-                #     print(f"Sending invite to user {invitee_id} on channel {invitee_channel_name}")
-                #     await self.channel_layer.send(
-                #         invitee_channel_name,
-                #         {
-                #             'type': 'receive_invite',
-                #             'message': text_data_json
-                #         }
-                #     )
-                # else:
-                #     print(f"User {invitee_id} is not connected")
+				#     invitee_channel_name = user_channels[invitee_id]
+				#     print(f"Sending invite to user {invitee_id} on channel {invitee_channel_name}")
+				#     await self.channel_layer.send(
+				#         invitee_channel_name,
+				#         {
+				#             'type': 'receive_invite',
+				#             'message': text_data_json
+				#         }
+				#     )
+				# else:
+				#     print(f"User {invitee_id} is not connected")
 
 	async def match_update_response(self, event):
 		message = event['message']
@@ -74,9 +74,9 @@ class SocketConsumer(AsyncWebsocketConsumer):
 		await self.send(text_data=json.dumps(message))
 
 	async def receive_invite(self, event):
-        message = event['message']
-        print(f"Received invite: {message}")
-        await self.send(text_data=json.dumps(message))
+		message = event['message']
+		print(f"Received invite: {message}")
+		await self.send(text_data=json.dumps(message))
 
 	# async def chat_message(self, event):
 	#     message = event['message']
