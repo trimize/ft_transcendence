@@ -6,7 +6,7 @@ SERVER_DIR=server/tcd_back
 
 .PHONY: all clean compose-up compose-down fclean re front
 
-all: clean compose-up
+all: compose-up
 
 clean:
 	@if [ ! -z "$(shell docker ps -aq)" ]; then docker rm -f $(shell docker ps -aq); else echo "No containers to remove"; fi

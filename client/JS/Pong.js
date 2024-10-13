@@ -275,8 +275,9 @@ async function sendMessage(message)
 {
 	if (socket.readyState === WebSocket.OPEN)
 	{
-		JSON.stringify(message)
-		socket.send(message);
+		let json_message = JSON.stringify(message);
+		socket.send(json_message);
+		//console.log(json_message);
 	}
 	else
 	{
@@ -744,7 +745,7 @@ document.addEventListener("DOMContentLoaded", function()
 		hideModal();
 		clearInterval(multiplayerBtn);
 	});
-	multiplayerOnlineBtn.addEventListener('click', async function()
+	multiplayerOnlineBtn.addEventListener('click', function()
 	{
 		const matchData =
 		{
@@ -752,7 +753,7 @@ document.addEventListener("DOMContentLoaded", function()
 			player1: player1Id,
 			match_type: "online_multiplayer",
 		};
-		await createGame(matchData);
+		createGame(matchData);
 		const onlineMatchData =
 		{
 			type: "new_match",
@@ -762,7 +763,7 @@ document.addEventListener("DOMContentLoaded", function()
 		sendMessage(onlineMatchData);
 		multi_online = true;
 		hideModal();
-		clearInterval(multiplayerBtn);
+		clearInterval(multiplayerOnlineBtn);
 	});
 });
 
@@ -805,6 +806,7 @@ document.addEventListener("keydown", function(event)
 
 		if (multi_online)
 		{
+			//console.log('yes');
 
 			if (event.key === "ArrowUp")
 			{

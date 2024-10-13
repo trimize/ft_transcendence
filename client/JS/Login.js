@@ -21,6 +21,7 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
             localStorage.setItem('access', data.access);
             localStorage.setItem('refresh', data.refresh);
 	    localStorage.setItem('websocket_url', data.websocket_url);
+	    console.log(data.websocket_url);
 	    
         //    window.location.href = '/Landing';
         } else if (data.message === '2FA required') {

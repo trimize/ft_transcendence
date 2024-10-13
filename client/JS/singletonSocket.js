@@ -10,9 +10,9 @@ export function getWebSocket() {
             console.log('WebSocket connection established');
         });
 
-        socket.addEventListener('message', (event) => {
-            console.log('Message received:', event.data);
-        });
+        //socket.addEventListener('message', (event) => {
+        //    console.log('Message received:', event.data);
+        //});
 
         socket.addEventListener('close', () => {
             console.log('WebSocket connection closed');
