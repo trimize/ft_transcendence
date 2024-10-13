@@ -33,7 +33,7 @@ def update_match(request):
 	except Match_Record.DoesNotExist:
 		return Response(status=status.HTTP_404_NOT_FOUND)
 
-	serializer = MatchSerializer(match, data=request.data)
+	serializer = MatchSerializer(match, data=request.data, partial=True)
 	if serializer.is_valid():
 		serializer.save()
 		return Response(serializer.data)
