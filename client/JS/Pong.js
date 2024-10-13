@@ -25,6 +25,9 @@ const defaultBallLeft = parseInt(window.getComputedStyle(movingSquare).left, 10)
 const defaultBallTop = parseInt(window.getComputedStyle(movingSquare).top, 10);
 const retry_button = document.getElementById('retry-button');
 const end_modal = document.getElementById('victoryModal');
+const inviteModal = document.getElementById('inviteModal');
+const inviteButton = document.getElementById('inviteOnline');
+const startOnlineButton = document.getElementById('startOnline');
 let enemyY = parseInt(window.getComputedStyle(enemy).top, 10);
 let ai_ball_info;
 let move_up = true;
@@ -49,6 +52,8 @@ let ball_power_enemy_touch = true;
 let enemy_used_ball_power = false;
 let player_used_ball_power = false;
 let player1Id = 0;
+let player1Position;
+let player2Position;
 const socket = getWebSocket();
 
 function updateGame(body)
@@ -115,13 +120,34 @@ function hideModal()
 	{
 		customization.classList.remove('show');
 		customization.style.display = 'none';
-		ball_step = parseInt(ballSpeed.value);
-		if (enableBallAcceleration.checked)
-			ball_acc = true;
-		if (powersOption.checked)
-			power = true;
-		page.classList.remove('blur');
-		start = true;
+		if (multi_online)
+		{
+			inviteButton.addEventListener('click', async function()
+			{
+
+				const matchData =
+				{
+					type: "send_invite",
+					matchId: matchId,
+					inviteeId: "2"
+				};
+				await sendMessage(matchData);
+			})
+			inviteModal.style.display = "block";
+			inviteModal.classList.add('show');
+			startOnlineButton.addEventListener('click', function()
+			{
+				inviteModal.classList.remove('show');
+				inviteModal.style.display = 'none';
+				ball_step = parseInt(ballSpeed.value);
+				if (enableBallAcceleration.checked)
+					ball_acc = true;
+				if (powersOption.checked)
+					power = true;
+				page.classList.remove('blur');
+				start = true;
+			})
+		}
 		clearInterval(start_button);
 	});
 }
@@ -681,6 +707,8 @@ document.addEventListener("DOMContentLoaded", function()
 {
 	end_modal.classList.remove('show');
 	end_modal.style.display = 'none';
+	inviteModal.classList.remove('show');
+	inviteModal.style.display = 'none';
 	fetchUserData().then(data =>
 	{
 		if (data.pong_ball >= 1 && data.pong_ball <= 8)
@@ -745,7 +773,7 @@ document.addEventListener("DOMContentLoaded", function()
 		hideModal();
 		clearInterval(multiplayerBtn);
 	});
-	multiplayerOnlineBtn.addEventListener('click', function()
+	multiplayerOnlineBtn.addEventListener('click', async function()
 	{
 		const matchData =
 		{
@@ -753,7 +781,7 @@ document.addEventListener("DOMContentLoaded", function()
 			player1: player1Id,
 			match_type: "online_multiplayer",
 		};
-		createGame(matchData);
+		await createGame(matchData);
 		const onlineMatchData =
 		{
 			type: "new_match",
@@ -807,28 +835,29 @@ document.addEventListener("keydown", function(event)
 		if (multi_online)
 		{
 			//console.log('yes');
-
+			let newTop;
 			if (event.key === "ArrowUp")
 			{
-				let newTop = currentTop - step;
+				newTop = currentTop - step;
 				if (newTop < 0)
 					newTop = 0;
-				const matchData =
-				{
-					type: "match_update",
-					matchId: matchId,
-					player1Position: newTop
-				};
-				sendMessage(matchData)
-				player.style.top = newTop + "px";
+				//player.style.top = newTop + "px";
 			}
 			else if (event.key === "ArrowDown")
 			{
-				let newTop = currentTop + step;
+				newTop = currentTop + step;
 				if (newTop > parentHeight - rectangleHeight)
 					newTop = parentHeight - rectangleHeight;
-				player.style.top = newTop + "px";
+				//player.style.top = newTop + "px";
 			}
+			//if 
+			const matchData =
+			{
+				type: "match_update",
+				matchId: matchId,
+				player1Position: newTop
+			};
+			sendMessage(matchData)
 		}
 
 		// In case of multiplayer chosen enemy up/down
@@ -869,4 +898,11 @@ socket.addEventListener('message', function(event)
 {
 	const message = JSON.parse(event.data);
 	console.log('Parsed message:', message);
+	if (message.type = "match_update")
+		if (message.player1Position !== undefined)
+			player.style.top = message.player1Position + "px";
+	if (message.type = "match_update")
+		if (message.player2Position !== undefined)
+			enemy.style.top = message.player2Position + "px";
+	
 });
