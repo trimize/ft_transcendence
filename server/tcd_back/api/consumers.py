@@ -1,4 +1,5 @@
 import json
+import logging
 from channels.generic.websocket import AsyncWebsocketConsumer
 
 class SocketConsumer(AsyncWebsocketConsumer):
@@ -13,7 +14,13 @@ class SocketConsumer(AsyncWebsocketConsumer):
 		)
 
 	async def receive(self, text_data):
-		text_data_json = json.loads(text_data)
+		try:
+			text_data_json = json.loads(text_data)
+		except json.JSONDecodeError as e:
+			logger.error(f"JSONDecodeError: {e}")
+			await self.close()
+			return
+		
 		if 'type' in text_data_json:
 			if text_data_json['type'] == 'new_match':
 				match_id = text_data_json.get('matchId')
@@ -33,7 +40,7 @@ class SocketConsumer(AsyncWebsocketConsumer):
 					}
 				)
 
-	async def match_update_message(self, event):
+	async def match_update_response(self, event):
 		message = event['message']
 		await self.send(text_data=json.dumps(message))
 
