@@ -42,11 +42,17 @@ class User(AbstractBaseUser):
 
     @property
     def wins(self):
-        return self.player1_matches.filter(player1_score__gt=F('player2_score')).count() + self.player2_matches.filter(player2_score__gt=F('player1_score')).count()
+        return (
+            self.player1_matches.filter(player1_score__gt=F('player2_score'), end_time__isnull=False).count() +
+            self.player2_matches.filter(player2_score__gt=F('player1_score'), end_time__isnull=False).count()
+        )
 
     @property
     def losses(self):
-        return self.player1_matches.filter(player1_score__lt=F('player2_score')).count() + self.player2_matches.filter(player2_score__lt=F('player1_score')).count()
+        return (
+            self.player1_matches.filter(player1_score__lt=F('player2_score'), end_time__isnull=False).count() +
+            self.player2_matches.filter(player2_score__lt=F('player1_score'), end_time__isnull=False).count()
+        )
 
 class Match_Record(models.Model):
 	id = models.AutoField(primary_key=True)
