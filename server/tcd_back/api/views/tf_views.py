@@ -3,6 +3,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth import authenticate
 from qrcode import make as make_qr
 from io import BytesIO
 import base64
@@ -39,9 +40,11 @@ def verify_2fa(request):
         if device and device.verify_token(token):
             # 2FA token is valid, return tokens
             refresh = RefreshToken.for_user(user)
+            websocket_url = f"ws://{request.get_host()}/ws/"
             return Response({
                 'refresh': str(refresh),
                 'access': str(refresh.access_token),
+                'websocket_url': websocket_url
             }, status=status.HTTP_200_OK)
         else:
             return Response({'error': 'Invalid 2FA token'}, status=status.HTTP_401_UNAUTHORIZED)

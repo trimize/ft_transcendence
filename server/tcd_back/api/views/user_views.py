@@ -1,3 +1,6 @@
+from django.contrib.auth import authenticate
+from django_otp.plugins.otp_totp.models import TOTPDevice
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -33,9 +36,11 @@ def login_user(request):
         else:
             # User does not have 2FA enabled, return tokens
             refresh = RefreshToken.for_user(user)
+            websocket_url = f"ws://{request.get_host()}/ws/"
             return Response({
                 'refresh': str(refresh),
                 'access': str(refresh.access_token),
+                'websocket_url': websocket_url
             }, status=status.HTTP_200_OK)
     else:
         return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
