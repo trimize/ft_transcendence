@@ -1,3 +1,5 @@
+export let socket = null;
+
 document.getElementById('loginForm').addEventListener('submit', function(event) {
     event.preventDefault(); // Prevent default form submission
 
@@ -18,7 +20,9 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
         if (data.access && data.refresh) {
             localStorage.setItem('access', data.access);
             localStorage.setItem('refresh', data.refresh);
-            window.location.href = '/Landing';
+	    localStorage.setItem('websocket_url', data.websocket_url);
+	    
+        //    window.location.href = '/Landing';
         } else if (data.message === '2FA required') {
             document.getElementById('loginForm').style.display = 'none';
             document.getElementById('2faForm').style.display = 'block';

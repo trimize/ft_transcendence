@@ -1,4 +1,4 @@
-function refreshAccessToken()
+export function refreshAccessToken()
 {
 	const refreshToken = localStorage.getItem('refresh');
 

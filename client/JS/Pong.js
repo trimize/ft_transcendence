@@ -1,10 +1,14 @@
-import { fetchUserData } from './user_info.js';
+import { fetchUserData, refreshAccessToken } from './user_info.js';
+import { getWebSocket } from './singletonSocket.js';
 
 let start = false;
 let score_player = 0;
 let score_enemy = 0;
 let single = false;
 let multi = false;
+let multi_online = false;
+let matchId;
+let finish = false
 const player = document.getElementById("player");
 const enemy = document.getElementById("enemy");
 const customization = document.getElementById("customizationModal");
@@ -17,12 +21,19 @@ const powerPlayerBallSpeed = document.getElementById('ball_speed');
 const powerEnemySpeed = document.getElementById('enemy_speed');
 const powerEnemyBallSpeed = document.getElementById('enemy_ball_speed');
 const movingSquare = document.getElementById("moving-square");
+const defaultBallLeft = parseInt(window.getComputedStyle(movingSquare).left, 10);
+const defaultBallTop = parseInt(window.getComputedStyle(movingSquare).top, 10);
+const retry_button = document.getElementById('retry-button');
+const end_modal = document.getElementById('victoryModal');
 let enemyY = parseInt(window.getComputedStyle(enemy).top, 10);
 let ai_ball_info;
 let move_up = true;
 let move_down = true;
 let ball_acc = false;
 let ball_step;
+let maxBallSpeed = 0;
+let player1_max_consec_touch = 0;
+let player2_max_consec_touch = 0;
 let power = false;
 let player_touch = 0;
 let enemy_touch = 0;
@@ -37,6 +48,44 @@ let ball_power_player_touch = true;
 let ball_power_enemy_touch = true;
 let enemy_used_ball_power = false;
 let player_used_ball_power = false;
+let player1Id = 0;
+const socket = getWebSocket();
+
+function updateGame(body)
+{
+	const accessToken = localStorage.getItem('access');
+	return fetch('http://localhost:8000/api/update_match/', {
+		method: 'PUT',
+		headers: {
+			'Authorization': `Bearer ${accessToken}`,
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify(body)
+	})
+	.then(response => {
+		if (response.status === 401) {
+		// If the token is expired or invalid, refresh it
+			return refreshAccessToken().then(() => fetch('http://localhost:8000/api/user_info/', {
+				method: 'GET',
+				headers: {
+					'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+					'Content-Type': 'application/json'
+				}
+			}));
+		}
+		return response.json();
+	})
+	.then(data => {
+		if (data) {
+			return data;
+		}
+		throw new Error('Failed to fetch user data');
+	})
+	.catch(error => {
+		console.error('Error fetching user data:', error);
+		throw error;
+	});
+}
 
 // Makes sure the enemy is placed well on resize for responsiveness
 
@@ -51,6 +100,30 @@ window.addEventListener('resize', function()
 function sleep(ms)
 {
 	return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// This function is removing the game mode div when chosen
+// It also shows the game settings and starts the game when start game button is clicked
+
+function hideModal()
+{
+	gameModeModal.classList.remove('show');
+	gameModeModal.style.display = 'none';
+	customization.style.display = 'block';
+	customization.classList.add('show');
+	start_button.addEventListener('click', function()
+	{
+		customization.classList.remove('show');
+		customization.style.display = 'none';
+		ball_step = parseInt(ballSpeed.value);
+		if (enableBallAcceleration.checked)
+			ball_acc = true;
+		if (powersOption.checked)
+			power = true;
+		page.classList.remove('blur');
+		start = true;
+		clearInterval(start_button);
+	});
 }
 
 // function the AI uses to try and predict trajectories but a second late
@@ -197,7 +270,112 @@ function handleKeyDown(event)
 	}
 }
 
+
+async function sendMessage(message)
+{
+	if (socket.readyState === WebSocket.OPEN)
+	{
+		JSON.stringify(message)
+		socket.send(message);
+	}
+	else
+	{
+	    console.log('WebSocket is not open.');
+	}
+}
 // Function that moves the ball, does the AI, and makes the ball bounce
+
+function retry()
+{
+	start = false;
+	finish = false;
+	score_enemy = 0;
+	score_player = 0;
+	enemy_step = 20;
+	step = 20;
+	end_modal.classList.remove('show');
+	end_modal.style.display = 'none';
+	movingSquare.style.top = `${defaultBallTop}px`
+	movingSquare.style.left = `${defaultBallLeft}px`
+	fetchUserData().then(data =>
+	{
+		if (data.pong_ball >= 1 && data.pong_ball <= 8)
+		{
+			movingSquare.style.backgroundImage = `url(../Assets/ball${data.pong_ball}.svg)`;
+			movingSquare.style.backgroundSize = "contain";
+			movingSquare.style.backgroundColor = "transparent"
+		}
+		if (data.pong_slider >= 1 && data.pong_slider < 8)
+		{
+			player.style.backgroundImage = `url(../Assets/slider${data.pong_slider}.jpg)`;
+			player.style.backgroundSize = "cover";
+		}
+		else if (data.pong_slider == 8)
+		{
+			player.style.background = "linear-gradient(270deg, #ff7e5f, #feb47b, #6a82fb, #fc5c7d, #ff7e5f)";
+			player.style.backgroundSize = "800% 800%";
+			player.style.animation = "gradient-animation 3s ease infinite";
+		}
+		player1Id = data.id;
+	})
+	var gameModeModal = document.getElementById('gameModeModal');
+        var page = document.getElementById('page');
+        
+	// Showing game modes
+
+	gameModeModal.classList.add('show');
+        gameModeModal.style.display = 'block';
+        gameModeModal.setAttribute('aria-modal', 'true');
+        gameModeModal.setAttribute('role', 'dialog');
+        page.classList.add('blur'); // Add blur effect to the background
+
+        var singleplayerBtn = document.getElementById('singleplayer-btn');
+        var multiplayerBtn = document.getElementById('multiplayer-btn');
+	var multiplayerOnlineBtn = document.getElementById('multiplayer_online-btn');
+
+	// Saving the gamemode and launching settings
+
+	singleplayerBtn.addEventListener('click', function ()
+	{
+		const matchData =
+		{
+			game: "pong",
+			player1: player1Id,
+			match_type: "singleplayer",
+		};
+		createGame(matchData);
+		single = true;
+		hideModal();
+		clearInterval(singleplayerBtn);
+	});
+	multiplayerBtn.addEventListener('click', function()
+	{
+		const matchData =
+		{
+			game: "pong",
+			player1: player1Id,
+			match_type: "local_multiplayer",
+		};
+		createGame(matchData);
+		multi = true;
+		hideModal();
+		clearInterval(multiplayerBtn);
+	});
+	multiplayerOnlineBtn.addEventListener('click', function()
+	{
+		multi_online = true;
+		hideModal();
+		clearInterval(multiplayerOnlineBtn);
+	});
+	let checkValue = setInterval(function()
+	{
+		if (start && !finish)
+		{
+			setTimeout(startMovingSquare, 1000);
+			clearInterval(checkValue);
+		}
+	}, 100);
+}
 
 function startMovingSquare()
 {
@@ -225,15 +403,23 @@ function startMovingSquare()
 
 	const ballSPeed = setInterval(() =>
 	{
-		deltaX = Math.cos(angle) * ball_step * bounce_X;
-		deltaY = Math.cos(angle) * ball_step * bounce_Y;
+		if (!finish)
+		{
+			deltaX = Math.cos(angle) * ball_step * bounce_X;
+			deltaY = Math.cos(angle) * ball_step * bounce_Y;
+		}
+		else
+			clearInterval(ballSPeed);
 	}, 50);
 
 	// This is making sure the AI has info of the trajectory of the ball only every second
 
-	setInterval(() =>
+	const ai_info = setInterval(() =>
 	{
-		ai_ball_info = deltaY;
+		if (!finish)
+			ai_ball_info = deltaY;
+		else
+			clearInterval(ai_info);
 	}, 1000);
 
 	const moveInterval = setInterval(() =>
@@ -251,7 +437,12 @@ function startMovingSquare()
 		const newTopPosition = topPosition + deltaY;
 
 		// Ball bounces if touching the top and bottom edges of the game's window
-
+		if (ball_step > maxBallSpeed)
+			maxBallSpeed = ball_step;
+		if (player_consec_touch > player1_max_consec_touch)
+			player1_max_consec_touch = player_consec_touch;
+		if (enemy_consec_touch >  player2_max_consec_touch)
+			player2_max_consec_touch = enemy_consec_touch;
 		if (newTopPosition <= 0 || newTopPosition >= (player.parentElement.clientHeight - squareRect.height))
 		{
 			deltaY *= -1;
@@ -286,7 +477,6 @@ function startMovingSquare()
 
 		// Ball bounces if near enough to the enemy
 		// Makes the ball slower again if the player used his power and touched the ball
-
 		if (squareRect.bottom <= enemyRect.bottom + 20 && squareRect.top >= enemyRect.top - 25 && squareRect.right >= enemyRect.left - 20 && bounce_bool && squareRect.right <= enemyRect.left + 20)
 		{
 			deltaX *= -1;
@@ -387,6 +577,57 @@ function startMovingSquare()
 				player_consec_touch = 0;
 				score_enemy++;
 			}
+			if (score_player >= 3 || score_enemy >= 3)
+			{
+				const now = new Date();
+				const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+				const currentTime = now.toLocaleString('en-US', options);
+				const matchData =
+				{
+					id: matchId,
+					player1_score: score_player,
+					player2_score: score_enemy,
+					player1_ball_touch: player_touch,
+					player2_ball_touch: enemy_touch,
+					player1_consec_touch: player1_max_consec_touch,
+					player2_consec_touch: player2_max_consec_touch,
+					fastest_ball_speed: maxBallSpeed,
+					end_time: currentTime,
+				};
+				finish = true;
+				end_modal.style.display = 'block';
+				end_modal.classList.add('show');
+				if (score_enemy == 3)
+				{
+					document.getElementById('victorytitle').textContent = "You lose";
+					document.getElementById('endScore').textContent = score_player + " : " + score_enemy;
+				}
+				else if (score_player == 3)
+				{
+					document.getElementById('victorytitle').textContent = "Victory!";
+					document.getElementById('endScore').textContent = score_player + " : " + score_enemy;
+				}
+				clearInterval(moveInterval);
+				const retryButton = document.getElementById('retry-button');
+				retryButton.addEventListener('click', function()
+				{
+					retry();
+					clearInterval(retryButton);
+				});
+				return ;
+			}
+			const matchData =
+			{
+				id: matchId,
+				player1_score: score_player,
+				player2_score: score_enemy,
+				player1_ball_touch: player_touch,
+				player2_ball_touch: enemy_touch,
+				player1_consec_touch: player1_max_consec_touch,
+				player2_consec_touch: player2_max_consec_touch,
+				fastest_ball_speed: maxBallSpeed,
+			};
+			updateGame(matchData);
 			clearInterval(moveInterval);
 			movingSquare.style.display = 'none';
 			ball_power_player_touch = true;
@@ -397,27 +638,39 @@ function startMovingSquare()
 	}, 50);
 }
 
-// This function is removing the game mode div when chosen
-// It also shows the game settings and starts the game when start game button is clicked
-
-function hideModal()
+function  createGame(body)
 {
-	gameModeModal.classList.remove('show');
-	gameModeModal.style.display = 'none';
-	customization.style.display = 'block';
-	customization.classList.add('show');
-	start_button.addEventListener('click', function()
-	{
-		customization.classList.remove('show');
-		customization.style.display = 'none';
-		ball_step = parseInt(ballSpeed.value);
-		if (enableBallAcceleration.checked)
-			ball_acc = true;
-		if (powersOption.checked)
-			power = true;
-		page.classList.remove('blur');
-		start = true;
-		clearInterval(start_button);
+	const accessToken = localStorage.getItem('access');
+	return fetch('http://localhost:8000/api/create_match/', {
+		method: 'POST',
+		headers: {
+			'Authorization': `Bearer ${accessToken}`,
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify(body)
+	})
+	.then(response => {
+		if (response.status === 401) {
+		// If the token is expired or invalid, refresh it
+			return refreshAccessToken().then(() => fetch('http://localhost:8000/api/user_info/', {
+				method: 'GET',
+				headers: {
+					'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+					'Content-Type': 'application/json'
+				}
+			}));
+		}
+		return response.json();
+	})
+	.then(data => {
+		if (data && data.id)
+			matchId = data.id;
+		else
+			throw new Error('Failed to fetch user data');
+	})
+	.catch(error => {
+		console.error('Error fetching user data:', error);
+		throw error;
 	});
 }
 
@@ -425,13 +678,15 @@ function hideModal()
 
 document.addEventListener("DOMContentLoaded", function()
 {
+	end_modal.classList.remove('show');
+	end_modal.style.display = 'none';
 	fetchUserData().then(data =>
 	{
 		if (data.pong_ball >= 1 && data.pong_ball <= 8)
 		{
 			movingSquare.style.backgroundImage = `url(../Assets/ball${data.pong_ball}.svg)`;
 			movingSquare.style.backgroundSize = "contain";
-			movingSquare.style.backgroundColor = "transparent";
+			movingSquare.style.backgroundColor = "transparent"
 		}
 		if (data.pong_slider >= 1 && data.pong_slider < 8)
 		{
@@ -444,6 +699,7 @@ document.addEventListener("DOMContentLoaded", function()
 			player.style.backgroundSize = "800% 800%";
 			player.style.animation = "gradient-animation 3s ease infinite";
 		}
+		player1Id = data.id;
 	})
 	var gameModeModal = document.getElementById('gameModeModal');
         var page = document.getElementById('page');
@@ -458,18 +714,53 @@ document.addEventListener("DOMContentLoaded", function()
 
         var singleplayerBtn = document.getElementById('singleplayer-btn');
         var multiplayerBtn = document.getElementById('multiplayer-btn');
+	var multiplayerOnlineBtn = document.getElementById('multiplayer_online-btn');
 
 	// Saving the gamemode and launching settings
 
 	singleplayerBtn.addEventListener('click', function ()
 	{
+		const matchData =
+		{
+			game: "pong",
+			player1: player1Id,
+			match_type: "singleplayer",
+		};
+		createGame(matchData);
 		single = true;
 		hideModal();
 		clearInterval(singleplayerBtn);
 	});
 	multiplayerBtn.addEventListener('click', function()
 	{
+		const matchData =
+		{
+			game: "pong",
+			player1: player1Id,
+			match_type: "local_multiplayer",
+		};
+		createGame(matchData);
 		multi = true;
+		hideModal();
+		clearInterval(multiplayerBtn);
+	});
+	multiplayerOnlineBtn.addEventListener('click', async function()
+	{
+		const matchData =
+		{
+			game: "pong",
+			player1: player1Id,
+			match_type: "online_multiplayer",
+		};
+		await createGame(matchData);
+		const onlineMatchData =
+		{
+			type: "new_match",
+			game: "pong",
+			matchId: matchId,
+		};
+		sendMessage(onlineMatchData);
+		multi_online = true;
 		hideModal();
 		clearInterval(multiplayerBtn);
 	});
@@ -477,13 +768,14 @@ document.addEventListener("DOMContentLoaded", function()
 
 // Listening for player's movement
 
+
 document.addEventListener("keydown", function(event)
 {
 	event.preventDefault();
 
 	// Only listening when game has started
 
-	if (start)
+	if (start && !finish)
 	{
 		const currentTop = parseInt(window.getComputedStyle(player).top, 10);
 		const current2pTop = parseInt(window.getComputedStyle(enemy).top, 10);
@@ -493,25 +785,53 @@ document.addEventListener("keydown", function(event)
 		const rectangle2pHeight = enemy.clientHeight;
 		
 		// Arrow up/down for player up/down
-
-		if (event.key === "ArrowUp")
+		if ((single || multi) && !finish)
 		{
-			let newTop = currentTop - step;
-			if (newTop < 0)
-				newTop = 0;
-			player.style.top = newTop + "px";
+			if (event.key === "ArrowUp")
+			{
+				let newTop = currentTop - step;
+				if (newTop < 0)
+					newTop = 0;
+				player.style.top = newTop + "px";
+			}
+			else if (event.key === "ArrowDown")
+			{
+				let newTop = currentTop + step;
+				if (newTop > parentHeight - rectangleHeight)
+					newTop = parentHeight - rectangleHeight;
+				player.style.top = newTop + "px";
+			}
 		}
-		else if (event.key === "ArrowDown")
+
+		if (multi_online)
 		{
-			let newTop = currentTop + step;
-			if (newTop > parentHeight - rectangleHeight)
-				newTop = parentHeight - rectangleHeight;
-			player.style.top = newTop + "px";
+
+			if (event.key === "ArrowUp")
+			{
+				let newTop = currentTop - step;
+				if (newTop < 0)
+					newTop = 0;
+				const matchData =
+				{
+					type: "match_update",
+					matchId: matchId,
+					player1Position: newTop
+				};
+				sendMessage(matchData)
+				player.style.top = newTop + "px";
+			}
+			else if (event.key === "ArrowDown")
+			{
+				let newTop = currentTop + step;
+				if (newTop > parentHeight - rectangleHeight)
+					newTop = parentHeight - rectangleHeight;
+				player.style.top = newTop + "px";
+			}
 		}
 
 		// In case of multiplayer chosen enemy up/down
 
-		if (multi)
+		if (multi && !finish)
 		{
 			if (event.key === "w")
 			{
@@ -535,10 +855,16 @@ document.addEventListener("keydown", function(event)
 
 let checkValue = setInterval(function()
 {
-
-	if (start === true)
+	if (start && !finish)
 	{
 		setTimeout(startMovingSquare, 1000);
 		clearInterval(checkValue);
 	}
 }, 100);
+
+
+socket.addEventListener('message', function(event)
+{
+	const message = JSON.parse(event.data);
+	console.log('Parsed message:', message);
+});

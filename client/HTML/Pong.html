@@ -73,7 +73,8 @@
 				<div class="modal-content">
 					<h2>Select Game Mode</h2>
 					<button type="button" class="btn btn-primary" id="singleplayer-btn">Singleplayer</button>
-					<button type="button" class="btn btn-success" id="multiplayer-btn">Multiplayer</button>
+					<button type="button" class="btn btn-success" id="multiplayer-btn">Local multiplayer</button>
+					<button type="button" class="btn btn-success" id="multiplayer_online-btn">Online multiplayer</button>
 				</div>
 			</div>
 		</div>
@@ -107,6 +108,19 @@
 				</div>
 			</div>
 		</div>
+
+		<div class="modal fade" id="victoryModal" tabindex="-1" role="dialog" aria-labelledby="victoryModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered" role="document">
+				<div class="modal-content">
+					<h2 id="victorytitle">Victory!</h2>
+					<p id="endScore">0 : 0</p>
+					<div class="modal-footer">
+						<button id="retry-button" type="button" class="btn btn-primary" data-dismiss="modal">Retry</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		
 		<!--<script src="../JS/Pong.js"></script>-->
 		<script type="module" src="/js/Pong.js"></script>
 		<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
