@@ -10,3 +10,5 @@ phonenumbers==8.12.34
 qrcode[pil]==6.1
 pyotp==2.6.0
 channels==4.0.0
+channels_redis==4.0.0
+daphne==4.0.0
