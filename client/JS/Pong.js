@@ -25,13 +25,16 @@ let power = false;
 let player_touch = 0;
 let enemy_touch = 0;
 let player_consec_touch = 7;
-let enemy_consec_touch = 0;
+let enemy_consec_touch = 7;
 let step = 20;
 let enemy_step = 20;
 let key_1_player_pressed = false;
 let key_2_player_pressed = false;
 let ball_powered = false;
 let ball_power_player_touch = true;
+let ball_power_enemy_touch = true;
+let enemy_used_ball_power = false;
+let player_used_ball_power = false;
 
 // Makes sure the enemy is placed well on resize for responsiveness
 
@@ -63,6 +66,57 @@ function predictBallPosition(ballX, ballY, framesAhead, ball, deltaY, deltaX)
 	}
 
 	return { futureX: ballX + deltaX * framesAhead, futureY };
+}
+
+function handleAIPowers(futureY)
+{
+
+	// If AI is too far from the future Y of the ball it uses the speed power to get to it faster
+
+	if (power && enemy_consec_touch >= 5)
+	{
+		powerEnemySpeed.style.backgroundColor = "red";
+		powerEnemySpeed.style.color = "white";
+		if (futureY - enemyY >= 150)
+		{
+			step = 60;
+			powerEnemySpeed.style.backgroundColor = "rgba(128, 128, 128, 0.3)";
+			powerEnemySpeed.style.color = "rgba(255, 255, 255, 0.3)";
+			enemy_consec_touch = enemy_consec_touch - 5;
+			setTimeout(() =>
+			{
+				step = 20;
+			}, 10000);
+		}
+	}
+
+	// Using the ball speed power for the AI but only when touched by the AI
+
+	if (power && enemy_consec_touch >= 7)
+	{
+		powerEnemyBallSpeed.style.backgroundColor = "red";
+		powerEnemyBallSpeed.style.color = "white";
+		setTimeout(() => {
+			powerEnemyBallSpeed.style.backgroundColor = "rgba(128, 128, 128, 0.3)";
+			powerEnemyBallSpeed.style.color = "rgba(255, 255, 255, 0.3)";
+			ball_powered = true;
+			enemy_consec_touch = enemy_consec_touch - 7;
+			enemy_used_ball_power = true;
+		}, 2000);
+	}
+
+	// If the player has lost consecutive touch points at any point reverts the power's styles back
+
+	if (power && enemy_consec_touch < 7)
+	{
+		powerEnemyBallSpeed.style.backgroundColor = "rgba(128, 128, 128, 0.3)";
+		powerEnemyBallSpeed.style.color = "rgba(255, 255, 255, 0.3)";
+	}
+	if (power && enemy_consec_touch < 5)
+	{
+		powerEnemySpeed.style.backgroundColor = "rgba(128, 128, 128, 0.3)";
+		powerEnemySpeed.style.color = "rgba(255, 255, 255, 0.3)";
+	}
 }
 
 function handlePlayerPowers()
@@ -102,7 +156,8 @@ function handlePlayerPowers()
 		if (key_2_player_pressed)
 		{
 			player_consec_touch = player_consec_touch - 7;
-			key_2_player_pressed = false
+			key_2_player_pressed = false;
+			player_used_ball_power = true;
 		}
 	}
 
@@ -207,16 +262,23 @@ function startMovingSquare()
 		if (squareRect.bottom <= playerRect.bottom + 20 && squareRect.top >= playerRect.top - 15 && squareRect.left <= playerRect.right + 20 && bounce_bool && squareRect.left >= playerRect.right - 20)
 		{
 			if (ball_acc)
-				ball_step += 2;
+				ball_step += 1;
 			deltaX *= -1;
 			player_touch++;
 			player_consec_touch++;
 			bounce_bool = false;
 			bounce_X *= -1;
-			if (ball_powered && ball_power_player_touch)
+			if (ball_powered && ball_power_player_touch && ball_power_enemy_touch && !enemy_used_ball_power)
 			{
 				ball_step = ball_step + 7;
 				ball_power_player_touch = false;
+			}
+			if (ball_powered && !ball_power_enemy_touch && enemy_used_ball_power)
+			{
+				ball_step = ball_step - 7;
+				ball_power_enemy_touch = true;
+				ball_powered = false;
+				enemy_used_ball_power = false;
 			}
 		}
 
@@ -232,11 +294,17 @@ function startMovingSquare()
 			enemy_consec_touch++;
 			bounce_bool = false;
 			bounce_X *= -1;
-			if (ball_powered && !ball_power_player_touch)
+			if (ball_powered && !ball_power_player_touch && player_used_ball_power)
 			{
 				ball_step = ball_step - 7;
 				ball_power_player_touch = true;
 				ball_powered = false;
+				player_used_ball_power = false;
+			}
+			if (ball_powered && ball_power_enemy_touch && ball_power_player_touch && !player_used_ball_power)
+			{
+				ball_step = ball_step + 7;
+				ball_power_enemy_touch = false;
 			}
 		}
 
@@ -249,13 +317,17 @@ function startMovingSquare()
 
 		// Singleplayer's AI
 
-		if (newLeftPosition >= centerX && single)
+		if (newLeftPosition >= centerX && single && bounce_X == -1)
 		{
 
 			// The AI has 9 frames in advance to try and predict the ball direction
 
 			let frames_ahead = 6;
 			const predictedPosition = predictBallPosition(leftPosition, topPosition, frames_ahead, movingSquare, ai_ball_info, deltaX);
+
+			// Self-explanatory, handles the ai's powers
+			
+			handleAIPowers(predictBallPosition.futureY);
 
 			// AI moves down here, also move_up is a boolean that makes sure the AI doesn't go up
 			// and down frenetically

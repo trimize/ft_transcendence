@@ -37,10 +37,6 @@
 	background-color: #495057; /* Darker background on hover */
 }
 
-
-
-
-
 .customization-box
 {
 	/*position: relative;*/
@@ -70,4 +66,196 @@
 #fourth
 {
 	float: right;
+}
+
+@keyframes rotate {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+.image
+{
+	animation: rotate 10s linear infinite;
+	height: 95px;
+	width: 95px;
+	background-size: contain;
+}
+
+#ball1
+{
+	background-image: url('../Assets/ball1.svg');
+}
+
+#ball2
+{
+	background-image: url('../Assets/ball2.svg');
+}
+
+#ball3
+{
+	background-image: url('../Assets/ball3.svg');
+}
+
+#ball4
+{
+	background-image: url('../Assets/ball4.svg');
+}
+
+#ball5
+{
+	background-image: url('../Assets/ball5.svg');
+}
+
+#ball6
+{
+	background-image: url('../Assets/ball6.svg');
+}
+
+#ball7
+{
+	background-image: url('../Assets/ball7.svg');
+}
+
+#ball8
+{
+	background-image: url('../Assets/ball8.svg');
+}
+
+#ball9
+{
+	background-color: red;
+	border-radius: 50%;
+}
+
+.image-slider
+{
+	height: 95px;
+	width: 30px;
+	background-size: cover;
+}
+
+#slider1
+{
+	background-image: url('../Assets/slider1.jpg');
+}
+
+#slider2
+{
+	background-image: url('../Assets/slider2.jpg');
+}
+
+#slider3
+{
+	background-image: url('../Assets/slider3.jpg');
+}
+
+#slider4
+{
+	background-image: url('../Assets/slider4.jpg');
+}
+
+#slider5
+{
+	background-image: url('../Assets/slider5.jpg');
+}
+
+#slider6
+{
+	background-image: url('../Assets/slider6.jpg');
+}
+
+#slider7
+{
+	background-image: url('../Assets/slider7.jpg');
+}
+
+@keyframes gradient-animation {
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
+}
+      
+#slider8 {
+	background: linear-gradient(270deg, #ff7e5f, #feb47b, #6a82fb, #fc5c7d, #ff7e5f);
+	background-size: 800% 800%;
+	animation: gradient-animation 3s ease infinite;
+}
+
+#slider9 {
+	background-color: red;
+}
+
+.image-signs
+{
+	font-size: 65px;
+	height: 95px;
+	width: 95px;
+}
+
+.image-bgs
+{
+	height: 95px;
+	width: 95px;
+	background-size: cover;
+}
+
+#bg1 {
+	background-image: url('../Assets/bg1.jpg');
+}
+
+#bg2 {
+	background-image: url('../Assets/bg2.jpg');
+}
+
+#bg3 {
+	background-image: url('../Assets/bg3.jpg');
+}
+
+#bg4 {
+	background-image: url('../Assets/bg4.jpg');
+}
+
+#bg5 {
+	background-image: url('../Assets/bg5.jpg');
+}
+
+#bg6 {
+	background-image: url('../Assets/bg6.jpg');
+}
+
+#bg7 {
+	background-image: url('../Assets/bg7.jpg');
+}
+
+#bg8 {
+	background: linear-gradient(90deg, black, rgb(81, 4, 114));
+	background-size: 200% 200%;
+	animation: gradientAnimation 5s ease infinite;
+}
+
+@keyframes gradientAnimation {
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
+}
+
+#bg9
+{
+	background-color: black;
 }
