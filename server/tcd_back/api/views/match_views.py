@@ -24,10 +24,14 @@ def create_match(request):
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def update_match(request):
-	try:
-		match = Match_Record.objects.get(request.data.get('id'))
-	except Match_Record.DoesNotExist:
-		return Response(status=status.HTTP_404_NOT_FOUND)
+	match_id = request.data.get('id')
+    if not match_id:
+        return Response({'error': 'ID is required'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        match = Match_Record.objects.get(id=match_id)
+    except Match_Record.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
 	serializer = MatchSerializer(match, data=request.data)
 	if serializer.is_valid():
