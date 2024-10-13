@@ -50,10 +50,10 @@ class User(AbstractBaseUser):
 
 class Match_Record(models.Model):
 	id = models.AutoField(primary_key=True)
-	game = models.CharField(max_length=20)
+	game = models.CharField(max_length=20) # pong tic_tac_toe
 	player1 = models.ForeignKey(User, related_name='player1_matches', on_delete=models.PROTECT, null=True, blank=True)
 	player2 = models.ForeignKey(User, related_name='player2_matches', on_delete=models.PROTECT, null=True, blank=True)
-	match_type = models.CharField(max_length=20)
+	match_type = models.CharField(max_length=20) # singleplayer local_multiplayer online_multiplayer
 	player1_score = models.IntegerField(default=0)
 	player2_score = models.IntegerField(default=0)
 	player1_ball_touch = models.IntegerField(default=0)
@@ -61,6 +61,7 @@ class Match_Record(models.Model):
 	player1_consec_touch = models.IntegerField(default=0)
 	player2_consec_touch = models.IntegerField(default=0)
 	fastest_ball_speed = models.IntegerField(default=0)
+	start_time = models.DateTimeField(auto_now_add=True)
 	end_time = models.DateTimeField(null=True)
 
 	def __str__(self):

@@ -23,9 +23,9 @@ def create_match(request):
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
-def update_match(request, pk):
+def update_match(request):
 	try:
-		match = Match_Record.objects.get(pk=pk)
+		match = Match_Record.objects.get(request.data.get('id'))
 	except Match_Record.DoesNotExist:
 		return Response(status=status.HTTP_404_NOT_FOUND)
 

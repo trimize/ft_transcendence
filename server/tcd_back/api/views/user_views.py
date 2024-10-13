@@ -36,7 +36,7 @@ def login_user(request):
         else:
             # User does not have 2FA enabled, return tokens
             refresh = RefreshToken.for_user(user)
-            websocket_url = f"ws://{request.get_host()}/ws/"
+            websocket_url = f"ws://{request.get_host()}/ws/api/"
             return Response({
                 'refresh': str(refresh),
                 'access': str(refresh.access_token),
