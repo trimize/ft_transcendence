@@ -1,3 +1,5 @@
+import { fetchUserData } from './user_info.js';
+
 let start = false;
 let score_player = 0;
 let score_enemy = 0;
@@ -423,6 +425,26 @@ function hideModal()
 
 document.addEventListener("DOMContentLoaded", function()
 {
+	fetchUserData().then(data =>
+	{
+		if (data.pong_ball >= 1 && data.pong_ball <= 8)
+		{
+			movingSquare.style.backgroundImage = `url(../Assets/ball${data.pong_ball}.svg)`;
+			movingSquare.style.backgroundSize = "contain";
+			movingSquare.style.backgroundColor = "transparent";
+		}
+		if (data.pong_slider >= 1 && data.pong_slider < 8)
+		{
+			player.style.backgroundImage = `url(../Assets/slider${data.pong_slider}.jpg)`;
+			player.style.backgroundSize = "cover";
+		}
+		else if (data.pong_slider == 8)
+		{
+			player.style.background = "linear-gradient(270deg, #ff7e5f, #feb47b, #6a82fb, #fc5c7d, #ff7e5f)";
+			player.style.backgroundSize = "800% 800%";
+			player.style.animation = "gradient-animation 3s ease infinite";
+		}
+	})
 	var gameModeModal = document.getElementById('gameModeModal');
         var page = document.getElementById('page');
         

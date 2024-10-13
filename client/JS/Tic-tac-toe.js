@@ -1,15 +1,18 @@
-import { fetchUserData } from './Profile.js';
+import { fetchUserData } from './user_info.js';
 
 const gridItems = document.querySelectorAll('.grid-item');
 const score = document.getElementById('score');
 var gameModeModal = document.getElementById('gameModeModal');
 var page = document.getElementById('page');
+const background = document.getElementById('contentArea');
 let player_score = 0;
 let enemy_score = 0;
 let start = false;
 let single = false;
 let multi = false;
 let turn = 1;
+let player_sign;
+let enemy_sign = "O";
 
 
 function hideModal()
@@ -20,12 +23,55 @@ function hideModal()
 	start = true;
 }
 
-
-
 document.addEventListener("DOMContentLoaded", function()
 {
 	fetchUserData().then(data =>
 	{
+		if (data.tic_tac_toe_background < 8 && data.tic_tac_toe_background >= 1)
+		{
+			background.style.backgroundImage = `url(../Assets/bg${data.tic_tac_toe_background}.jpg)`;
+			background.style.backgroundSize = "cover";
+		}
+		else if (data.tic_tac_toe_background == 8)
+		{
+			background.style.background = "linear-gradient(90deg, black, rgb(81, 4, 114))";
+			background.style.backgroundSize = "200% 200%";
+			background.style.animation = "gradientAnimation 5s ease infinite";
+		}
+		if (data.tic_tac_toe_sign <= 9 && data.tic_tac_toe_sign >= 1)
+		{
+			switch(data.tic_tac_toe_sign)
+			{
+				case 1 :
+					player_sign = '$';
+					break ;
+				case 2 :
+					player_sign = '█';
+					break ;
+				case 3 :
+					player_sign = '©';
+					break ;
+				case 4 :
+					player_sign = '¾';
+					break ;
+				case 5 :
+					player_sign = '╬';
+					break ;
+				case 6 :
+					player_sign = '░';
+					break ;
+				case 7 :
+					player_sign = '≡';
+					break ;
+				case 8 :
+					player_sign = 'X';
+					break ;
+				case 9 :
+					player_sign = 'O';
+					enemy_sign = 'X';
+					break ;
+			}
+		}
 		
 	})
 	gameModeModal.classList.add('show');
@@ -36,7 +82,7 @@ document.addEventListener("DOMContentLoaded", function()
 
         var singleplayerBtn = document.getElementById('singleplayer-btn');
         var multiplayerBtn = document.getElementById('multiplayer-btn');
-
+	console.log(player_sign);
 	singleplayerBtn.addEventListener('click', function ()
 	{
 		single = true;
@@ -122,11 +168,11 @@ function checkWinCondition()
 
 function next_game()
 {
-	winner = checkWinCondition();
+	let winner = checkWinCondition();
 	if (winner)
 	{
 		console.log(`We have a winner: ${winner}`);
-		if (winner == 'X')
+		if (winner == player_sign)
 			player_score++;
 		else
 			enemy_score++;
@@ -168,17 +214,18 @@ gridItems.forEach((item, index) =>
 {
 	item.addEventListener('click', function()
 	{
+		console.log(player_sign);
 		if (item.textContent.trim() === '')
 		{
 			if (single)
 			{
-				item.textContent = "X";
+				item.textContent = player_sign;
 				let random = Math.floor(Math.random() * 9);
 				if (freeSpace() == 1 && single)
 				{
-					while (gridItems[random].textContent.trim() == 'X' || gridItems[random].textContent.trim() == 'O')
+					while (gridItems[random].textContent.trim() == player_sign || gridItems[random].textContent.trim() == enemy_sign)
 						random = Math.floor(Math.random() * 9);
-					gridItems[random].textContent = "O";
+					gridItems[random].textContent = enemy_sign;
 				}
 			}
 			else if (multi)
@@ -186,39 +233,15 @@ gridItems.forEach((item, index) =>
 				if (turn === 1)
 				{
 					turn = 2;
-					item.textContent = "X"
+					item.textContent = player_sign;
 				}
 				else if (turn === 2)
 				{
 					turn = 1;
-					item.textContent = "O"
+					item.textContent = enemy_sign;
 				}
 			}
-			winner = checkWinCondition();
-			if (winner)
-			{
-				console.log(`We have a winner: ${winner}`);
-				if (winner == 'X')
-					player_score++;
-				else
-					enemy_score++;
-				setTimeout(reset_game, 1000);
-			}
-			else
-			{
-				let i = 0;
-				let count = 0;
-				while (i < 9)
-				{
-					if (gridItems[i].textContent.trim() != '')
-						count++;
-					i++;
-				}
-				if (count == 9)
-					setTimeout(reset_game, 1000);
-				count = 0;
-			}
-			score.textContent = player_score + " : " + enemy_score;
+			next_game();
 		}
 	});
 });
