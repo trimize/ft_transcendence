@@ -362,7 +362,7 @@ function retry()
 
 	// Saving the gamemode and launching settings
 
-	singleplayerBtn.addEventListener('click', function ()
+	singleplayerBtn.addEventListener('click', async function ()
 	{
 		const matchData =
 		{
@@ -370,12 +370,12 @@ function retry()
 			player1: player1Id,
 			match_type: "singleplayer",
 		};
-		createGame(matchData);
+		matchId = await createGame(matchData);
 		single = true;
 		hideModal();
 		clearInterval(singleplayerBtn);
 	});
-	multiplayerBtn.addEventListener('click', function()
+	multiplayerBtn.addEventListener('click', async function()
 	{
 		const matchData =
 		{
@@ -383,13 +383,20 @@ function retry()
 			player1: player1Id,
 			match_type: "local_multiplayer",
 		};
-		createGame(matchData);
+		matchId = await createGame(matchData);
 		multi = true;
 		hideModal();
 		clearInterval(multiplayerBtn);
 	});
-	multiplayerOnlineBtn.addEventListener('click', function()
+	multiplayerOnlineBtn.addEventListener('click', async function()
 	{
+		const matchData =
+		{
+			game: "pong",
+			player1: player1Id,
+			match_type: "online_multiplayer",
+		};
+		matchId = await createGame(matchData);
 		multi_online = true;
 		hideModal();
 		clearInterval(multiplayerOnlineBtn);
@@ -665,7 +672,7 @@ function startMovingSquare()
 	}, 50);
 }
 
-function  createGame(body)
+export function createGame(body)
 {
 	const accessToken = localStorage.getItem('access');
 	return fetch('http://localhost:8000/api/create_match/', {
@@ -691,7 +698,7 @@ function  createGame(body)
 	})
 	.then(data => {
 		if (data && data.id)
-			matchId = data.id;
+			return data.id;
 		else
 			throw new Error('Failed to fetch user data');
 	})
@@ -747,7 +754,7 @@ document.addEventListener("DOMContentLoaded", function()
 
 	// Saving the gamemode and launching settings
 
-	singleplayerBtn.addEventListener('click', function ()
+	singleplayerBtn.addEventListener('click', async function ()
 	{
 		const matchData =
 		{
@@ -755,12 +762,12 @@ document.addEventListener("DOMContentLoaded", function()
 			player1: player1Id,
 			match_type: "singleplayer",
 		};
-		createGame(matchData);
+		matchId = await createGame(matchData);
 		single = true;
 		hideModal();
 		clearInterval(singleplayerBtn);
 	});
-	multiplayerBtn.addEventListener('click', function()
+	multiplayerBtn.addEventListener('click', async function()
 	{
 		const matchData =
 		{
@@ -768,7 +775,7 @@ document.addEventListener("DOMContentLoaded", function()
 			player1: player1Id,
 			match_type: "local_multiplayer",
 		};
-		createGame(matchData);
+		matchId = await createGame(matchData);
 		multi = true;
 		hideModal();
 		clearInterval(multiplayerBtn);
@@ -781,7 +788,7 @@ document.addEventListener("DOMContentLoaded", function()
 			player1: player1Id,
 			match_type: "online_multiplayer",
 		};
-		await createGame(matchData);
+		matchId = await createGame(matchData);
 		const onlineMatchData =
 		{
 			type: "new_match",
@@ -851,6 +858,7 @@ document.addEventListener("keydown", function(event)
 				//player.style.top = newTop + "px";
 			}
 			//if 
+			console.log(matchId);
 			const matchData =
 			{
 				type: "match_update",
