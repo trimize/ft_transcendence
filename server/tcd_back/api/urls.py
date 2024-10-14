@@ -3,7 +3,7 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
-from .views import user_views, match_views
+from .views import user_views, match_views, tf_views
 
 urlpatterns = [
 
@@ -11,7 +11,8 @@ urlpatterns = [
 	path('users/', user_views.get_users, name='get_users'),
 	path('user_info/', user_views.get_user_info, name='get_user_info'),
 	path('create_user/', user_views.create_user, name='create_user'),
-	path('login_user/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+	# path('login_user/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+	path('login_user/', user_views.login_user, name='login_user'),
 	path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 	path('update_user/', user_views.update_user, name='update_user'),
 	# path('delete_user/', user_views.delete_user, name='delete_user'),
@@ -27,6 +28,8 @@ urlpatterns = [
 	# path('get_user_wins/<int:pk>/', user_views.get_user_wins, name='get_user_wins'),
 	# path('get_user_losses/<int:pk>/', user_views.get_user_losses, name='get_user_losses'),
 
+	path('setup_2fa/', tf_views.setup_2fa, name='setup_2fa'),
+	path('verify_2fa/', tf_views.verify_2fa, name='verify_2fa'),
 
 	# Match urls
 	path('matches/', match_views.get_matches, name='get_matches'),

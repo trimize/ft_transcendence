@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Edit Profile - TRANSCENDENCE</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/Profile.css">
+</head>
+<body>
+    <div class="container-fluid" id="page">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <!-- Dropdown for the "H" -->
+            <div class="dropdown">
+                <a class="navbar-brand dropdown-toggle" href="#" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    H
+                </a>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                    <a class="dropdown-item" href="/Landing">Landing</a>
+                    <a class="dropdown-item" href="/Login">Login</a>
+                    <a class="dropdown-item" href="/Leaderboard">Leaderboard</a>
+                    <a class="dropdown-item" href="/Customize">Customize</a>
+                </div>
+            </div>
+
+            <!-- Rest of the navbar -->
+            <div class="collapse navbar-collapse d-flex align-items-stretch">
+                <ul class="navbar-nav w-100 flex-grow-1">
+                    <li class="nav-item flex-fill">
+                        <a class="nav-link nav-item-hover" href="/Pong">PONG</a>
+                    </li>
+                    <li class="nav-item flex-fill">
+                        <a class="nav-link nav-item-hover" href="/Tic-tac-toe">TIC-TAC-TOE</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <div class="container mt-5">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h2 class="card-title text-center">Edit Profile</h2>
+                            <form id="editProfileForm">
+                                <div class="form-group">
+                                    <label for="username">Username</label>
+                                    <input type="text" class="form-control" id="username">
+                                </div>
+                                <div class="form-group">
+                                    <label for="email">Email</label>
+                                    <input type="email" class="form-control" id="email">
+                                </div>
+                                <div class="form-group">
+                                    <label for="profilePicture">Profile Picture URL</label>
+                                    <input type="text" class="form-control" id="profilePicture">
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-block">Save Changes</button>
+                                <button type="button" class="btn btn-secondary btn-block" id="setup2FA">Setup 2-Factor Authentication</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6" id="2faSetupContainer" style="display: none;">
+                    <div class="card">
+                        <div class="card-body">
+                            <h3 class="card-title text-center">Setup 2-Factor Authentication</h3>
+                            <div id="2faSetup">
+                                <img id="qrCode" src="" alt="QR Code" class="img-fluid mb-3">
+                                <div class="form-group">
+                                    <label for="otpToken">Enter OTP Token</label>
+                                    <input type="text" class="form-control" id="otpToken">
+                                </div>
+                                <button type="button" class="btn btn-primary btn-block" id="verify2FA">Verify 2FA</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+		const accessToken = localStorage.getItem('access');
+
+		if (!accessToken) {
+			alert('Access token is missing. Please log in.');
+			window.location.href = '/Login';
+			return;
+		}
+
+		fetch('http://localhost:8000/api/user_info/', {
+			method: 'GET',
+			headers: {
+				'Authorization': `Bearer ${accessToken}`
+			}
+		})
+		.then(response => response.json())
+		.then(data => {
+			document.getElementById('username').value = data.username;
+			document.getElementById('email').value = data.email;
+			document.getElementById('profilePicture').value = data.profile_picture;
+		})
+		.catch(error => {
+			console.error('Error fetching user info:', error);
+			alert('Failed to fetch user info. Please try again.');
+		});
+	});
+
+	document.getElementById('setup2FA').addEventListener('click', function() {
+		const accessToken = localStorage.getItem('access');
+
+		fetch('http://localhost:8000/api/setup_2fa/', {
+			method: 'POST',
+			headers: {
+				'Authorization': `Bearer ${accessToken}`
+			}
+		})
+		.then(response => response.json())
+		.then(data => {
+			const base64Image = data.qr_code_img.trim();
+			if (base64Image) {
+				document.getElementById('qrCode').src = `data:image/png;base64,${base64Image}`;
+				document.getElementById('2faSetupContainer').style.display = 'block';
+			} else {
+				console.error('QR code image data is missing or invalid.');
+			}
+		})
+		.catch(error => {
+			console.error('Error setting up 2FA:', error);
+			alert('Failed to setup 2FA. Please try again.');
+		});
+	});
+
+	document.getElementById('verify2FA').addEventListener('click', function() {
+		const accessToken = localStorage.getItem('access');
+		const otpToken = document.getElementById('otpToken').value;
+
+		fetch('http://localhost:8000/api/setup_2fa/', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${accessToken}`
+			},
+			body: JSON.stringify({ otp_token: otpToken })
+		})
+		.then(response => response.json())
+		.then(data => {
+			if (data.message === '2FA setup complete') {
+				alert(data.message);
+				document.getElementById('2faSetupContainer').style.display = 'none';
+			} else {
+				alert('2FA setup failed: ' + data.message);
+			}
+		})
+		.catch(error => {
+			console.error('Error verifying 2FA:', error);
+			alert('Failed to verify 2FA. Please try again.');
+		});
+	});
+
+	document.getElementById('editProfileForm').addEventListener('submit', function(event) {
+		event.preventDefault();
+
+		const accessToken = localStorage.getItem('access');
+		const username = document.getElementById('username').value;
+		const email = document.getElementById('email').value;
+		const profilePicture = document.getElementById('profilePicture').value;
+
+		fetch('http://localhost:8000/api/update_user/', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${accessToken}`
+			},
+			body: JSON.stringify({
+				username: username,
+				email: email,
+				profile_picture: profilePicture
+			})
+		})
+		.then(response => response.json())
+		.then(data => {
+			if (data.success) {
+				alert('Profile updated successfully!');
+			} else {
+				alert('Failed to update profile. Please try again.');
+			}
+		})
+		.catch(error => {
+			console.error('Error updating profile:', error);
+			alert('Failed to update profile. Please try again.');
+		});
+	});
+    </script>
+</body>
+</html>

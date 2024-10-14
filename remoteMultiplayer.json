@@ -1,0 +1,14 @@
+{
+	"type": "new_match" | "match_update" | "new_chat" | "update_chat",
+	"game": "pong",
+	"matchId": "1",
+	"player1Position": 0,
+	"player2Position": 0,
+	"ballPosition": 0,
+	"player1Score": 0,
+	"player2Score": 0,
+	"player1SpeedPower": 0,
+	"player2SpeedPower": 0,
+	"player1BallPower": 0,
+	"player2BallPower": 0,
+}

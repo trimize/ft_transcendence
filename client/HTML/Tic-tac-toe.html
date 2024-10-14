@@ -20,10 +20,10 @@
 					H
 					</a>
 					<div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-					<a class="dropdown-item" href="./Landing.html">Landing</a>
-					<a class="dropdown-item" href="./Login.html">Login</a>
-					<a class="dropdown-item" href="./Leaderboard.html">Leaderboard</a>
-					<a class="dropdown-item" href="./Customize.html">Customize</a>
+						<a class="dropdown-item" href="./Landing.html">Landing</a>
+						<a class="dropdown-item" href="./Login.html">Login</a>
+						<a class="dropdown-item" href="./Leaderboard.html">Leaderboard</a>
+						<a class="dropdown-item" href="./Customize.html">Customize</a>
 					</div>
 				</div>
 			
@@ -42,17 +42,24 @@
 			<div class="content-area p-4" id="contentArea">
 				<div id="score">0 : 0</div>
 				<div class="container d-flex justify-content-center align-items-center" style="height: 100vh;">
-				<div class="row">
-					<div class="col-4 text-center grid-item"></div>
-					<div class="col-4 text-center grid-item"></div>
-					<div class="col-4 text-center grid-item"></div>
-					<div class="col-4 text-center grid-item"></div>
-					<div class="col-4 text-center grid-item"></div>
-					<div class="col-4 text-center grid-item"></div>
-					<div class="col-4 text-center grid-item"></div>
-					<div class="col-4 text-center grid-item"></div>
-					<div class="col-4 text-center grid-item"></div>
+					<div class="row">
+						<div class="col-4 text-center grid-item"></div>
+						<div class="col-4 text-center grid-item"></div>
+						<div class="col-4 text-center grid-item"></div>
+						<div class="col-4 text-center grid-item"></div>
+						<div class="col-4 text-center grid-item"></div>
+						<div class="col-4 text-center grid-item"></div>
+						<div class="col-4 text-center grid-item"></div>
+						<div class="col-4 text-center grid-item"></div>
+						<div class="col-4 text-center grid-item"></div>
+					</div>
 				</div>
+				<div class="bottom-left-container" id="powerPlayer">
+					<div class="bottom-left" id="player_switch">Switch</div>
+				</div>
+					
+				<div class="bottom-right-container" id="powerEnemy">
+					<div class="bottom-right" id="enemy_switch">Switch</div>
 				</div>
 			</div>
 		</div>
@@ -66,6 +73,40 @@
 				</div>
 			</div>
 		</div>
+
+		<div class="modal fade" id="customizationModal" tabindex="-1" role="dialog" aria-labelledby="customizationModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered" role="document">
+				<div class="modal-content">
+					<h2>Customize Game</h2>
+					<div class="d-flex align-items-center justify-content-between">
+						<label for="toggleOption">Enable powers</label>
+						<div class="custom-control custom-switch ml-3">
+							<input id="powers" type="checkbox" class="custom-control-input">
+							<label class="custom-control-label" for="powers"></label>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button id="start-button" type="button" class="btn btn-primary" data-dismiss="modal">Start Game</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal fade" id="victoryModal" tabindex="-1" role="dialog" aria-labelledby="victoryModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered" role="document">
+				<div class="modal-content">
+					<h2 id="victorytitle"></h2>
+					<p id="endScore"></p>
+					<div class="modal-footer"></div>
+						<button id="main-menu-button" type="button" class="btn btn-primary" data-dismiss="modal">Main Menu</button>
+					</div>
+					<div class="modal-footer">
+						<button id="restart-button" type="button" class="btn btn-primary" data-dismiss="modal">Restart</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
 		<!--<script src="../JS/Tic-tac-toe.js"></script>-->
 		<script type="module" src="/js/Tic-tac-toe.js"></script>
 		<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
