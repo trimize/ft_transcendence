@@ -38,7 +38,8 @@
 
 .content-area
 {
-	min-height: calc(100vh - 60px);
+	flex-grow: 1;
+	min-height: calc(100vh - 7vh);
 	background-color: #000000;
 	border: 20px solid #ced4da;
 	position: relative;
@@ -118,6 +119,34 @@
 {
 	margin: 10px;
 	font-family: 'Press Start 2P', sans-serif;
+}
+
+.bottom-left-container,
+.bottom-right-container {
+    position: absolute;
+    bottom: 10px; /* Adjust as needed */
+    display: flex; /* Use flexbox to align items next to each other */
+}
+
+.bottom-left-container {
+    left: 10px; /* Position for the bottom-left container */
+}
+
+.bottom-right-container {
+    right: 10px; /* Position for the bottom-right container */
+}
+
+.bottom-left,
+.bottom-right {
+    background-color: rgba(128, 128, 128, 0.3); /* Example styling */
+    color: rgba(255, 255, 255, 0.3); /* Example styling */
+    padding: 10px; /* Example styling */
+    margin-right: 10px; /* Space between the items */
+}
+
+.bottom-left:last-child,
+.bottom-right:last-child {
+    margin-right: 0; /* Remove margin for the last item in each container */
 }
 
 @keyframes gradientAnimation

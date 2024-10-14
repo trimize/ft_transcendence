@@ -1,4 +1,4 @@
-export let socket = null;
+let socket = null;
 
 document.getElementById('loginForm').addEventListener('submit', function(event)
 {

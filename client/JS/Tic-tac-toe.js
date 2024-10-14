@@ -1,5 +1,5 @@
 import { fetchUserData } from './user_info.js';
-import { createGame } from './Pong.js';
+import { getCurrentTime, updateGame, createGame } from './gameDatabaseComm.js';
 
 const gridItems = document.querySelectorAll('.grid-item');
 const score = document.getElementById('score');
@@ -21,7 +21,7 @@ let start = false;
 let single = false;
 let multi = false;
 let turn = 1;
-let player_sign;
+let player_sign = "X";
 let enemy_sign = "O";
 let switch_power = false;
 let matchId;
@@ -33,7 +33,7 @@ function hideModal()
 	gameModeModal.style.display = 'none';
 	powersMenu.classList.add('show');
         powersMenu.style.display = 'block';
-	startDiv.addEventListener('click', function()
+	startDiv.addEventListener('click', async function()
 	{
 		if(powersInput.checked)
 		{
@@ -51,7 +51,7 @@ function hideModal()
 			player1: player1Id,
 			match_type: single ? "singleplayer" : multi ? "local_multiplayer" : "unknown"
 		};
-		createGame(matchData, matchId);
+		matchId = await createGame(matchData);
 		page.classList.remove('blur');
 		start = true;
 	});
@@ -67,6 +67,7 @@ async function reset_game()
 		victoryTitle.textContent = "You lose!";
 	endScore.textContent = player_score + " : " + enemy_score;
 	const restartButton = document.getElementById('restart-button');
+	const mainMenuButton = document.getElementById('main-menu-button');
 	finish = true;
 	start = false;
 	single = false;
@@ -79,6 +80,10 @@ async function reset_game()
 		{
 			clearInterval(item);
 		});
+	});
+	mainMenuButton.addEventListener('click', async function ()
+	{
+		
 	});
 	restartButton.addEventListener('click', async function()
 	{
@@ -145,7 +150,6 @@ async function reset_game()
 	
 		const singleplayerBtn = document.getElementById('singleplayer-btn');
 		const multiplayerBtn = document.getElementById('multiplayer-btn');
-		console.log(player_sign);
 		singleplayerBtn.addEventListener('click', function ()
 		{
 			single = true;
@@ -229,7 +233,6 @@ document.addEventListener("DOMContentLoaded", async function()
 
         const singleplayerBtn = document.getElementById('singleplayer-btn');
         const multiplayerBtn = document.getElementById('multiplayer-btn');
-	console.log(player_sign);
 	singleplayerBtn.addEventListener('click', function ()
 	{
 		single = true;
@@ -349,6 +352,15 @@ function next_game()
 		}
 		count = 0;
 	}
+	const currentTime = getCurrentTime();
+	const matchData =
+	{
+		id: matchId,
+		player1_score: player_score,
+		player2_score: enemy_score,
+		end_time: currentTime,
+	};
+	updateGame(matchData);
 	score.textContent = player_score + " : " + enemy_score;
 	if (player_score >= 5 || enemy_score >= 5)
 		reset_game();

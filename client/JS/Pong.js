@@ -1,5 +1,6 @@
 import { fetchUserData, refreshAccessToken } from './user_info.js';
 import { getWebSocket } from './singletonSocket.js';
+import { getCurrentTime, updateGame, createGame } from './gameDatabaseComm.js';
 
 let start = false;
 let score_player = 0;
@@ -56,42 +57,6 @@ let player1Position;
 let player2Position;
 const socket = getWebSocket();
 
-function updateGame(body)
-{
-	const accessToken = localStorage.getItem('access');
-	return fetch('http://localhost:8000/api/update_match/', {
-		method: 'PUT',
-		headers: {
-			'Authorization': `Bearer ${accessToken}`,
-			'Content-Type': 'application/json'
-		},
-		body: JSON.stringify(body)
-	})
-	.then(response => {
-		if (response.status === 401) {
-		// If the token is expired or invalid, refresh it
-			return refreshAccessToken().then(() => fetch('http://localhost:8000/api/user_info/', {
-				method: 'GET',
-				headers: {
-					'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-					'Content-Type': 'application/json'
-				}
-			}));
-		}
-		return response.json();
-	})
-	.then(data => {
-		if (data) {
-			return data;
-		}
-		throw new Error('Failed to fetch user data');
-	})
-	.catch(error => {
-		console.error('Error fetching user data:', error);
-		throw error;
-	});
-}
-
 // Makes sure the enemy is placed well on resize for responsiveness
 
 window.addEventListener('resize', function()
@@ -147,6 +112,16 @@ function hideModal()
 				page.classList.remove('blur');
 				start = true;
 			})
+		}
+		else
+		{
+			ball_step = parseInt(ballSpeed.value);
+			if (enableBallAcceleration.checked)
+				ball_acc = true;
+			if (powersOption.checked)
+				power = true;
+			page.classList.remove('blur');
+			start = true;
 		}
 		clearInterval(start_button);
 	});
@@ -613,9 +588,7 @@ function startMovingSquare()
 			}
 			if (score_player >= 3 || score_enemy >= 3)
 			{
-				const now = new Date();
-				const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
-				const currentTime = now.toLocaleString('en-US', options);
+				const currentTime = getCurrentTime();
 				const matchData =
 				{
 					id: matchId,
@@ -628,6 +601,7 @@ function startMovingSquare()
 					fastest_ball_speed: maxBallSpeed,
 					end_time: currentTime,
 				};
+				updateGame(matchData);
 				finish = true;
 				end_modal.style.display = 'block';
 				end_modal.classList.add('show');
@@ -670,42 +644,6 @@ function startMovingSquare()
 			setTimeout(startMovingSquare, 1000);
 		}
 	}, 50);
-}
-
-export function createGame(body)
-{
-	const accessToken = localStorage.getItem('access');
-	return fetch('http://localhost:8000/api/create_match/', {
-		method: 'POST',
-		headers: {
-			'Authorization': `Bearer ${accessToken}`,
-			'Content-Type': 'application/json'
-		},
-		body: JSON.stringify(body)
-	})
-	.then(response => {
-		if (response.status === 401) {
-		// If the token is expired or invalid, refresh it
-			return refreshAccessToken().then(() => fetch('http://localhost:8000/api/user_info/', {
-				method: 'GET',
-				headers: {
-					'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-					'Content-Type': 'application/json'
-				}
-			}));
-		}
-		return response.json();
-	})
-	.then(data => {
-		if (data && data.id)
-			return data.id;
-		else
-			throw new Error('Failed to fetch user data');
-	})
-	.catch(error => {
-		console.error('Error fetching user data:', error);
-		throw error;
-	});
 }
 
 // This is called after the components have been loaded
