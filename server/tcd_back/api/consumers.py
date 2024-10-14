@@ -57,11 +57,12 @@ class SocketConsumer(AsyncWebsocketConsumer):
 						'message': text_data_json
 					}
 				)
-			elif text_data_json['type'] == 'send_invite':
+			elif text_data_json['type'] == 'accept_invite':
 				invitee_id = str(text_data_json.get('inviteeId'))
-				print(f"Sending invite to user {invitee_id}")
 				invitee_channel_name = user_channels.get(invitee_id)
-				print(f"Invitee channel name: {invitee_channel_name}")
+				if not invitee_channel_name:
+					print(f"Invitee {invitee_id} not connected")
+					return
 				match_id = text_data_json.get('matchId')
 				if not match_id:
 					print("Match ID not provided")
@@ -70,20 +71,41 @@ class SocketConsumer(AsyncWebsocketConsumer):
 				print(f"Adding to group: {self.room_group_name}")
 				await self.channel_layer.group_add(
 					self.room_group_name,
-					invitee_channel_name
+					invitee_channel_name,
 				)
-				# if invitee_id in user_channels:
-				#     invitee_channel_name = user_channels[invitee_id]
-				#     print(f"Sending invite to user {invitee_id} on channel {invitee_channel_name}")
-				#     await self.channel_layer.send(
-				#         invitee_channel_name,
-				#         {
-				#             'type': 'receive_invite',
-				#             'message': text_data_json
-				#         }
-				#     )
-				# else:
-				#     print(f"User {invitee_id} is not connected")
+				await self.channel_layer.send(
+					self.room_group_name,
+					{
+						'type': 'start_match',
+						'message': text_data_json
+					}
+				)
+			elif text_data_json['type'] == 'send_invite':
+				invitee_id = str(text_data_json.get('inviteeId'))
+				if invitee_id in user_channels:
+				    invitee_channel_name = user_channels.get(invitee_id)
+				    print(f"Sending invite to user {invitee_id} on channel {invitee_channel_name}")
+				    await self.channel_layer.send(
+				        invitee_channel_name,
+				        {
+				            'type': 'receive_invite',
+				            'message': text_data_json
+				        }
+				    )
+				else:
+				    print(f"User {invitee_id} is not connected")
+			elif text_data_json['type'] == 'refuse_invite':
+				host_id = str(text_data_json.get('hostId'))
+				if host_id in user_channels:
+				    host_channel_name = user_channels.get(host_id)
+				    print(f"Sending refusal to user {host_id} on channel {host_channel_name}")
+				    await self.channel_layer.send(
+				        host_channel_name,
+				        {
+				            'type': 'invite_refused',
+				            'message': text_data_json
+				        }
+				    )
 
 	async def match_update_response(self, event):
 		message = event['message']

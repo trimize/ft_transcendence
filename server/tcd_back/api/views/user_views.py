@@ -89,6 +89,13 @@ def get_user_info(request):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
+def get_username(request, username):
+    user = get_object_or_404(User, username=username)
+    serializer = UserSerializer(user)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def search_user(request, username):
     user = User.objects.filter(username__icontains=username)
     serializer = UserSerializer(user, many=True)
