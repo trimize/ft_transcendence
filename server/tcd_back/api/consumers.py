@@ -12,10 +12,40 @@ class SocketConsumer(AsyncWebsocketConsumer):
 		await self.accept()
 
 	async def disconnect(self, close_code):
-		# Leave room group
-		user_id = self.scope['user'].id
-		if user_id in user_channels:
-			del user_channels[user_id]
+    # Find the user ID by channel name
+    user_id = None
+    for uid, channel_name in user_channels.items():
+        if channel_name == self.channel_name:
+            user_id = uid
+            break
+
+    if user_id:
+        # Remove the user from the user_channels dictionary
+        del user_channels[user_id]
+
+        # Fetch the user and their friends
+        try:
+            user = await database_sync_to_async(User.objects.get)(id=user_id)
+            friends = await database_sync_to_async(lambda: list(user.friends.all()))()
+        except User.DoesNotExist:
+            print("User does not exist")
+            return
+
+        # Iterate through friends and send a message to connected friends
+        for friend in friends:
+            friend_id = str(friend.id)
+            if friend_id in user_channels:
+                message = {
+                    'type': 'friend_disconnected',
+                    'userId': user_id,
+                }
+                await self.channel_layer.send(
+                    user_channels[friend_id],
+                    {
+                        'type': 'send_message',
+                        'message': message
+                    }
+                )
 
 	async def receive(self, text_data):
 		try:
@@ -35,6 +65,30 @@ class SocketConsumer(AsyncWebsocketConsumer):
 				user_channels[user_id] = self.channel_name
 				print(f"User {user_id} connected")
 				print(f"User channels: {user_channels}")
+
+				# Fetch the user and their friends
+                try:
+                    user = await database_sync_to_async(User.objects.get)(id=user_id)
+                    friends = await database_sync_to_async(lambda: list(user.friends.all()))()
+                except User.DoesNotExist:
+                    print("User does not exist")
+                    return
+
+                # Iterate through friends and send a message to connected friends
+                for friend in friends:
+                    friend_id = str(friend.id)
+                    if friend_id in user_channels:
+                        message = {
+                            'type': 'friend_connected',
+                            'userId': user_id
+                        }
+                        await self.channel_layer.send(
+                            user_channels[friend_id],
+                            {
+                                'type': 'send_message',
+                                'message': message
+                            }
+                        )
 			if text_data_json['type'] == 'new_match':
 				match_id = text_data_json.get('matchId')
 				if not match_id:
@@ -53,7 +107,7 @@ class SocketConsumer(AsyncWebsocketConsumer):
 				await self.channel_layer.group_send(
 					self.room_group_name,
 					{
-						'type': 'match_update_response',
+						'type': 'send_message',
 						'message': text_data_json
 					}
 				)
@@ -76,7 +130,7 @@ class SocketConsumer(AsyncWebsocketConsumer):
 				await self.channel_layer.send(
 					self.room_group_name,
 					{
-						'type': 'start_match',
+						'type': 'send_message',
 						'message': text_data_json
 					}
 				)
@@ -88,7 +142,7 @@ class SocketConsumer(AsyncWebsocketConsumer):
 				    await self.channel_layer.send(
 				        invitee_channel_name,
 				        {
-				            'type': 'receive_invite',
+				            'type': 'send_message',
 				            'message': text_data_json
 				        }
 				    )
@@ -107,14 +161,9 @@ class SocketConsumer(AsyncWebsocketConsumer):
 				        }
 				    )
 
-	async def match_update_response(self, event):
+	async def send_message(self, event):
 		message = event['message']
 		print(f"Sending message: {message}")
-		await self.send(text_data=json.dumps(message))
-
-	async def receive_invite(self, event):
-		message = event['message']
-		print(f"Received invite: {message}")
 		await self.send(text_data=json.dumps(message))
 
 	# async def chat_message(self, event):
