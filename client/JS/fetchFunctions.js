@@ -57,11 +57,41 @@ export async function fetchUserData()
 	}
 }
 
+export async function updateUserData(username, email, profilePicture)
+{
+	const accessToken = localStorage.getItem('access');
+	try {
+		let response = fetch('http://localhost:8000/api/update_user/', {
+			method: 'PUT',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${accessToken}`
+			},
+			body: JSON.stringify({
+				username: username,
+				email: email,
+				profile_pic: profilePicture
+			})
+		})
+		if (response.status == 401) {
+			await refreshAccessToken();
+			await updateUserData();
+			alert('User data updated and token refreshed');
+		}
+		else if (!response.ok)
+			throw new Error('Failed to update user data');
+		alert('User data updated');
+	}
+	catch (error) {
+		console.error(error.message);
+	}
+}
+
 export async function updateGame(body)
 {
 	const accessToken = localStorage.getItem('access');
 	try {
-		let response = await fetch('http://localhost:8000/api/user_info/', {
+		let response = await fetch('http://localhost:8000/api/update_match/', {
 		    method: 'PUT',
 		    headers: {
 			'Authorization': `Bearer ${accessToken}`,
@@ -86,7 +116,7 @@ export async function createGame(body)
 {
 	const accessToken = localStorage.getItem('access');
 	try {
-		let response = await fetch('http://localhost:8000/api/user_info/', {
+		let response = await fetch('http://localhost:8000/api/create_match/', {
 		    method: 'POST',
 		    headers: {
 			'Authorization': `Bearer ${accessToken}`,

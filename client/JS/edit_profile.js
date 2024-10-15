@@ -1,4 +1,4 @@
-// import { refreshAccessToken } from './utils.js';
+import { updateUserData } from "./fetchFunctions.js";
 
 document.addEventListener('DOMContentLoaded', function() {
 	const accessToken = localStorage.getItem('access');
@@ -79,36 +79,25 @@ document.getElementById('verify2FA').addEventListener('click', function() {
 	});
 });
 
-document.getElementById('editProfileForm').addEventListener('submit', function(event) {
+document.getElementById('editProfileForm').addEventListener('submit', async function(event) {
 	event.preventDefault();
 
 	const accessToken = localStorage.getItem('access');
 	const username = document.getElementById('username').value;
 	const email = document.getElementById('email').value;
 	const profilePicture = document.getElementById('profilePicture').value;
-	// refreshAccessToken();
-	fetch('http://localhost:8000/api/update_user/', {
-		method: 'PUT',
-		headers: {
-			'Content-Type': 'application/json',
-			'Authorization': `Bearer ${accessToken}`
-		},
-		body: JSON.stringify({
-			username: username,
-			email: email,
-			profile_pic: profilePicture
-		})
-	})
-	.then(response => response.json())
-	.then(data => {
-		if (data.success) {
-			alert('Profile updated successfully!');
-		} else {
-			alert('Failed to update profile. Please try again.');
-		}
-	})
-	.catch(error => {
-		console.error('Error updating profile:', error);
-		alert('Failed to update profile. Please try again.');
-	});
+	await updateUserData(username, email, profilePicture)
+	// .then(response => response.json())
+	// .then(data => {
+	// 	if (data.success) {
+	// 		alert('Profile updated successfully!');
+	// 	} else {
+	// 		alert('Failed to update profile. Please try again.');
+	// 	}
+	// })
+	// .catch(error => {
+	// 	console.error('Error updating profile:', error);
+	// 	alert('Failed to update profile. Please try again.');
+	// });
 });
+

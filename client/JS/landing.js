@@ -1,4 +1,4 @@
-import { fetchUserData } from "./user_info";
+import { fetchUserData } from "./fetchFunctions.js";
 
 const logdiv = document.getElementById('logdiv');
 const accessToken = localStorage.getItem('access');
