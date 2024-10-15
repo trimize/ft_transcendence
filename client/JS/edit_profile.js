@@ -2,7 +2,23 @@ import { updateUserData } from "./fetchFunctions.js";
 
 document.addEventListener('DOMContentLoaded', function() {
 	const accessToken = localStorage.getItem('access');
+	const fileInput = document.getElementById('file');
 
+    fileInput.addEventListener('change', (event) => {
+        let file = event.target.files[0];
+		console.log(file);
+        if (file) {
+            console.log('File name:', file.name);
+            console.log('File size:', file.size);
+            console.log('File type:', file.type);
+            // You can also read the file content if needed
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                console.log('File content:', e.target.result);
+            };
+            reader.readAsText(file); // or readAsDataURL(file) for images, etc.
+        }
+    });
 	if (!accessToken) {
 		alert('Access token is missing. Please log in.');
 		window.location.href = '/Login';
@@ -79,13 +95,46 @@ document.getElementById('verify2FA').addEventListener('click', function() {
 	});
 });
 
+document.getElementById('fileUploadForm').addEventListener('submit', function(event) {
+
+	event.preventDefault();
+
+	// const formData = new FormData();
+	const fileInput = document.getElementById('file');
+	const file = fileInput.files[0];
+	// formData.append('file', file);
+
+	fetch('http://localhost:8080/upload', {
+		method: 'POST',
+		headers: {
+			'Authorization': `Bearer ${localStorage.getItem('access')}`
+		},
+		body: file
+	})
+	.then(response => response.json())
+	.then(data => {
+		if (data.success) {
+			alert('Profile picture uploaded successfully!');
+			document.getElementById('profilePicture').value = data.profile_picture;
+		} else {
+			alert('Failed to upload profile picture. Please try again.');
+		}
+	})
+	.catch(error => {
+		console.error('Error uploading profile picture:', error);
+		alert('Failed to upload profile picture. Please try again.');
+	});
+});
+
 document.getElementById('editProfileForm').addEventListener('submit', async function(event) {
 	event.preventDefault();
 
-	const accessToken = localStorage.getItem('access');
 	const username = document.getElementById('username').value;
 	const email = document.getElementById('email').value;
-	const profilePicture = document.getElementById('profilePicture').value;
+	// const profilePicture = document.getElementById('profilePicture').value;
+	// const fileInput = document.getElementById('profilePic');
+	// const profilePicture = "../Assets/ProfilePictures/" + document.getElementById('profilePicture').value;
+	// console.log(profilePicture);
 	await updateUserData(username, email, profilePicture)
 	// .then(response => response.json())
 	// .then(data => {
