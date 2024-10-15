@@ -1,5 +1,5 @@
-import { fetchUserData } from './user_info.js';
-import { getCurrentTime, updateGame, createGame } from './gameDatabaseComm.js';
+import { fetchUserData, updateGame, createGame } from './fetchFunctions.js';
+import { getCurrentTime } from './utlis.js';
 
 const gridItems = document.querySelectorAll('.grid-item');
 const score = document.getElementById('score');
