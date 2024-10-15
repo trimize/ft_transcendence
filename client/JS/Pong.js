@@ -84,16 +84,21 @@ function sleep(ms)
 
 function hideModal()
 {
-	gameModeModal.classList.remove('show');
-	gameModeModal.style.display = 'none';
-	customization.style.display = 'block';
-	customization.classList.add('show');
+	//gameModeModal.classList.remove('show');
+	//gameModeModal.style.display = 'none';
+	$("#gameModeModal").modal("hide");
+	//customization.style.display = 'block';
+	//customization.classList.add('show');
+	//$("#customizationModal").modal("show");
 	start_button.addEventListener('click', async function()
 	{
-		customization.classList.remove('show');
-		customization.style.display = 'none';
+		//customization.classList.remove('show');
+		//customization.style.display = 'none';
+		$("#customizationModal").modal("hide");
 		if (multi_online)
 		{
+			//inviteModal.style.display = 'block';
+			//inviteModal.classList.add('show');
 			const socket = await getWebSocket();
 			socket.addEventListener('message', function(event)
 			{
@@ -151,6 +156,101 @@ function hideModal()
 			page.classList.remove('blur');
 			start = true;
 		}
+		document.addEventListener("keydown", function(event)
+		{
+			event.preventDefault();
+		
+			// Only listening when game has started
+		
+			if (start && !finish)
+			{
+				const currentTop = parseInt(window.getComputedStyle(player).top, 10);
+				const current2pTop = parseInt(window.getComputedStyle(enemy).top, 10);
+				const parentDiv = player.parentElement;
+				const parentHeight = parentDiv.clientHeight;
+				const rectangleHeight = player.clientHeight;
+				const rectangle2pHeight = enemy.clientHeight;
+				
+				// Arrow up/down for player up/down
+				if ((single || multi) && !finish)
+				{
+					if (event.key === "ArrowUp")
+					{
+						let newTop = currentTop - step;
+						if (newTop < 0)
+							newTop = 0;
+						player.style.top = newTop + "px";
+					}
+					else if (event.key === "ArrowDown")
+					{
+						let newTop = currentTop + step;
+						if (newTop > parentHeight - rectangleHeight)
+							newTop = parentHeight - rectangleHeight;
+						player.style.top = newTop + "px";
+					}
+				}
+		
+				if (multi_online)
+				{
+					//console.log('yes');
+					let newTop;
+					if (event.key === "ArrowUp")
+					{
+						newTop = currentTop - step;
+						if (newTop < 0)
+							newTop = 0;
+						//player.style.top = newTop + "px";
+					}
+					else if (event.key === "ArrowDown")
+					{
+						newTop = currentTop + step;
+						if (newTop > parentHeight - rectangleHeight)
+							newTop = parentHeight - rectangleHeight;
+						//player.style.top = newTop + "px";
+					}
+					//if 
+					console.log(matchId);
+					//const matchData =
+					//{
+					//	type: "match_update",
+					//	matchId: matchId,
+					//	player1Position: newTop
+					//};
+					//sendMessage(matchData)
+				}
+		
+				// In case of multiplayer chosen enemy up/down
+		
+				if (multi && !finish)
+				{
+					if (event.key === "w")
+					{
+						let newTop2 = current2pTop - step;
+						if (newTop2 < 0)
+							newTop2 = 0;
+						enemy.style.top = newTop2 + "px";
+					}
+					else if (event.key === "s")
+					{
+						let newTop2 = current2pTop + step;
+						if (newTop2 > parentHeight - rectangle2pHeight)
+							newTop2 = parentHeight - rectangle2pHeight;
+						enemy.style.top = newTop2 + "px";
+					}
+				}
+			}
+		});
+		
+		// Checking every 100ms if the settings have been chosen so that the game can start
+		
+		let checkValue = setInterval(function()
+		{
+			if (start && !finish)
+			{
+				setTimeout(startMovingSquare, 1000);
+				clearInterval(checkValue);
+			}
+		}, 100);
 		clearInterval(start_button);
 	});
 }
@@ -723,12 +823,12 @@ function startMovingSquare()
 
 document.addEventListener("DOMContentLoaded", async function()
 {
-	end_modal.classList.remove('show');
-	end_modal.style.display = 'none';
+	//end_modal.classList.remove('show');
+	//end_modal.style.display = 'none';
 	//inviteModal.classList.remove('show');
 	//inviteModal.style.display = 'none';
-	notConnectedModal.classList.remove('show');
-	notConnectedModal.style.display = 'none';
+	//notConnectedModal.classList.remove('show');
+	//notConnectedModal.style.display = 'none';
 	let data = await fetchUserData();
 	if (data !== "")
 	{
@@ -752,15 +852,16 @@ document.addEventListener("DOMContentLoaded", async function()
 		player1Id = data.id;
 		connected = true;
 	}
-	var gameModeModal = document.getElementById('gameModeModal');
+	//var gameModeModal = document.getElementById('gameModeModal');
         var page = document.getElementById('page');
         
 	// Showing game modes
 
-	gameModeModal.classList.add('show');
-        gameModeModal.style.display = 'block';
-        gameModeModal.setAttribute('aria-modal', 'true');
-        gameModeModal.setAttribute('role', 'dialog');
+	//gameModeModal.classList.add('show');
+        //gameModeModal.style.display = 'block';
+	$("#gameModeModal").modal("show");
+        //gameModeModal.setAttribute('aria-modal', 'true');
+        //gameModeModal.setAttribute('role', 'dialog');
         page.classList.add('blur'); // Add blur effect to the background
 
         var singleplayerBtn = document.getElementById('singleplayer-btn');
@@ -771,6 +872,7 @@ document.addEventListener("DOMContentLoaded", async function()
 
 	singleplayerBtn.addEventListener('click', async function ()
 	{
+		console.log('yes');
 		if (connected)
 		{
 			const matchData =
@@ -806,8 +908,9 @@ document.addEventListener("DOMContentLoaded", async function()
 		if (!connected)
 		{
 			//console.log('yes');
-			gameModeModal.classList.remove('show');
-			gameModeModal.style.display = 'none';
+			//$("#gameModeModal").modal("hide");
+			//gameModeModal.classList.remove('show');
+			//gameModeModal.style.display = 'none';
 			notConnectedModal.classList.add('show');
 			notConnectedModal.style.display = "block";
 			clearInterval(multiplayerOnlineBtn);
@@ -842,113 +945,3 @@ document.addEventListener("DOMContentLoaded", async function()
 		}
 	});
 });
-
-// Listening for player's movement
-
-
-document.addEventListener("keydown", function(event)
-{
-	event.preventDefault();
-
-	// Only listening when game has started
-
-	if (start && !finish)
-	{
-		const currentTop = parseInt(window.getComputedStyle(player).top, 10);
-		const current2pTop = parseInt(window.getComputedStyle(enemy).top, 10);
-		const parentDiv = player.parentElement;
-		const parentHeight = parentDiv.clientHeight;
-		const rectangleHeight = player.clientHeight;
-		const rectangle2pHeight = enemy.clientHeight;
-		
-		// Arrow up/down for player up/down
-		if ((single || multi) && !finish)
-		{
-			if (event.key === "ArrowUp")
-			{
-				let newTop = currentTop - step;
-				if (newTop < 0)
-					newTop = 0;
-				player.style.top = newTop + "px";
-			}
-			else if (event.key === "ArrowDown")
-			{
-				let newTop = currentTop + step;
-				if (newTop > parentHeight - rectangleHeight)
-					newTop = parentHeight - rectangleHeight;
-				player.style.top = newTop + "px";
-			}
-		}
-
-		if (multi_online)
-		{
-			//console.log('yes');
-			let newTop;
-			if (event.key === "ArrowUp")
-			{
-				newTop = currentTop - step;
-				if (newTop < 0)
-					newTop = 0;
-				//player.style.top = newTop + "px";
-			}
-			else if (event.key === "ArrowDown")
-			{
-				newTop = currentTop + step;
-				if (newTop > parentHeight - rectangleHeight)
-					newTop = parentHeight - rectangleHeight;
-				//player.style.top = newTop + "px";
-			}
-			//if 
-			console.log(matchId);
-			//const matchData =
-			//{
-			//	type: "match_update",
-			//	matchId: matchId,
-			//	player1Position: newTop
-			//};
-			//sendMessage(matchData)
-		}
-
-		// In case of multiplayer chosen enemy up/down
-
-		if (multi && !finish)
-		{
-			if (event.key === "w")
-			{
-				let newTop2 = current2pTop - step;
-				if (newTop2 < 0)
-					newTop2 = 0;
-				enemy.style.top = newTop2 + "px";
-			}
-			else if (event.key === "s")
-			{
-				let newTop2 = current2pTop + step;
-				if (newTop2 > parentHeight - rectangle2pHeight)
-					newTop2 = parentHeight - rectangle2pHeight;
-				enemy.style.top = newTop2 + "px";
-			}
-		}
-	}
-});
-
-// Checking every 100ms if the settings have been chosen so that the game can start
-
-let checkValue = setInterval(function()
-{
-	if (start && !finish)
-	{
-		setTimeout(startMovingSquare, 1000);
-		clearInterval(checkValue);
-	}
-}, 100);
-
-$(document).ready(function() {
-	// Handle modal showing
-	$('#inviteModal').on('show.bs.modal', function () {
-	    // Set a timeout to ensure the modal is fully shown before focusing
-	    setTimeout(function() {
-		$('#usernameInput').focus();
-	    }, 0);
-	});
-});
-    

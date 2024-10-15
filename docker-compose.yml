@@ -41,6 +41,7 @@ services:
       - "4443:443"
     volumes:
       - ./client/ssl:/etc/nginx/ssl
+      - ./client/Assets/profilePictures:/usr/share/nginx/html/Assets/profilePictures
 
   redis:
     image: "redis:alpine"
