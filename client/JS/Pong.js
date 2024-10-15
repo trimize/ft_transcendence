@@ -1,6 +1,6 @@
-import { fetchUserData, refreshAccessToken } from './user_info.js';
+import { fetchUserData, getUser, updateGame, createGame } from './fetchFunctions.js';
 import { getWebSocket } from './singletonSocket.js';
-import { getCurrentTime, updateGame, createGame } from './gameDatabaseComm.js';
+import { getCurrentTime } from './utlis.js';
 
 let start = false;
 let score_player = 0;
@@ -9,7 +9,9 @@ let single = false;
 let multi = false;
 let multi_online = false;
 let matchId;
-let finish = false
+let finish = false;
+let connected = false;
+const usernameInput = document.getElementById('usernameInput');
 const player = document.getElementById("player");
 const enemy = document.getElementById("enemy");
 const customization = document.getElementById("customizationModal");
@@ -28,13 +30,15 @@ const retry_button = document.getElementById('retry-button');
 const end_modal = document.getElementById('victoryModal');
 const inviteModal = document.getElementById('inviteModal');
 const inviteButton = document.getElementById('inviteOnline');
-const startOnlineButton = document.getElementById('startOnline');
+//const startOnlineButton = document.getElementById('startOnline');
+const notConnectedModal = document.getElementById('notConnectedModal');
+const changeGMButoon = document.getElementById('changeGMbutton');
 let enemyY = parseInt(window.getComputedStyle(enemy).top, 10);
 let ai_ball_info;
 let move_up = true;
 let move_down = true;
 let ball_acc = false;
-let ball_step;
+let ball_step = 20;
 let maxBallSpeed = 0;
 let player1_max_consec_touch = 0;
 let player2_max_consec_touch = 0;
@@ -55,7 +59,8 @@ let player_used_ball_power = false;
 let player1Id = 0;
 let player1Position;
 let player2Position;
-const socket = getWebSocket();
+let reset = false;
+let accessToken = localStorage.getItem('access');
 
 // Makes sure the enemy is placed well on resize for responsiveness
 
@@ -75,47 +80,70 @@ function sleep(ms)
 // This function is removing the game mode div when chosen
 // It also shows the game settings and starts the game when start game button is clicked
 
+
+
 function hideModal()
 {
 	gameModeModal.classList.remove('show');
 	gameModeModal.style.display = 'none';
 	customization.style.display = 'block';
 	customization.classList.add('show');
-	start_button.addEventListener('click', function()
+	start_button.addEventListener('click', async function()
 	{
 		customization.classList.remove('show');
 		customization.style.display = 'none';
 		if (multi_online)
 		{
+			const socket = await getWebSocket();
+			socket.addEventListener('message', function(event)
+			{
+				const message = JSON.parse(event.data);
+				console.log('Parsed message:', message);
+				if (message.type = "match_update")
+					if (message.player1Position !== undefined)
+						player.style.top = message.player1Position + "px";
+				if (message.type = "match_update")
+					if (message.player2Position !== undefined)
+						enemy.style.top = message.player2Position + "px";
+				
+			});
 			inviteButton.addEventListener('click', async function()
 			{
-
-				const matchData =
+				data = await getUser(usernameInput.value);
+				if (data === "")
 				{
-					type: "send_invite",
-					matchId: matchId,
-					inviteeId: "2"
-				};
-				await sendMessage(matchData);
+					const errorText = document.getElementById('searchStatus');
+					errorText.style.display = 'block';
+					errorText.style.color = 'red';
+					errorText.textContent = "User not found!";
+				}
+				console.log(data);
+				//const matchData =
+				//{
+				//	type: "send_invite",
+				//	matchId: matchId,
+				//	inviteeId: "2"
+				//};
+				//await sendMessage(matchData);
 			})
-			inviteModal.style.display = "block";
-			inviteModal.classList.add('show');
-			startOnlineButton.addEventListener('click', function()
-			{
-				inviteModal.classList.remove('show');
-				inviteModal.style.display = 'none';
-				ball_step = parseInt(ballSpeed.value);
-				if (enableBallAcceleration.checked)
-					ball_acc = true;
-				if (powersOption.checked)
-					power = true;
-				page.classList.remove('blur');
-				start = true;
-			})
+			//startOnlineButton.addEventListener('click', function()
+			//{
+			//	inviteModal.classList.remove('show');
+			//	inviteModal.style.display = 'none';
+			//	ball_step = parseInt(ballSpeed.value);
+			//	if (enableBallAcceleration.checked)
+			//		ball_acc = true;
+			//	if (powersOption.checked)
+			//		power = true;
+			//	page.classList.remove('blur');
+			//	start = true;
+			//})
 		}
 		else
 		{
 			ball_step = parseInt(ballSpeed.value);
+			console.log(ballSpeed.value);
+			console.log(ball_step);
 			if (enableBallAcceleration.checked)
 				ball_acc = true;
 			if (powersOption.checked)
@@ -274,6 +302,7 @@ function handleKeyDown(event)
 
 async function sendMessage(message)
 {
+	const socket = await getWebSocket();
 	if (socket.readyState === WebSocket.OPEN)
 	{
 		let json_message = JSON.stringify(message);
@@ -287,8 +316,9 @@ async function sendMessage(message)
 }
 // Function that moves the ball, does the AI, and makes the ball bounce
 
-function retry()
+async function retry()
 {
+	console.log('yes');
 	start = false;
 	finish = false;
 	score_enemy = 0;
@@ -297,9 +327,10 @@ function retry()
 	step = 20;
 	end_modal.classList.remove('show');
 	end_modal.style.display = 'none';
-	movingSquare.style.top = `${defaultBallTop}px`
-	movingSquare.style.left = `${defaultBallLeft}px`
-	fetchUserData().then(data =>
+	movingSquare.style.top = `${defaultBallTop}px`;
+	movingSquare.style.left = `${defaultBallLeft}px`;
+	let data = await fetchUserData();
+	if (data !== "")
 	{
 		if (data.pong_ball >= 1 && data.pong_ball <= 8)
 		{
@@ -319,7 +350,8 @@ function retry()
 			player.style.animation = "gradient-animation 3s ease infinite";
 		}
 		player1Id = data.id;
-	})
+		connected = true;
+	}
 	var gameModeModal = document.getElementById('gameModeModal');
         var page = document.getElementById('page');
         
@@ -339,42 +371,73 @@ function retry()
 
 	singleplayerBtn.addEventListener('click', async function ()
 	{
-		const matchData =
+		if (connected)
 		{
-			game: "pong",
-			player1: player1Id,
-			match_type: "singleplayer",
-		};
-		matchId = await createGame(matchData);
+			const matchData =
+			{
+				game: "pong",
+				player1: player1Id,
+				match_type: "singleplayer",
+			};
+			matchId = await createGame(matchData);
+		}
 		single = true;
 		hideModal();
 		clearInterval(singleplayerBtn);
 	});
 	multiplayerBtn.addEventListener('click', async function()
 	{
-		const matchData =
+		if (connected)
 		{
-			game: "pong",
-			player1: player1Id,
-			match_type: "local_multiplayer",
-		};
-		matchId = await createGame(matchData);
+			const matchData =
+			{
+				game: "pong",
+				player1: player1Id,
+				match_type: "local_multiplayer",
+			};
+			matchId = await createGame(matchData);
+		}
 		multi = true;
 		hideModal();
 		clearInterval(multiplayerBtn);
 	});
 	multiplayerOnlineBtn.addEventListener('click', async function()
 	{
-		const matchData =
+		if (!connected)
 		{
-			game: "pong",
-			player1: player1Id,
-			match_type: "online_multiplayer",
-		};
-		matchId = await createGame(matchData);
-		multi_online = true;
-		hideModal();
-		clearInterval(multiplayerOnlineBtn);
+			gameModeModal.classList.remove('show');
+			gameModeModal.style.display = 'none';
+			notConnectedModal.classList.add('show');
+			notConnectedModal.style.display = "block";
+			clearInterval(multiplayerOnlineBtn);
+			changeGMButoon.addEventListener('click', function()
+			{
+				notConnectedModal.classList.remove('show');
+				notConnectedModal.style.display = "none";
+				clearInterval(changeGMButoon);
+				retry();
+			})
+		}
+		else
+		{
+			const matchData =
+			{
+				game: "pong",
+				player1: player1Id,
+				match_type: "online_multiplayer",
+			};
+			matchId = await createGame(matchData);
+			const onlineMatchData =
+			{
+				type: "new_match",
+				game: "pong",
+				matchId: matchId,
+			};
+			sendMessage(onlineMatchData);
+			multi_online = true;
+			hideModal();
+			clearInterval(multiplayerOnlineBtn);
+		}
 	});
 	let checkValue = setInterval(function()
 	{
@@ -383,11 +446,14 @@ function retry()
 			setTimeout(startMovingSquare, 1000);
 			clearInterval(checkValue);
 		}
+		if (reset)
+			clearInterval(checkValue);
 	}, 100);
 }
 
 function startMovingSquare()
 {
+	console.log(ball_step);
 	const contentArea = player.parentElement;
 	enemy.style.left = contentArea.getBoundingClientRect().right - 97 + "px";
 
@@ -588,20 +654,23 @@ function startMovingSquare()
 			}
 			if (score_player >= 3 || score_enemy >= 3)
 			{
-				const currentTime = getCurrentTime();
-				const matchData =
+				if (connected)
 				{
-					id: matchId,
-					player1_score: score_player,
-					player2_score: score_enemy,
-					player1_ball_touch: player_touch,
-					player2_ball_touch: enemy_touch,
-					player1_consec_touch: player1_max_consec_touch,
-					player2_consec_touch: player2_max_consec_touch,
-					fastest_ball_speed: maxBallSpeed,
-					end_time: currentTime,
-				};
-				updateGame(matchData);
+					const currentTime = getCurrentTime();
+					const matchData =
+					{
+						id: matchId,
+						player1_score: score_player,
+						player2_score: score_enemy,
+						player1_ball_touch: player_touch,
+						player2_ball_touch: enemy_touch,
+						player1_consec_touch: player1_max_consec_touch,
+						player2_consec_touch: player2_max_consec_touch,
+						fastest_ball_speed: maxBallSpeed,
+						end_time: currentTime,
+					};
+					updateGame(matchData);
+				}
 				finish = true;
 				end_modal.style.display = 'block';
 				end_modal.classList.add('show');
@@ -619,23 +688,27 @@ function startMovingSquare()
 				const retryButton = document.getElementById('retry-button');
 				retryButton.addEventListener('click', function()
 				{
-					retry();
 					clearInterval(retryButton);
+					retry();
+					//reset = true;
 				});
 				return ;
 			}
-			const matchData =
+			if (connected)
 			{
-				id: matchId,
-				player1_score: score_player,
-				player2_score: score_enemy,
-				player1_ball_touch: player_touch,
-				player2_ball_touch: enemy_touch,
-				player1_consec_touch: player1_max_consec_touch,
-				player2_consec_touch: player2_max_consec_touch,
-				fastest_ball_speed: maxBallSpeed,
-			};
-			updateGame(matchData);
+				const matchData =
+				{
+					id: matchId,
+					player1_score: score_player,
+					player2_score: score_enemy,
+					player1_ball_touch: player_touch,
+					player2_ball_touch: enemy_touch,
+					player1_consec_touch: player1_max_consec_touch,
+					player2_consec_touch: player2_max_consec_touch,
+					fastest_ball_speed: maxBallSpeed,
+				};
+				updateGame(matchData);
+			}
 			clearInterval(moveInterval);
 			movingSquare.style.display = 'none';
 			ball_power_player_touch = true;
@@ -648,13 +721,16 @@ function startMovingSquare()
 
 // This is called after the components have been loaded
 
-document.addEventListener("DOMContentLoaded", function()
+document.addEventListener("DOMContentLoaded", async function()
 {
 	end_modal.classList.remove('show');
 	end_modal.style.display = 'none';
-	inviteModal.classList.remove('show');
-	inviteModal.style.display = 'none';
-	fetchUserData().then(data =>
+	//inviteModal.classList.remove('show');
+	//inviteModal.style.display = 'none';
+	notConnectedModal.classList.remove('show');
+	notConnectedModal.style.display = 'none';
+	let data = await fetchUserData();
+	if (data !== "")
 	{
 		if (data.pong_ball >= 1 && data.pong_ball <= 8)
 		{
@@ -674,7 +750,8 @@ document.addEventListener("DOMContentLoaded", function()
 			player.style.animation = "gradient-animation 3s ease infinite";
 		}
 		player1Id = data.id;
-	})
+		connected = true;
+	}
 	var gameModeModal = document.getElementById('gameModeModal');
         var page = document.getElementById('page');
         
@@ -694,49 +771,75 @@ document.addEventListener("DOMContentLoaded", function()
 
 	singleplayerBtn.addEventListener('click', async function ()
 	{
-		const matchData =
+		if (connected)
 		{
-			game: "pong",
-			player1: player1Id,
-			match_type: "singleplayer",
-		};
-		matchId = await createGame(matchData);
+			const matchData =
+			{
+				game: "pong",
+				player1: player1Id,
+				match_type: "singleplayer",
+			};
+			matchId = await createGame(matchData);
+		}
 		single = true;
 		hideModal();
 		clearInterval(singleplayerBtn);
 	});
 	multiplayerBtn.addEventListener('click', async function()
 	{
-		const matchData =
+		if (connected)
 		{
-			game: "pong",
-			player1: player1Id,
-			match_type: "local_multiplayer",
-		};
-		matchId = await createGame(matchData);
+			const matchData =
+			{
+				game: "pong",
+				player1: player1Id,
+				match_type: "local_multiplayer",
+			};
+			matchId = await createGame(matchData);
+		}
 		multi = true;
 		hideModal();
 		clearInterval(multiplayerBtn);
 	});
 	multiplayerOnlineBtn.addEventListener('click', async function()
 	{
-		const matchData =
+		if (!connected)
 		{
-			game: "pong",
-			player1: player1Id,
-			match_type: "online_multiplayer",
-		};
-		matchId = await createGame(matchData);
-		const onlineMatchData =
+			//console.log('yes');
+			gameModeModal.classList.remove('show');
+			gameModeModal.style.display = 'none';
+			notConnectedModal.classList.add('show');
+			notConnectedModal.style.display = "block";
+			clearInterval(multiplayerOnlineBtn);
+			changeGMButoon.addEventListener('click', function()
+			{
+				notConnectedModal.classList.remove('show');
+				notConnectedModal.style.display = "none";
+				reset = true;
+				retry();
+				clearInterval(changeGMButoon);
+			})
+		}
+		else
 		{
-			type: "new_match",
-			game: "pong",
-			matchId: matchId,
-		};
-		sendMessage(onlineMatchData);
-		multi_online = true;
-		hideModal();
-		clearInterval(multiplayerOnlineBtn);
+			const matchData =
+			{
+				game: "pong",
+				player1: player1Id,
+				match_type: "online_multiplayer",
+			};
+			matchId = await createGame(matchData);
+			const onlineMatchData =
+			{
+				type: "new_match",
+				game: "pong",
+				matchId: matchId,
+			};
+			sendMessage(onlineMatchData);
+			multi_online = true;
+			hideModal();
+			clearInterval(multiplayerOnlineBtn);
+		}
 	});
 });
 
@@ -797,13 +900,13 @@ document.addEventListener("keydown", function(event)
 			}
 			//if 
 			console.log(matchId);
-			const matchData =
-			{
-				type: "match_update",
-				matchId: matchId,
-				player1Position: newTop
-			};
-			sendMessage(matchData)
+			//const matchData =
+			//{
+			//	type: "match_update",
+			//	matchId: matchId,
+			//	player1Position: newTop
+			//};
+			//sendMessage(matchData)
 		}
 
 		// In case of multiplayer chosen enemy up/down
@@ -839,16 +942,13 @@ let checkValue = setInterval(function()
 	}
 }, 100);
 
-
-socket.addEventListener('message', function(event)
-{
-	const message = JSON.parse(event.data);
-	console.log('Parsed message:', message);
-	if (message.type = "match_update")
-		if (message.player1Position !== undefined)
-			player.style.top = message.player1Position + "px";
-	if (message.type = "match_update")
-		if (message.player2Position !== undefined)
-			enemy.style.top = message.player2Position + "px";
-	
+$(document).ready(function() {
+	// Handle modal showing
+	$('#inviteModal').on('show.bs.modal', function () {
+	    // Set a timeout to ensure the modal is fully shown before focusing
+	    setTimeout(function() {
+		$('#usernameInput').focus();
+	    }, 0);
+	});
 });
+    

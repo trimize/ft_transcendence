@@ -1,22 +1,21 @@
 let socket = null;
-let accessToken = localStorage.getItem('access');
 
-export function getWebSocket() {
-    if (!socket || socket.readyState === WebSocket.CLOSED) {
+export async function getWebSocket() {
+	if (!socket || socket.readyState === WebSocket.CLOSED) {
         // If there's no existing connection or it's closed, create a new WebSocket
         socket = new WebSocket(localStorage.getItem('websocket_url'));
-        
+        let accessToken = localStorage.getItem('access');
         // Set up event listeners
         socket.addEventListener('open', async () => {
             console.log('WebSocket connection established');
             
             try {
-                const response = await fetch('http://10.31.1.4:8000/api/user_info/', {
+                const response = await fetch('http://localhost:8000/api/user_info/', {
                     method: 'GET',
                     headers: {
-                    'Authorization': `Bearer ${accessToken}`,
-                    'Content-Type': 'application/json'
-                    }});
+			'Authorization': `Bearer ${accessToken}`,
+			'Content-Type': 'application/json'
+		}});
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }

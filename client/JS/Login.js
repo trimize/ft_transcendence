@@ -1,4 +1,4 @@
-let socket = null;
+import { getWebSocket } from "./singletonSocket.js";
 
 document.getElementById('loginForm').addEventListener('submit', function(event)
 {
@@ -17,13 +17,14 @@ document.getElementById('loginForm').addEventListener('submit', function(event)
 		body: JSON.stringify(credentials)
 	})
 	.then(response => response.json())
-	.then(data => {
+	.then(async data => {
 		if (data.access && data.refresh) {
 			localStorage.setItem('access', data.access);
 			localStorage.setItem('refresh', data.refresh);
 			localStorage.setItem('websocket_url', data.websocket_url);
 			console.log(data.websocket_url);
-			//window.location.href = '/Landing';
+			await getWebSocket();
+			window.location.href = '/Landing';
 		}
 		else if (data.message === '2FA required')
 		{
@@ -58,11 +59,14 @@ document.getElementById('verify2FA').addEventListener('click', function()
 		body: JSON.stringify({ username: username, password: password, token: otpToken })
 	})
 	.then(response => response.json())
-	.then(data => {
+	.then(async data => {
 		if (data.access && data.refresh)
 		{
 			localStorage.setItem('access', data.access);
 			localStorage.setItem('refresh', data.refresh);
+			localStorage.setItem('websocket_url', data.websocket_url);
+			console.log(data.websocket_url);
+			await getWebSocket();
 			window.location.href = '/Landing';
 		}
 		else
