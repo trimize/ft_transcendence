@@ -9,7 +9,7 @@ from ..models import User
 from ..serializer import UserSerializer
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
 def get_users(request):
 	users = User.objects.all()
 	serializer = UserSerializer(users, many=True)
@@ -84,6 +84,13 @@ def get_user(request, pk):
 @permission_classes([IsAuthenticated])
 def get_user_info(request):
     user = request.user
+    serializer = UserSerializer(user)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_username(request, username):
+    user = get_object_or_404(User, username=username)
     serializer = UserSerializer(user)
     return Response(serializer.data)
 

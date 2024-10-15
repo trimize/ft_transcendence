@@ -1,0 +1,2 @@
+server/tcd_back/api/migrations/*
+server/tcd_back/api/__pycache__/

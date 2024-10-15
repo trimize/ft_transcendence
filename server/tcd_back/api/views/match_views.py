@@ -6,7 +6,7 @@ from ..models import Match_Record
 from ..serializer import MatchSerializer
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
 def get_matches(request):
 	matches = Match_Record.objects.all()
 	serializer = MatchSerializer(matches, many=True)

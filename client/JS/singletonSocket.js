@@ -1,4 +1,5 @@
 let socket = null;
+let accessToken = localStorage.getItem('access');
 
 export function getWebSocket() {
     if (!socket || socket.readyState === WebSocket.CLOSED) {
@@ -6,8 +7,28 @@ export function getWebSocket() {
         socket = new WebSocket(localStorage.getItem('websocket_url'));
         
         // Set up event listeners
-        socket.addEventListener('open', () => {
+        socket.addEventListener('open', async () => {
             console.log('WebSocket connection established');
+            
+            try {
+                const response = await fetch('http://10.31.1.4:8000/api/user_info/', {
+                    method: 'GET',
+                    headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json'
+                    }});
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const userInfo = await response.json();
+                const userId = userInfo.id;
+                console.log(userInfo);
+                console.log('Sending to WebSocket:', JSON.stringify({ type: "new_connection", userId: userId }));
+                // Send userId to the WebSocket server
+                socket.send(JSON.stringify({ type: "new_connection" , userId: userId }));
+            } catch (error) {
+                console.error('Failed to fetch user info:', error);
+            }
         });
 
         //socket.addEventListener('message', (event) => {
