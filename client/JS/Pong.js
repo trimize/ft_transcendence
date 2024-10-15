@@ -61,6 +61,8 @@ let player1Position;
 let player2Position;
 let reset = false;
 let accessToken = localStorage.getItem('access');
+let socket;
+let data;
 
 // Makes sure the enemy is placed well on resize for responsiveness
 
@@ -99,7 +101,7 @@ function hideModal()
 		{
 			//inviteModal.style.display = 'block';
 			//inviteModal.classList.add('show');
-			const socket = await getWebSocket();
+			$("#inviteModal").modal("show");
 			socket.addEventListener('message', function(event)
 			{
 				const message = JSON.parse(event.data);
@@ -112,37 +114,117 @@ function hideModal()
 						enemy.style.top = message.player2Position + "px";
 				
 			});
+
+			
 			inviteButton.addEventListener('click', async function()
 			{
-				data = await getUser(usernameInput.value);
-				if (data === "")
+				let dataSecondUser = await getUser(usernameInput.value);
+				if (dataSecondUser === "")
 				{
 					const errorText = document.getElementById('searchStatus');
 					errorText.style.display = 'block';
 					errorText.style.color = 'red';
 					errorText.textContent = "User not found!";
 				}
-				console.log(data);
-				//const matchData =
-				//{
-				//	type: "send_invite",
-				//	matchId: matchId,
-				//	inviteeId: "2"
-				//};
-				//await sendMessage(matchData);
+				else
+				{
+					console.log(dataSecondUser);
+		
+					const matchData =
+					{
+						type: "send_invite",
+						matchId: matchId,
+						inviteeId: dataSecondUser.id,
+						hostId: player1Id,
+						game: "pong"
+					};
+					await sendMessage(matchData);
+					document.addEventListener("keydown", function(event)
+					{
+						event.preventDefault();
+					
+						// Only listening when game has started
+					
+						if (start && !finish)
+						{
+							const currentTop = parseInt(window.getComputedStyle(player).top, 10);
+							const current2pTop = parseInt(window.getComputedStyle(enemy).top, 10);
+							const parentDiv = player.parentElement;
+							const parentHeight = parentDiv.clientHeight;
+							const rectangleHeight = player.clientHeight;
+							const rectangle2pHeight = enemy.clientHeight;
+							
+							// Arrow up/down for player up/down
+							if ((single || multi) && !finish)
+							{
+								if (event.key === "ArrowUp")
+								{
+									let newTop = currentTop - step;
+									if (newTop < 0)
+										newTop = 0;
+									player.style.top = newTop + "px";
+								}
+								else if (event.key === "ArrowDown")
+								{
+									let newTop = currentTop + step;
+									if (newTop > parentHeight - rectangleHeight)
+										newTop = parentHeight - rectangleHeight;
+									player.style.top = newTop + "px";
+								}
+							}
+					
+							if (multi_online)
+							{
+								//console.log('yes');
+								let newTop;
+								if (event.key === "ArrowUp")
+								{
+									newTop = currentTop - step;
+									if (newTop < 0)
+										newTop = 0;
+									//player.style.top = newTop + "px";
+								}
+								else if (event.key === "ArrowDown")
+								{
+									newTop = currentTop + step;
+									if (newTop > parentHeight - rectangleHeight)
+										newTop = parentHeight - rectangleHeight;
+									//player.style.top = newTop + "px";
+								}
+								//if 
+								console.log(matchId);
+								//const matchData =
+								//{
+								//	type: "match_update",
+								//	matchId: matchId,
+								//	player1Position: newTop
+								//};
+								//sendMessage(matchData)
+							}
+					
+							// In case of multiplayer chosen enemy up/down
+					
+							if (multi && !finish)
+							{
+								if (event.key === "w")
+								{
+									let newTop2 = current2pTop - step;
+									if (newTop2 < 0)
+										newTop2 = 0;
+									enemy.style.top = newTop2 + "px";
+								}
+								else if (event.key === "s")
+								{
+									let newTop2 = current2pTop + step;
+									if (newTop2 > parentHeight - rectangle2pHeight)
+										newTop2 = parentHeight - rectangle2pHeight;
+									enemy.style.top = newTop2 + "px";
+								}
+							}
+						}
+					});
+				}
 			})
-			//startOnlineButton.addEventListener('click', function()
-			//{
-			//	inviteModal.classList.remove('show');
-			//	inviteModal.style.display = 'none';
-			//	ball_step = parseInt(ballSpeed.value);
-			//	if (enableBallAcceleration.checked)
-			//		ball_acc = true;
-			//	if (powersOption.checked)
-			//		power = true;
-			//	page.classList.remove('blur');
-			//	start = true;
-			//})
 		}
 		else
 		{
@@ -156,91 +238,93 @@ function hideModal()
 			page.classList.remove('blur');
 			start = true;
 		}
-		document.addEventListener("keydown", function(event)
+		if (!multi_online)
 		{
-			event.preventDefault();
-		
-			// Only listening when game has started
-		
-			if (start && !finish)
+			document.addEventListener("keydown", function(event)
 			{
-				const currentTop = parseInt(window.getComputedStyle(player).top, 10);
-				const current2pTop = parseInt(window.getComputedStyle(enemy).top, 10);
-				const parentDiv = player.parentElement;
-				const parentHeight = parentDiv.clientHeight;
-				const rectangleHeight = player.clientHeight;
-				const rectangle2pHeight = enemy.clientHeight;
-				
-				// Arrow up/down for player up/down
-				if ((single || multi) && !finish)
+				event.preventDefault();
+			
+				// Only listening when game has started
+			
+				if (start && !finish)
 				{
-					if (event.key === "ArrowUp")
+					const currentTop = parseInt(window.getComputedStyle(player).top, 10);
+					const current2pTop = parseInt(window.getComputedStyle(enemy).top, 10);
+					const parentDiv = player.parentElement;
+					const parentHeight = parentDiv.clientHeight;
+					const rectangleHeight = player.clientHeight;
+					const rectangle2pHeight = enemy.clientHeight;
+					
+					// Arrow up/down for player up/down
+					if ((single || multi) && !finish)
 					{
-						let newTop = currentTop - step;
-						if (newTop < 0)
-							newTop = 0;
-						player.style.top = newTop + "px";
+						if (event.key === "ArrowUp")
+						{
+							let newTop = currentTop - step;
+							if (newTop < 0)
+								newTop = 0;
+							player.style.top = newTop + "px";
+						}
+						else if (event.key === "ArrowDown")
+						{
+							let newTop = currentTop + step;
+							if (newTop > parentHeight - rectangleHeight)
+								newTop = parentHeight - rectangleHeight;
+							player.style.top = newTop + "px";
+						}
 					}
-					else if (event.key === "ArrowDown")
+			
+					if (multi_online)
 					{
-						let newTop = currentTop + step;
-						if (newTop > parentHeight - rectangleHeight)
-							newTop = parentHeight - rectangleHeight;
-						player.style.top = newTop + "px";
+						//console.log('yes');
+						let newTop;
+						if (event.key === "ArrowUp")
+						{
+							newTop = currentTop - step;
+							if (newTop < 0)
+								newTop = 0;
+							//player.style.top = newTop + "px";
+						}
+						else if (event.key === "ArrowDown")
+						{
+							newTop = currentTop + step;
+							if (newTop > parentHeight - rectangleHeight)
+								newTop = parentHeight - rectangleHeight;
+							//player.style.top = newTop + "px";
+						}
+						//if 
+						console.log(matchId);
+						//const matchData =
+						//{
+						//	type: "match_update",
+						//	matchId: matchId,
+						//	player1Position: newTop
+						//};
+						//sendMessage(matchData)
+					}
+			
+					// In case of multiplayer chosen enemy up/down
+			
+					if (multi && !finish)
+					{
+						if (event.key === "w")
+						{
+							let newTop2 = current2pTop - step;
+							if (newTop2 < 0)
+								newTop2 = 0;
+							enemy.style.top = newTop2 + "px";
+						}
+						else if (event.key === "s")
+						{
+							let newTop2 = current2pTop + step;
+							if (newTop2 > parentHeight - rectangle2pHeight)
+								newTop2 = parentHeight - rectangle2pHeight;
+							enemy.style.top = newTop2 + "px";
+						}
 					}
 				}
-		
-				if (multi_online)
-				{
-					//console.log('yes');
-					let newTop;
-					if (event.key === "ArrowUp")
-					{
-						newTop = currentTop - step;
-						if (newTop < 0)
-							newTop = 0;
-						//player.style.top = newTop + "px";
-					}
-					else if (event.key === "ArrowDown")
-					{
-						newTop = currentTop + step;
-						if (newTop > parentHeight - rectangleHeight)
-							newTop = parentHeight - rectangleHeight;
-						//player.style.top = newTop + "px";
-					}
-					//if 
-					console.log(matchId);
-					//const matchData =
-					//{
-					//	type: "match_update",
-					//	matchId: matchId,
-					//	player1Position: newTop
-					//};
-					//sendMessage(matchData)
-				}
-		
-				// In case of multiplayer chosen enemy up/down
-		
-				if (multi && !finish)
-				{
-					if (event.key === "w")
-					{
-						let newTop2 = current2pTop - step;
-						if (newTop2 < 0)
-							newTop2 = 0;
-						enemy.style.top = newTop2 + "px";
-					}
-					else if (event.key === "s")
-					{
-						let newTop2 = current2pTop + step;
-						if (newTop2 > parentHeight - rectangle2pHeight)
-							newTop2 = parentHeight - rectangle2pHeight;
-						enemy.style.top = newTop2 + "px";
-					}
-				}
-			}
-		});
-		
+			});
+		}
 		// Checking every 100ms if the settings have been chosen so that the game can start
 		
 		let checkValue = setInterval(function()
@@ -429,29 +513,6 @@ async function retry()
 	end_modal.style.display = 'none';
 	movingSquare.style.top = `${defaultBallTop}px`;
 	movingSquare.style.left = `${defaultBallLeft}px`;
-	let data = await fetchUserData();
-	if (data !== "")
-	{
-		if (data.pong_ball >= 1 && data.pong_ball <= 8)
-		{
-			movingSquare.style.backgroundImage = `url(../Assets/ball${data.pong_ball}.svg)`;
-			movingSquare.style.backgroundSize = "contain";
-			movingSquare.style.backgroundColor = "transparent"
-		}
-		if (data.pong_slider >= 1 && data.pong_slider < 8)
-		{
-			player.style.backgroundImage = `url(../Assets/slider${data.pong_slider}.jpg)`;
-			player.style.backgroundSize = "cover";
-		}
-		else if (data.pong_slider == 8)
-		{
-			player.style.background = "linear-gradient(270deg, #ff7e5f, #feb47b, #6a82fb, #fc5c7d, #ff7e5f)";
-			player.style.backgroundSize = "800% 800%";
-			player.style.animation = "gradient-animation 3s ease infinite";
-		}
-		player1Id = data.id;
-		connected = true;
-	}
 	var gameModeModal = document.getElementById('gameModeModal');
         var page = document.getElementById('page');
         
@@ -823,13 +884,7 @@ function startMovingSquare()
 
 document.addEventListener("DOMContentLoaded", async function()
 {
-	//end_modal.classList.remove('show');
-	//end_modal.style.display = 'none';
-	//inviteModal.classList.remove('show');
-	//inviteModal.style.display = 'none';
-	//notConnectedModal.classList.remove('show');
-	//notConnectedModal.style.display = 'none';
-	let data = await fetchUserData();
+	data = await fetchUserData();
 	if (data !== "")
 	{
 		if (data.pong_ball >= 1 && data.pong_ball <= 8)
@@ -852,6 +907,14 @@ document.addEventListener("DOMContentLoaded", async function()
 		player1Id = data.id;
 		connected = true;
 	}
+	if (connected)
+		socket = await getWebSocket();
+	//end_modal.classList.remove('show');
+	//end_modal.style.display = 'none';
+	//inviteModal.classList.remove('show');
+	//inviteModal.style.display = 'none';
+	//notConnectedModal.classList.remove('show');
+	//notConnectedModal.style.display = 'none';
 	//var gameModeModal = document.getElementById('gameModeModal');
         var page = document.getElementById('page');
         

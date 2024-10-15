@@ -3,7 +3,7 @@ export async function refreshAccessToken()
 	const refreshToken = localStorage.getItem('refresh');
 	try
 	{
-		let response = await fetch('http://localhost:8000/api/token/refresh/',
+		let response = await fetch('http://10.31.1.3:8000/api/token/refresh/',
 		{
 			method: 'POST',
 			headers:
@@ -34,7 +34,7 @@ export async function fetchUserData()
 {
 	const accessToken = localStorage.getItem('access');
 	try {
-		let response = await fetch('http://localhost:8000/api/user_info/', {
+		let response = await fetch('http://10.31.1.3:8000/api/user_info/', {
 		    method: 'GET',
 		    headers: {
 			'Authorization': `Bearer ${accessToken}`,
@@ -61,7 +61,7 @@ export async function fetchUserData()
 	//.then(async response => {
 	//    if (response.status === 401) {
 	//	// If the token is expired or invalid, refresh it
-	//	return refreshAccessToken().then(() => fetch('http://localhost:8000/api/user_info/', {
+	//	return refreshAccessToken().then(() => fetch('http://10.31.1.3:8000/api/user_info/', {
 	//	    method: 'GET',
 	//	    headers: {
 	//		'Authorization': `Bearer ${localStorage.getItem('access_token')}`,

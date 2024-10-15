@@ -9,7 +9,7 @@ document.getElementById('registerForm').addEventListener('submit', function(even
 		password: this.password.value
 	};
 
-	fetch('http://localhost:8000/api/create_user/', 
+	fetch('http://10.31.1.3:8000/api/create_user/', 
 	{
 		method: 'POST',
 		headers:
@@ -41,7 +41,7 @@ document.getElementById('registerForm').addEventListener('submit', function(even
 	{
 		console.log(data);
 		//if (data.email == "Enter a valid email address.")
-		window.location.href = '/Login';
+		window.location.href = '/login';
 	})
 	.catch(error =>
 	{

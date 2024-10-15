@@ -10,7 +10,7 @@ export async function getWebSocket() {
             console.log('WebSocket connection established');
             
             try {
-                const response = await fetch('http://localhost:8000/api/user_info/', {
+                const response = await fetch('http://10.31.1.3:8000/api/user_info/', {
                     method: 'GET',
                     headers: {
 			'Authorization': `Bearer ${accessToken}`,

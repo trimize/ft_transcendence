@@ -15,6 +15,7 @@ services:
 
   web:
     build: ./server/
+    container_name: backend
     command: sh -c "python manage.py makemigrations api && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./server:/app
@@ -41,7 +42,6 @@ services:
       - "4443:443"
     volumes:
       - ./client/ssl:/etc/nginx/ssl
-      - ./client/Assets/profilePictures:/usr/share/nginx/html/Assets/profilePictures
 
   redis:
     image: "redis:alpine"

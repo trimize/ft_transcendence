@@ -9,7 +9,7 @@ document.getElementById('loginForm').addEventListener('submit', function(event)
 		password: this.password.value
 	};
 
-	fetch('http://localhost:8000/api/login_user/', {
+	fetch('http://10.31.1.3:8000/api/login_user/', {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
@@ -24,7 +24,7 @@ document.getElementById('loginForm').addEventListener('submit', function(event)
 			localStorage.setItem('websocket_url', data.websocket_url);
 			console.log(data.websocket_url);
 			await getWebSocket();
-			window.location.href = '/Landing';
+			//window.location.href = '/landing';
 		}
 		else if (data.message === '2FA required')
 		{
@@ -51,7 +51,7 @@ document.getElementById('verify2FA').addEventListener('click', function()
 	const password = document.querySelector('#loginForm input[name="password"]').value;
 	const otpToken = document.getElementById('otpToken').value;
 
-	fetch('http://localhost:8000/api/verify_2fa/', {
+	fetch('http://10.31.1.3:8000/api/verify_2fa/', {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
