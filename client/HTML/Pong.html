@@ -68,20 +68,27 @@
 
 		<!--Gamemode selection divs-->
 
-		<div class="modal fade" id="gameModeModal" tabindex="-1" role="dialog" aria-labelledby="gameModeModalLabel" aria-hidden="true">
+		<div class="modal fade" id="gameModeModal" tabindex="-1" role="dialog" aria-labelledby="gameModeModalLabel" aria-hidden="true" data-backdrop="static">
 			<div class="modal-dialog modal-dialog-centered" role="document">
 				<div class="modal-content">
 					<h2>Select Game Mode</h2>
-					<button type="button" class="btn btn-primary" id="singleplayer-btn">Singleplayer</button>
-					<button type="button" class="btn btn-success" id="multiplayer-btn">Local multiplayer</button>
-					<button type="button" class="btn btn-success" id="multiplayer_online-btn">Online multiplayer</button>
+					<button type="button" class="btn btn-primary" id="singleplayer-btn" data-toggle="modal" data-target="#customizationModal">Singleplayer</button>
+					<button type="button" class="btn btn-success" id="multiplayer-btn" data-toggle="modal" data-target="#customizationModal">Local multiplayer</button>
+					<button type="button" class="btn btn-success" id="multiplayer_online-btn" data-toggle="modal" data-target="#customizationModal">Online multiplayer</button>
+					<form id="inviteForm">
+						<div class="form-group">
+							<label id="dog" for="usernameInput">Username</label>
+							<input type="text" id="usernameInput2" class="form-control" placeholder="Enter email or username">
+							<div id="searchStatus" style="display: none;" class="mt-3 text-center"></div>
+						</div>
+					</form>
 				</div>
 			</div>
 		</div>
 
 		<!--Game settings divs-->
 
-		<div class="modal fade" id="customizationModal" tabindex="-1" role="dialog" aria-labelledby="customizationModalLabel" aria-hidden="true">
+		<div class="modal fade" id="customizationModal" tabindex="-1" role="dialog" aria-labelledby="customizationModalLabel" aria-hidden="true" data-backdrop="static">
 			<div class="modal-dialog modal-dialog-centered" role="document">
 				<div class="modal-content">
 					<h2>Customize Game</h2>
@@ -103,13 +110,13 @@
 						</div>
 					</div>
 					<div class="modal-footer">
-						<button id="start-button" type="button" class="btn btn-primary" data-target="#inviteModal">Start Game</button>
+						<button id="start-button" type="button" class="btn btn-primary">Start Game</button>
 					</div>
 				</div>
 			</div>
 		</div>
 
-		<div class="modal fade" id="inviteModal" tabindex="-1" role="dialog" aria-labelledby="inviteModalLabel" aria-hidden="true">
+		<div class="modal fade" id="inviteModal" tabindex="-1" role="dialog" aria-labelledby="inviteModalLabel" aria-hidden="true" data-backdrop="static">
 			<div class="modal-dialog modal-dialog-centered" role="document">
 			    <div class="modal-content">
 				<div class="modal-header">
@@ -134,7 +141,7 @@
 			</div>
 		    </div>
 
-		<div class="modal fade" id="victoryModal" tabindex="-1" role="dialog" aria-labelledby="victoryModalLabel" aria-hidden="true">
+		<div class="modal fade" id="victoryModal" tabindex="-1" role="dialog" aria-labelledby="victoryModalLabel" aria-hidden="true" data-backdrop="static">
 			<div class="modal-dialog modal-dialog-centered" role="document">
 				<div class="modal-content">
 					<h2 id="victorytitle">Victory!</h2>
@@ -147,7 +154,7 @@
 			</div>
 		</div>
 
-		<div class="modal fade" id="notConnectedModal" tabindex="-1" role="dialog" aria-labelledby="victoryModalLabel" aria-hidden="true">
+		<div class="modal fade" id="notConnectedModal" tabindex="-1" role="dialog" aria-labelledby="victoryModalLabel" aria-hidden="true" data-backdrop="static">
 			<div class="modal-dialog modal-dialog-centered" role="document">
 				<div class="modal-content">
 					<h2 id="victorytitle">Not connected!</h2>
@@ -161,6 +168,7 @@
 		
 		<!--<script src="../JS/Pong.js"></script>-->
 		<script type="module" src="/js/Pong.js"></script>
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 		<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
 		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

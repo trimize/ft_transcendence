@@ -92,11 +92,6 @@
 	padding: 2rem;
 }
 
-#gameModeModal
-{
-	z-index: 12;
-}
-
 .modal-content h2
 {
 	font-family: 'Press Start 2P', sans-serif;
