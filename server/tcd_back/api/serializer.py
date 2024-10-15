@@ -6,7 +6,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            'id', 'username', 'email', 'password', 'friends', 'blocked_friends',
+            'id', 'username', 'email', 'password', 'profile_pic', 'friends', 'blocked_friends',
             'pong_ball', 'pong_slider', 'tic_tac_toe_sign', 'tic_tac_toe_background',
             'wins', 'losses'
         ]
@@ -22,6 +22,7 @@ class UserSerializer(serializers.ModelSerializer):
             instance.password = make_password(validated_data['password'])
         instance.username = validated_data.get('username', instance.username)
         instance.email = validated_data.get('email', instance.email)
+        instance.profile_pic = validated_data.get('profile_pic', instance.profile_pic)
         instance.pong_ball = validated_data.get('pong_ball', instance.pong_ball)
         instance.pong_slider = validated_data.get('pong_slider', instance.pong_slider)
         instance.tic_tac_toe_sign = validated_data.get('tic_tac_toe_sign', instance.tic_tac_toe_sign)

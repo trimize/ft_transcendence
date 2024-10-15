@@ -96,7 +96,7 @@ document.getElementById('editProfileForm').addEventListener('submit', function(e
 		body: JSON.stringify({
 			username: username,
 			email: email,
-			profile_picture: profilePicture
+			profile_pic: profilePicture
 		})
 	})
 	.then(response => response.json())

@@ -21,6 +21,7 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser):
     username = models.CharField(max_length=255, unique=True)
     email = models.EmailField(unique=True)
+    profile_pic = models.CharField(blank=True, null=True)
     friends = models.ManyToManyField('self', blank=True)
     blocked_friends = models.ManyToManyField('self', blank=True, related_name='blocked_by')
     pong_ball = models.IntegerField(default=0)
