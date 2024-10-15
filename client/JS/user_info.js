@@ -12,7 +12,7 @@ export async function refreshAccessToken()
 			},
 			body: JSON.stringify({ refresh: refreshToken })
 		})
-		data = await response.json();
+		let data = await response.json();
 		console.log(data.access);
 		if (data.access)
 			localStorage.setItem('access', data.access);
@@ -53,7 +53,7 @@ export async function fetchUserData()
 	}
 	catch (error) {
 		console.error(error.message);
-		return "";
+		// return "";
 	}
 }
 
