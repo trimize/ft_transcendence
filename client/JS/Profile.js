@@ -6,6 +6,7 @@ import { fetchUserData } from "./fetchFunctions.js";
 // const lossesDiv = document.getElementById('losses');
 // const profilePicture = document.getElementById('profilePicture');
 const profilePicture = document.getElementById('profilePicture');
+const logoutButton = document.getElementById('logoutBtn');
 
 document.addEventListener('DOMContentLoaded', function()
 {
@@ -27,4 +28,8 @@ document.addEventListener('DOMContentLoaded', function()
 
 });
 
-
+logoutButton.addEventListener('click', function()
+{
+	localStorage.clear();
+	window.location.href = '/';
+});
