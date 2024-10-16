@@ -17,19 +17,22 @@ function populateLeaderboard(leaderboardData, userData) {
     tbody.innerHTML = '';
     console.log(leaderboardData);
     const userList = leaderboardData.map(player => ({...player}));
-    userList.forEach(player => {
+    userList.sort((a, b) => b.wins - a.wins);
+    let i = 1;
+    userList.forEach((player) => {
         const tr = document.createElement('tr');
         const isFriend = userData.friends.includes(player.id);
         const isCurrentUser = userData.id === player.id;
         console.log("player: " , player);
         console.log("player friend status: " , isFriend);
         tr.innerHTML = `
-            <td>${player.rank}</td>
+            <td>${i}</td>
             <td>${player.username}</td>
             <td>${player.wins}</td>
             <td>${isCurrentUser ? '' : (isFriend ? 'Friends' : `<button type="button" class="btn btn-primary" onclick="addFriend('${player.id}')">Add Friend</button>`)}</td>
         `;
         tbody.appendChild(tr);
+        i++;
     });
 }
 

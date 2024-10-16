@@ -25,7 +25,6 @@ document.addEventListener('DOMContentLoaded', function()
 		document.getElementById('email').textContent = profileData.email;
 		document.getElementById('wins').textContent = `Wins : ${profileData.wins}`;
 		document.getElementById('losses').textContent = `Losses : ${profileData.losses}`;
-		document.getElementById('totalGames').textContent = `Total Games : ${profileData.wins + profileData.losses}`;
 		document.getElementById('friends').textContent = `Friends : ${profileData.friends.length}`;
 	})
 	.catch(error =>
