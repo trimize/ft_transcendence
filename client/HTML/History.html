@@ -35,7 +35,7 @@
 					<a class="dropdown-item" href="/Landing">Landing</a>
 					<a class="dropdown-item" href="/Profile">Profile</a>
 					<a class="dropdown-item" href="/Leaderboard">Leaderboard</a>
-					<a class="dropdown-item" href="/History">Match History</a>
+                    <a class="dropdown-item" href="/History">Match History</a>
 					<a class="dropdown-item" href="/Customize">Customize</a>
 					</div>
 				</div>
@@ -53,27 +53,28 @@
 				</div>
 			</nav>
 			<div>
-				<h1 class="text-center mt-5">Leaderboard</h1>
+				<h1 class="text-center mt-5">Match History</h1>
 				<div class="container mt-5">
 					<table class="table table-dark table-striped">
-						<thead>
-							<tr>
-								<th scope="col">Rank</th>
-								<th scope="col">Username</th>
-								<th scope="col">Wins</th>
-								<th scope="col">Status</th>
-							</tr>
-						</thead>
-						<tbody id="leaderboard">
-							<!-- Leaderboard data will be inserted here -->
-						</tbody>
-					</table>
+                        <thead>
+                            <tr>
+                                <th scope="col">N</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Game</th>
+                                <th scope="col">Game type</th>
+                                <th scope="col">Opponent</th>
+                                <th scope="col">Result</th>
+                            </tr>
+                        </thead>
+                        <tbody id="matchHistoryTable">
+                        </tbody>
+                    </table>
 				</div>
 			</div>
 		</div>
 
 		<!-- Bootstrap JS and dependencies -->
-		<script type="module" src="/js/Leaderboard.js"></script>
+		<script type="module" src="/js/History.js"></script>
 		<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
 		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

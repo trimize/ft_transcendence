@@ -191,3 +191,26 @@ export async function addFriend(user) {
     alert("Error adding friend");
   }
 }
+
+export async function fetchMatches(userId) {
+  const accessToken = localStorage.getItem("access");
+  try {
+    let response = await fetch(`http://localhost:8000/api/matches/player/${userId}/`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+    });
+    if (response.status == 401) {
+      await refreshAccessToken();
+      const data = await fetchMatches(user);
+      return data;
+    } else if (!response.ok) throw new Error("Failed to fetch user data");
+    const matches = await response.json();
+    return matches;
+  } catch (error) {
+    console.error(error.message);
+    return "";
+  }
+}
