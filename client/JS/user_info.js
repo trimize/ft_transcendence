@@ -56,28 +56,3 @@ export async function fetchUserData()
 		// return "";
 	}
 }
-
-
-	//.then(async response => {
-	//    if (response.status === 401) {
-	//	// If the token is expired or invalid, refresh it
-	//	return refreshAccessToken().then(() => fetch('http://localhost:8000/api/user_info/', {
-	//	    method: 'GET',
-	//	    headers: {
-	//		'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-	//		'Content-Type': 'application/json'
-	//	    }
-	//	}));
-	//    }
-	//    return response.json();
-	//})
-	//.then(data => {
-	//    if (data) {
-	//	return data;
-	//    }
-	//    throw new Error('Failed to fetch user data');
-	//})
-	//.catch(error => {
-	//    console.error('Error fetching user data:', error);
-	//    throw error;
-	//});

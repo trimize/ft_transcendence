@@ -18,18 +18,36 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
     def update(self, instance, validated_data):
-        if 'password' in validated_data:
+        if 'password' in validated_data and validated_data['password'] is not None:
             instance.password = make_password(validated_data['password'])
-        instance.username = validated_data.get('username', instance.username)
-        instance.email = validated_data.get('email', instance.email)
-        instance.profile_pic = validated_data.get('profile_pic', instance.profile_pic)
-        instance.pong_ball = validated_data.get('pong_ball', instance.pong_ball)
-        instance.pong_slider = validated_data.get('pong_slider', instance.pong_slider)
-        instance.tic_tac_toe_sign = validated_data.get('tic_tac_toe_sign', instance.tic_tac_toe_sign)
-        instance.tic_tac_toe_background = validated_data.get('tic_tac_toe_background', instance.tic_tac_toe_background)
+        
+        if 'username' in validated_data and validated_data['username'] is not None:
+            instance.username = validated_data['username']
+        
+        if 'email' in validated_data and validated_data['email'] is not None:
+            instance.email = validated_data['email']
+        
+        if 'profile_pic' in validated_data and validated_data['profile_pic'] is not None:
+            instance.profile_pic = validated_data['profile_pic']
+        
+        if 'pong_ball' in validated_data and validated_data['pong_ball'] is not None:
+            instance.pong_ball = validated_data['pong_ball']
+        
+        if 'pong_slider' in validated_data and validated_data['pong_slider'] is not None:
+            instance.pong_slider = validated_data['pong_slider']
+        
+        if 'tic_tac_toe_sign' in validated_data and validated_data['tic_tac_toe_sign'] is not None:
+            instance.tic_tac_toe_sign = validated_data['tic_tac_toe_sign']
+        
+        if 'tic_tac_toe_background' in validated_data and validated_data['tic_tac_toe_background'] is not None:
+            instance.tic_tac_toe_background = validated_data['tic_tac_toe_background']
+        
+        if 'friends' in validated_data and validated_data['friends'] is not None:
+            instance.friends.set(validated_data['friends'])
+        
         instance.save()
         return instance
-
+    
 class MatchSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Match_Record
