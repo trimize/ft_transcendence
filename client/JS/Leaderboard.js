@@ -7,15 +7,17 @@ document.addEventListener('DOMContentLoaded', async function()
         const userData = await fetchUserData();
         populateLeaderboard(leaderboardData, userData);
     } catch (error) {
-        console.error('Failed to populate leaderboard:', error);
-        showEmptyLine();
+        window.location.href = '/Login';
     }
 });
 
 function populateLeaderboard(leaderboardData, userData) {
     const tbody = document.getElementById('leaderboard');
     tbody.innerHTML = '';
-    console.log(leaderboardData);
+    if (leaderboardData.length === 0) {
+        showEmptyLine();
+        return;
+    }
     const userList = leaderboardData.map(player => ({...player}));
     userList.sort((a, b) => b.wins - a.wins);
     let i = 1;
@@ -23,8 +25,6 @@ function populateLeaderboard(leaderboardData, userData) {
         const tr = document.createElement('tr');
         const isFriend = userData.friends.includes(player.id);
         const isCurrentUser = userData.id === player.id;
-        console.log("player: " , player);
-        console.log("player friend status: " , isFriend);
         tr.innerHTML = `
             <td>${i}</td>
             <td>${player.username}</td>
@@ -40,7 +40,7 @@ function showEmptyLine() {
     const tbody = document.getElementById('leaderboard');
     const tr = document.createElement('tr');
     tr.innerHTML = `
-        <td colspan="3">No data available</td>
+        <td colspan="4">No data available</td>
     `;
     tbody.appendChild(tr);
 }
