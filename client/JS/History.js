@@ -54,3 +54,12 @@ function getMatchResult(match, userData) {
         return "Defeat";
     }
 }
+
+function showEmptyLine() {
+    const tbody = document.getElementById('matchHistoryTable');
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+        <td colspan="6">No data available</td>
+    `;
+    tbody.appendChild(tr);
+}
