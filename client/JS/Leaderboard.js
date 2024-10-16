@@ -5,28 +5,29 @@ document.addEventListener('DOMContentLoaded', async function()
 	try {
         const leaderboardData = await fetchUsers();
         const userData = await fetchUserData();
-        const friendsStatus = checkFriend(userData, leaderboardData);
         populateLeaderboard(leaderboardData, userData);
     } catch (error) {
         console.error('Failed to populate leaderboard:', error);
         showEmptyLine();
     }
-
 });
 
-function populateLeaderboard(leaderboardData, friendsStatus ) {
+function populateLeaderboard(leaderboardData, userData) {
     const tbody = document.getElementById('leaderboard');
     tbody.innerHTML = '';
     console.log(leaderboardData);
-    friendsStatus.forEach(player => {
+    const userList = leaderboardData.map(player => ({...player}));
+    userList.forEach(player => {
         const tr = document.createElement('tr');
+        const isFriend = userData.friends.includes(player.id);
+        const isCurrentUser = userData.id === player.id;
         console.log("player: " , player);
-        console.log("player friend status: " , player.isFriend);
+        console.log("player friend status: " , isFriend);
         tr.innerHTML = `
             <td>${player.rank}</td>
             <td>${player.username}</td>
             <td>${player.wins}</td>
-            <td>${player.isFriend ? 'Friends' : `<button type="button" class="btn btn-primary" onclick="addFriend('${player.id}')">Add Friend</button>`}</td>
+            <td>${isCurrentUser ? '' : (isFriend ? 'Friends' : `<button type="button" class="btn btn-primary" onclick="addFriend('${player.id}')">Add Friend</button>`)}</td>
         `;
         tbody.appendChild(tr);
     });
@@ -39,15 +40,6 @@ function showEmptyLine() {
         <td colspan="3">No data available</td>
     `;
     tbody.appendChild(tr);
-}
-
-function checkFriend(userData, leaderboardData) {
-    const friendsList = userData.friends;
-    console.log(friendsList);
-    return leaderboardData.map(player => ({
-        ...player,
-        isFriend: friendsList.includes(player.username)
-    }));
 }
 
 window.addFriend = addFriend;
