@@ -131,6 +131,19 @@ def send_friend_request(request, friend_username):
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
+def refuse_request(request, friend)
+    try:
+        user = request.user
+        friend = User.objects.get(pk=friend)
+    except User.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    
+    user.invitations_received.remove(friend)
+    friend.invitations_sent.remove(user)
+    return Response(status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
 def add_friend(request, new_friend):
     try:
         user = request.user
