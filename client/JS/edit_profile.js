@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", function () {
     return;
   }
 
-  fetch("http://10.32.3.2:8000/api/user_info/", {
+  fetch("http://localhost:8000/api/user_info/", {
     method: "GET",
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", function () {
 document.getElementById("setup2FA").addEventListener("click", function () {
   const accessToken = localStorage.getItem("access");
 
-  fetch("http://10.32.3.2:8000/api/setup_2fa/", {
+  fetch("http://localhost:8000/api/setup_2fa/", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -58,7 +58,7 @@ document.getElementById("verify2FA").addEventListener("click", function () {
   const accessToken = localStorage.getItem("access");
   const otpToken = document.getElementById("otpToken").value;
 
-  fetch("http://10.32.3.2:8000/api/setup_2fa/", {
+  fetch("http://localhost:8000/api/setup_2fa/", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

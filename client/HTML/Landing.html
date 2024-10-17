@@ -63,6 +63,37 @@
 					</ul>
 				</div>
 			</nav>
+			<div class="row" id="friendsListDiv">
+				<div class="col-md-9">
+					<!-- Main content goes here -->
+				</div>
+				<div class="col-md-3">
+					<!-- Friends List -->
+					<div class="friends-list bg-light p-3" id="friendsList">
+						<h5>Friends List</h5>
+						<input type="text" name="username" placeholder="Search John Doe" id="inputFriend"><button class="btn btn-outline-secondary" type="button" id="searchFriendBtn">Search</button>
+						<ul class="list-group" id="friendsListItems">
+							<!-- Friends will be added here dynamically -->
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div class="modal fade" id="addFriendModal" tabindex="-1" aria-labelledby="addFriendModalLabel" aria-hidden="true">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h5 class="modal-title" id="addFriendModalLabel"></h5>
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+							</button>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary" data-dismiss="modal" id="cancelModal">Cancel</button>
+							<button type="button" class="btn btn-primary" id="confirmAddFriend">Add</button>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 
 		<!-- Bootstrap JS and dependencies -->

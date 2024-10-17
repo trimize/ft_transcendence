@@ -13,7 +13,7 @@ toggleSwitches.forEach(toggleSwitch =>
 			switch (this.dataset.form)
 			{
 				case "1" :
-					fetch(`http://10.32.3.2:8000/api/update_pong_ball/${this.dataset.switch}`,
+					fetch(`http://localhost:8000/api/update_pong_ball/${this.dataset.switch}`,
 					{
 						method: 'PUT',
 						headers:
@@ -24,7 +24,7 @@ toggleSwitches.forEach(toggleSwitch =>
 					})
 					break ;
 				case "2" :
-					fetch(`http://10.32.3.2:8000/api/update_pong_slider/${this.dataset.switch}`,
+					fetch(`http://localhost:8000/api/update_pong_slider/${this.dataset.switch}`,
 					{
 						method: 'PUT',
 						headers:
@@ -35,7 +35,7 @@ toggleSwitches.forEach(toggleSwitch =>
 					})
 					break ;
 				case "3" :
-					fetch(`http://10.32.3.2:8000/api/update_tic_tac_toe_sign/${this.dataset.switch}`,
+					fetch(`http://localhost:8000/api/update_tic_tac_toe_sign/${this.dataset.switch}`,
 					{
 						method: 'PUT',
 						headers:
@@ -46,7 +46,7 @@ toggleSwitches.forEach(toggleSwitch =>
 					})
 					break ;
 				case "4" :
-					fetch(`http://10.32.3.2:8000/api/update_tic_tac_toe_background/${this.dataset.switch}`,
+					fetch(`http://localhost:8000/api/update_tic_tac_toe_background/${this.dataset.switch}`,
 					{
 						method: 'PUT',
 						headers:

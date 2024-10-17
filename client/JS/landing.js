@@ -1,9 +1,14 @@
-import { fetchUserData } from "./fetchFunctions.js";
+import { fetchUserData, getUser } from "./fetchFunctions.js";
 import { getWebSocket } from "./singletonSocket.js"
 
 let data;
 let socket;
 let connected = false;
+
+const searchFriendButton = document.getElementById('searchFriendBtn');
+const friendsList = document.getElementById('friendsListDiv');
+const sendFriendButton = document.getElementById('confirmAddFriend');
+const cancelModal = document.getElementById('cancelModal');
 
 async function sendMessage(message)
 {
@@ -69,6 +74,50 @@ function addNewDropdownItem(text, href, matchId, inviteeId)
 	dropdownMenu.appendChild(newItem);
 }
 
+function addFriendToList(friendName)
+{
+	const friendsListItems = document.getElementById('friendsListItems');
+
+	const listItem = document.createElement('li');
+	listItem.className = 'list-group-item';
+	listItem.textContent = friendName;
+
+	friendsListItems.appendChild(listItem);
+}
+
+async function searchAndAddFriend(params)
+{
+	let friend_found = false;
+	searchedUser = document.getElementById('inputFriend').value
+	const userData = getUser(searchedUser);
+	if (userData == "")
+	{
+		searchedUser = "No user found!"
+		sendFriendButton.style.display = "none";
+		cancelModal.textContent = "Close";
+	}
+	else
+	{
+		searchedUser = userData.username;
+		sendFriendButton.style.display = "block";
+		cancelModal.textContent = "Cancel";
+		friend_found = true;
+	}
+	searchFriendButton.addEventListener('click', function() 
+	{
+		$("#addFriendModal").modal("show");
+		if (friend_found)
+		{
+			document.getElementById('addFriendModalLabel').textContent = searchedUser;
+			sendFriendButton.addEventListener('click', function()
+			{
+				$("#addFriendModal").modal("hide");
+				addFriendToList(searchedUser);
+			});
+		}
+	});
+}
+
 data = await fetchUserData();
 if (data !== "")
 	connected = true;
@@ -81,8 +130,14 @@ if (connected)
 		console.log('Parsed message:', message);
 		if (message.type == "send_invite")
 			addNewDropdownItem(message.game, '/' + message.game, message.matchId, data.id);
-			
+		//if (message.type)
+		//	;
 	});
 	document.getElementById('logdiv').textContent = 'Profile';
 	document.getElementById('logdiv').href = '/profile';
+
+	searchAndAddFriend();
 }
+
+if (!connected)
+	friendsList.style.display = 'none';
