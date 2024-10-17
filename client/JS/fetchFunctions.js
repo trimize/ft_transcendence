@@ -31,6 +31,7 @@ export const securelyGetAccessToken = async () => {
         throw new Error("No access token fetched");
       }
     } catch (error) {
+      localStorage.clear();
       console.error("Error refreshing token:", error);
       throw new Error("Error refreshing token:" + error);
     }
