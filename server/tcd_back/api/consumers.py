@@ -1,5 +1,7 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.db import database_sync_to_async
+from .models import User
 
 user_channels = {}
 
@@ -12,40 +14,40 @@ class SocketConsumer(AsyncWebsocketConsumer):
 		await self.accept()
 
 	async def disconnect(self, close_code):
-    # Find the user ID by channel name
-    user_id = None
-    for uid, channel_name in user_channels.items():
-        if channel_name == self.channel_name:
-            user_id = uid
-            break
+		# Find the user ID by channel name
+		user_id = None
+		for uid, channel_name in user_channels.items():
+			if channel_name == self.channel_name:
+				user_id = uid
+				break
 
-    if user_id:
-        # Remove the user from the user_channels dictionary
-        del user_channels[user_id]
+		if user_id:
+		# Remove the user from the user_channels dictionary
+			del user_channels[user_id]
 
-        # Fetch the user and their friends
-        try:
-            user = await database_sync_to_async(User.objects.get)(id=user_id)
-            friends = await database_sync_to_async(lambda: list(user.friends.all()))()
-        except User.DoesNotExist:
-            print("User does not exist")
-            return
+		# Fetch the user and their friends
+		try:
+			user = await database_sync_to_async(User.objects.get)(id=user_id)
+			friends = await database_sync_to_async(lambda: list(user.friends.all()))()
+		except User.DoesNotExist:
+			print("User does not exist")
+			return
 
-        # Iterate through friends and send a message to connected friends
-        for friend in friends:
-            friend_id = str(friend.id)
-            if friend_id in user_channels:
-                message = {
-                    'type': 'friend_disconnected',
-                    'userId': user_id,
-                }
-                await self.channel_layer.send(
-                    user_channels[friend_id],
-                    {
-                        'type': 'send_message',
-                        'message': message
-                    }
-                )
+		# Iterate through friends and send a message to connected friends
+		for friend in friends:
+			friend_id = str(friend.id)
+			if friend_id in user_channels:
+				message = {
+					'type': 'friend_disconnected',
+					'userId': user_id,
+				}
+				await self.channel_layer.send(
+					user_channels[friend_id],
+					{
+					'type': 'send_message',
+					'message': message
+					}
+				)
 
 	async def receive(self, text_data):
 		try:
@@ -67,29 +69,29 @@ class SocketConsumer(AsyncWebsocketConsumer):
 				print(f"User channels: {user_channels}")
 
 				# Fetch the user and their friends
-                try:
-                    user = await database_sync_to_async(User.objects.get)(id=user_id)
-                    friends = await database_sync_to_async(lambda: list(user.friends.all()))()
-                except User.DoesNotExist:
-                    print("User does not exist")
-                    return
+				try:
+					user = await database_sync_to_async(User.objects.get)(id=user_id)
+					friends = await database_sync_to_async(lambda: list(user.friends.all()))()
+				except User.DoesNotExist:
+					print("User does not exist")
+					return
 
-                # Iterate through friends and send a message to connected friends
-                for friend in friends:
-                    friend_id = str(friend.id)
-                    if friend_id in user_channels:
-                        message = {
-                            'type': 'friend_connected',
-                            'userId': user_id
-                        }
-                        await self.channel_layer.send(
-                            user_channels[friend_id],
-                            {
-                                'type': 'send_message',
-                                'message': message
-                            }
-                        )
-			if text_data_json['type'] == 'new_match':
+				# Iterate through friends and send a message to connected friends
+				for friend in friends:
+					friend_id = str(friend.id)
+					if friend_id in user_channels:
+						message = {
+							'type': 'friend_connected',
+							'userId': user_id
+						}
+						await self.channel_layer.send(
+							user_channels[friend_id],
+							{
+							'type': 'send_message',
+							'message': message
+							}
+						)
+			elif text_data_json['type'] == 'new_match':
 				match_id = text_data_json.get('matchId')
 				if not match_id:
 					print("Match ID not provided")
@@ -137,29 +139,29 @@ class SocketConsumer(AsyncWebsocketConsumer):
 			elif text_data_json['type'] == 'send_invite':
 				invitee_id = str(text_data_json.get('inviteeId'))
 				if invitee_id in user_channels:
-				    invitee_channel_name = user_channels.get(invitee_id)
-				    print(f"Sending invite to user {invitee_id} on channel {invitee_channel_name}")
-				    await self.channel_layer.send(
-				        invitee_channel_name,
-				        {
-				            'type': 'send_message',
-				            'message': text_data_json
-				        }
-				    )
+					invitee_channel_name = user_channels.get(invitee_id)
+					print(f"Sending invite to user {invitee_id} on channel {invitee_channel_name}")
+					await self.channel_layer.send(
+					invitee_channel_name,
+					{
+						'type': 'send_message',
+						'message': text_data_json
+					}
+					)
 				else:
-				    print(f"User {invitee_id} is not connected")
+					print(f"User {invitee_id} is not connected")
 			elif text_data_json['type'] == 'refuse_invite':
 				host_id = str(text_data_json.get('hostId'))
 				if host_id in user_channels:
-				    host_channel_name = user_channels.get(host_id)
-				    print(f"Sending refusal to user {host_id} on channel {host_channel_name}")
-				    await self.channel_layer.send(
-				        host_channel_name,
-				        {
-				            'type': 'invite_refused',
-				            'message': text_data_json
-				        }
-				    )
+					host_channel_name = user_channels.get(host_id)
+					print(f"Sending refusal to user {host_id} on channel {host_channel_name}")
+					await self.channel_layer.send(
+					host_channel_name,
+					{
+						'type': 'invite_refused',
+						'message': text_data_json
+					}
+					)
 
 	async def send_message(self, event):
 		message = event['message']

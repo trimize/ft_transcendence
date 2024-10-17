@@ -3,7 +3,7 @@ export async function refreshAccessToken()
 	const refreshToken = localStorage.getItem('refresh');
 	try
 	{
-		let response = await fetch('http://10.31.1.3:8000/api/token/refresh/',
+		let response = await fetch('http://localhost:8000/api/token/refresh/',
 		{
 			method: 'POST',
 			headers:
@@ -34,7 +34,7 @@ export async function fetchUserData()
 {
 	const accessToken = localStorage.getItem('access');
 	try {
-		let response = await fetch('http://10.31.1.3:8000/api/user_info/', {
+		let response = await fetch('http://localhost:8000/api/user_info/', {
 		    method: 'GET',
 		    headers: {
 			'Authorization': `Bearer ${accessToken}`,
@@ -61,7 +61,7 @@ export async function updateGame(body)
 {
 	const accessToken = localStorage.getItem('access');
 	try {
-		let response = await fetch('http://10.31.1.3:8000/api/update_match/', {
+		let response = await fetch('http://localhost:8000/api/update_match/', {
 		    method: 'PUT',
 		    headers: {
 			'Authorization': `Bearer ${accessToken}`,
@@ -86,7 +86,7 @@ export async function createGame(body)
 {
 	const accessToken = localStorage.getItem('access');
 	try {
-		let response = await fetch('http://10.31.1.3:8000/api/create_match/', {
+		let response = await fetch('http://localhost:8000/api/create_match/', {
 		    method: 'POST',
 		    headers: {
 			'Authorization': `Bearer ${accessToken}`,
@@ -114,7 +114,7 @@ export async function getUser(username)
 {
 	const accessToken = localStorage.getItem('access');
 	try {
-		let response = await fetch('http://10.31.1.3:8000/api/get_user/' + username + '/', {
+		let response = await fetch('http://localhost:8000/api/get_user/' + username + '/', {
 		    method: 'GET',
 		    headers: {
 			'Authorization': `Bearer ${accessToken}`,

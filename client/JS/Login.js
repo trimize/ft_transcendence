@@ -9,7 +9,7 @@ document.getElementById('loginForm').addEventListener('submit', function(event)
 		password: this.password.value
 	};
 
-	fetch('http://10.31.1.3:8000/api/login_user/', {
+	fetch('http://localhost:8000/api/login_user/', {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
@@ -51,7 +51,7 @@ document.getElementById('verify2FA').addEventListener('click', function()
 	const password = document.querySelector('#loginForm input[name="password"]').value;
 	const otpToken = document.getElementById('otpToken').value;
 
-	fetch('http://10.31.1.3:8000/api/verify_2fa/', {
+	fetch('http://localhost:8000/api/verify_2fa/', {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
