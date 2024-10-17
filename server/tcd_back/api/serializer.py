@@ -52,3 +52,9 @@ class MatchSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Match_Record
 		fields = '__all__'
+
+class FriendInvitationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'profile_pic']
+        extra_kwargs = {'username': {'read_only': True}, 'email': {'read_only': True}, 'profile_pic': {'read_only': True}}

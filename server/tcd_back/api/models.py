@@ -57,6 +57,15 @@ class User(AbstractBaseUser):
             self.player2_matches.filter(player2_score__lt=F('player1_score'), end_time__isnull=False).count()
         )
 
+class FriendInvitation(models.Model):
+    sender = models.ForeignKey(User, related_name='sent_invitations', on_delete=models.CASCADE)
+    receiver = models.ForeignKey(User, related_name='received_invitations', on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=20, default='pending') # pending accepted refused
+
+    def __str__(self):
+        return f"Invitation from {self.sender} to {self.receiver} ({self.status})"
+
 class Match_Record(models.Model):
 	id = models.AutoField(primary_key=True)
 	game = models.CharField(max_length=20) # pong tic_tac_toe
