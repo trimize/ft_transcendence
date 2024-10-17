@@ -20,7 +20,8 @@ urlpatterns = [
 	path('users/<int:pk>/', user_views.get_user, name='get_user'),
 	path('search_user/<str:username>/', user_views.search_user, name='search_user'),
 	path('send_friend_request/<str:friend>/', user_views.send_friend_request, name='send_friend_request'),
-	
+	path('get_friend_invitations_sent/', user_views.get_friend_invitations_sent, name='get_friend_invitations_sent'),
+	path('get_friend_invitations_received/', user_views.get_friend_invitations_received, name='get_friend_invitations_received'),
 	path('add_friend/<int:new_friend>/', user_views.add_friend, name='add_friend'),
 	path('remove_friend/<int:friend>/', user_views.remove_friend, name='remove_friend'),
 	path('block_friend/<int:friend>/', user_views.block_friend, name='block_friend'),
