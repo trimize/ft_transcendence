@@ -1,10 +1,5 @@
 import { fetchUserData } from "./fetchFunctions.js";
 
-// const usernameDiv = document.getElementById('username');
-// const emailDiv = document.getElementById('email');
-// const winsDiv = document.getElementById('wins');
-// const lossesDiv = document.getElementById('losses');
-// const profilePicture = document.getElementById('profilePicture');
 const profilePicture = document.getElementById('profilePicture');
 const logoutButton = document.getElementById('logoutBtn');
 
@@ -18,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function()
 			return;
 		}	
 		if (profileData.profile_pic !== null)
-			profilePicture.src = profileData.profile_pic;
+			profilePicture.src = `http://localhost:8000${profileData.profile_pic}`;
 		else
 			profilePicture.src = 'https://cdn-icons-png.flaticon.com/512/9203/9203764.png';
 		document.getElementById('username').textContent = profileData.username;

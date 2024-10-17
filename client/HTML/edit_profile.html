@@ -42,7 +42,7 @@
                     <div class="card">
                         <div class="card-body">
                             <h2 class="card-title text-center">Edit Profile</h2>
-                            <form id="editProfileForm">
+                            <form id="editProfileForm" enctype="multipart/form-data">
                                 <div class="form-group">
                                     <label for="username">Username</label>
                                     <input type="text" class="form-control" id="username">
@@ -52,8 +52,8 @@
                                     <input type="email" class="form-control" id="email">
                                 </div>
                                 <div class="form-group">
-                                    <label for="profilePicture">Profile Picture URL</label>
-                                    <input type="text" class="form-control" id="profilePicture">
+                                    <label for="profilePicture">Profile Picture</label>
+                                    <input type="file" name="profilePicture" class="form-control" id="profilePicture"> 
                                 </div>
                                 <button type="submit" class="btn btn-primary btn-block">Save Changes</button>
                                 <button type="button" class="btn btn-secondary btn-block" id="setup2FA">Setup 2-Factor Authentication</button>

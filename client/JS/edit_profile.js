@@ -88,8 +88,7 @@ document
 
     const username = document.getElementById("username").value;
     const email = document.getElementById("email").value;
-    const profilePicture = document.getElementById("profilePicture").value;
-
+    const profilePicture = document.getElementById("profilePicture").files[0];
     try {
       await updateUserData(username, email, profilePicture);
     } catch (error) {

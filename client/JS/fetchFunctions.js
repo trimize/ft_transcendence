@@ -62,18 +62,21 @@ export async function fetchUserData() {
 export async function updateUserData(username, email, profilePicture) {
   const accessToken = await securelyGetAccessToken();
   try {
+    const formData = new FormData();
+    formData.append('username', username);
+    formData.append('email', email);
+    if (profilePicture) {
+      formData.append('profile_pic', profilePicture);
+    }
+
     let response = await fetch("http://localhost:8000/api/update_user/", {
       method: "PUT",
       headers: {
-        "Content-Type": "application/json",
         Authorization: `Bearer ${accessToken}`,
       },
-      body: JSON.stringify({
-        username: username,
-        email: email,
-        profile_pic: profilePicture,
-      }),
+      body: formData,
     });
+
     if (!response.ok) {
       const errorData = await response.json();
       console.error("Failed to update user data:", errorData);
