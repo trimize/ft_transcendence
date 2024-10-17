@@ -102,6 +102,19 @@ def search_user(request, username):
     serializer = UserSerializer(user, many=True)
     return Response(serializer.data)
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def send_friend_request(request, friend_username):
+    try:
+        user = request.user
+        friend = User.objects.get(username=friend_username)
+    except User.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    user.invitations_sent.add(friend)
+    friend.invitations_received.add(user)
+    return Response(status=status.HTTP_204_NO_CONTENT)
+
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def add_friend(request, new_friend):
@@ -110,6 +123,12 @@ def add_friend(request, new_friend):
         friend = User.objects.get(pk=new_friend)
     except User.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if not user.invitations_received.filter(pk=new_friend).exists():
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    
+    user.invitations_received.remove(friend)
+    friend.invitations_sent.remove(user)
 
     user.friends.add(friend)
     return Response(status=status.HTTP_204_NO_CONTENT)

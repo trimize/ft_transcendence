@@ -23,6 +23,8 @@ class User(AbstractBaseUser):
     email = models.EmailField(unique=True)
     profile_pic = models.CharField(blank=True, null=True)
     friends = models.ManyToManyField('self', blank=True)
+    invitations_received = models.ManyToManyField('self', blank=True)
+    invitations_sent = models.ManyToManyField('self', blank=True)
     blocked_friends = models.ManyToManyField('self', blank=True, related_name='blocked_by')
     pong_ball = models.IntegerField(default=0)
     pong_slider = models.IntegerField(default=0)
