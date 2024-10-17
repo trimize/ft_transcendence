@@ -97,6 +97,20 @@ def get_username(request, username):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
+def get_friend_invitations_sent(request)
+    user = request.user
+    serializer = UserSerializer(user.invitations_sent, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_friend_invitations_received(request)
+    user = request.user
+    serializer = UserSerializer(user.invitations_received, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def search_user(request, username):
     user = User.objects.filter(username__icontains=username)
     serializer = UserSerializer(user, many=True)
