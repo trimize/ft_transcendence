@@ -24,7 +24,7 @@ document.getElementById('loginForm').addEventListener('submit', function(event)
 			localStorage.setItem('websocket_url', data.websocket_url);
 			console.log(data.websocket_url);
 			await getWebSocket();
-			//window.location.href = '/landing';
+			window.location.href = '/profile';
 		}
 		else if (data.message === '2FA required')
 		{
