@@ -30,8 +30,9 @@
 					</a>
 					<div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
 						<a class="dropdown-item" href="/landing">Landing</a>
-						<a class="dropdown-item" href="/login">Login</a>
+						<a class="dropdown-item" href="/profile">Profile</a>
 						<a class="dropdown-item" href="/leaderboard">Leaderboard</a>
+						<a class="dropdown-item" href="/history">Match History</a>
 						<a class="dropdown-item" href="/customize">Customize</a>
 					</div>
 				</div>
@@ -53,12 +54,16 @@
 					<div class="col-md-6 text-center">
 						<div class="card">
 							<div class="card-body">
-								<img src="https://via.placeholder.com/150" alt="Profile Picture" class="rounded-circle mb-3" id="profilePicture">
-								<h2 class="card-title" id="username"></h2>
-								<p class="card-text" id="email"></p>
-								<p class="card-text" id="wins">Wins : </p>
-								<p class="card-text" id="losses">Losses : </p>
-								<a href="/edit_profile" class="btn btn-primary">Edit Profile</a>
+								<div id="userInfo">
+									<img alt="Profile Picture" class="rounded-circle mb-3" id="profilePicture">
+									<h2 class="card-title" id="username"></h2>
+									<p class="card-text" id="email"></p>
+									<p class="card-text" id="wins">Wins : </p>
+									<p class="card-text" id="losses">Losses : </p>
+									<p class="card-text" id="friends">Friends : </p>
+								</div>
+								<button type="button" class="btn btn-primary btn-block" onclick="window.location.href='/edit_profile'">Edit Profile</button>
+								<button type="button" class="btn btn-danger btn-block" id="logoutBtn">Log out</button>
 							</div>
 						</div>
 					</div>

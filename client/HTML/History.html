@@ -33,9 +33,9 @@
 					</a>
 					<div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
 					<a class="dropdown-item" href="/landing">Landing</a>
-					<a class="dropdown-item" href="/login">Login</a>
+					<a class="dropdown-item" href="/profile">Profile</a>
 					<a class="dropdown-item" href="/leaderboard">Leaderboard</a>
-					<a class="dropdown-item" href="/history">Match History</a>
+                    <a class="dropdown-item" href="/history">Match History</a>
 					<a class="dropdown-item" href="/customize">Customize</a>
 					</div>
 				</div>
@@ -44,36 +44,37 @@
 				<div class="collapse navbar-collapse d-flex align-items-stretch">
 					<ul class="navbar-nav w-100 flex-grow-1">
 					<li class="nav-item flex-fill">
-						<a class="nav-link nav-item-hover" href="/pong">PONG</a>
+						<a class="nav-link nav-item-hover" href="/Pong">PONG</a>
 					</li>
 					<li class="nav-item flex-fill">
-						<a class="nav-link nav-item-hover" href="/tic-tac-toe">TIC-TAC-TOE</a>
+						<a class="nav-link nav-item-hover" href="/Tic-tac-toe">TIC-TAC-TOE</a>
 					</li>
 					</ul>
 				</div>
 			</nav>
 			<div>
-				<h1 class="text-center mt-5">Leaderboard</h1>
+				<h1 class="text-center mt-5">Match History</h1>
 				<div class="container mt-5">
 					<table class="table table-dark table-striped">
-						<thead>
-							<tr>
-								<th scope="col">Rank</th>
-								<th scope="col">Username</th>
-								<th scope="col">Wins</th>
-								<th scope="col">Status</th>
-							</tr>
-						</thead>
-						<tbody id="leaderboard">
-							<!-- Leaderboard data will be inserted here -->
-						</tbody>
-					</table>
+                        <thead>
+                            <tr>
+                                <th scope="col">N</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Game</th>
+                                <th scope="col">Game type</th>
+                                <th scope="col">Opponent</th>
+                                <th scope="col">Result</th>
+                            </tr>
+                        </thead>
+                        <tbody id="matchHistoryTable">
+                        </tbody>
+                    </table>
 				</div>
 			</div>
 		</div>
 
 		<!-- Bootstrap JS and dependencies -->
-		<script type="module" src="/js/Leaderboard.js"></script>
+		<script type="module" src="/js/History.js"></script>
 		<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
 		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

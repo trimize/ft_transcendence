@@ -102,4 +102,6 @@ if (connected)
 			addNewDropdownItem(message.game, '/' + message.game, message.matchId);
 			
 	});
+	document.getElementById('logdiv').textContent = 'Profile';
+	document.getElementById('logdiv').href = '/profile';
 }
