@@ -1,3 +1,3 @@
 server/tcd_back/api/migrations/*
 server/tcd_back/api/__pycache__/
-server/media/profile_pics/*
+server/media/*
