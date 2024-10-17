@@ -105,7 +105,17 @@ class SocketConsumer(AsyncWebsocketConsumer):
 			elif text_data_json['type'] == 'match_update':
 				match_id = text_data_json.get('matchId')
 				self.room_group_name = f'match_{match_id}'
+				player1 = user_channels.get(str(text_data_json.get('hostId')))
+				player2 = user_channels.get(str(text_data_json.get('inviteeId')))
 				print(f"Sending update to group: {self.room_group_name}")
+				await self.channel_layer.group_add(
+					self.room_group_name,
+					player1,
+				)
+				await self.channel_layer.group_add(
+					self.room_group_name,
+					player2,
+				)
 				await self.channel_layer.group_send(
 					self.room_group_name,
 					{
@@ -127,9 +137,9 @@ class SocketConsumer(AsyncWebsocketConsumer):
 				print(f"Adding to group: {self.room_group_name}")
 				await self.channel_layer.group_add(
 					self.room_group_name,
-					invitee_channel_name,
+					invitee_channel_name
 				)
-				await self.channel_layer.send(
+				await self.channel_layer.group_send(
 					self.room_group_name,
 					{
 						'type': 'send_message',

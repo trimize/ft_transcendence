@@ -9,7 +9,7 @@ document.getElementById('registerForm').addEventListener('submit', function(even
 		password: this.password.value
 	};
 
-	fetch('http://localhost:8000/api/create_user/', 
+	fetch('http://10.32.3.2:8000/api/create_user/', 
 	{
 		method: 'POST',
 		headers:

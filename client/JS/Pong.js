@@ -1,8 +1,9 @@
-import { fetchUserData, getUser, updateGame, createGame } from './fetchFunctions.js';
+import { fetchUserData, getUser, updateGame, createGame, fetchMatch, fetchUserById} from './fetchFunctions.js';
 import { getWebSocket } from './singletonSocket.js';
 import { getCurrentTime } from './utlis.js';
 
 let start = false;
+let invited = false;
 let score_player = 0;
 let score_enemy = 0;
 let single = false;
@@ -28,9 +29,9 @@ const defaultBallLeft = parseInt(window.getComputedStyle(movingSquare).left, 10)
 const defaultBallTop = parseInt(window.getComputedStyle(movingSquare).top, 10);
 const retry_button = document.getElementById('retry-button');
 const end_modal = document.getElementById('victoryModal');
-const inviteModal = document.getElementById('inviteModal');
+const playerTitle = document.getElementById('waitingLabel');
 const inviteButton = document.getElementById('inviteOnline');
-//const startOnlineButton = document.getElementById('startOnline');
+const startOnlineButton = document.getElementById('startingGameOnline');
 const notConnectedModal = document.getElementById('notConnectedModal');
 const changeGMButoon = document.getElementById('changeGMbutton');
 let enemyY = parseInt(window.getComputedStyle(enemy).top, 10);
@@ -57,12 +58,14 @@ let ball_power_enemy_touch = true;
 let enemy_used_ball_power = false;
 let player_used_ball_power = false;
 let player1Id = 0;
+let player2Id;
 let player1Position;
 let player2Position;
 let reset = false;
 let accessToken = localStorage.getItem('access');
 let socket;
 let data;
+let hasValue
 
 // Makes sure the enemy is placed well on resize for responsiveness
 
@@ -86,38 +89,129 @@ function sleep(ms)
 
 function hideModal()
 {
-	//gameModeModal.classList.remove('show');
-	//gameModeModal.style.display = 'none';
 	$("#gameModeModal").modal("hide");
-	//customization.style.display = 'block';
-	//customization.classList.add('show');
-	//$("#customizationModal").modal("show");
 	start_button.addEventListener('click', async function()
 	{
-		//customization.classList.remove('show');
-		//customization.style.display = 'none';
 		$("#customizationModal").modal("hide");
 		if (multi_online)
 		{
-			//inviteModal.style.display = 'block';
-			//inviteModal.classList.add('show');
+			ball_step = parseInt(ballSpeed.value);
+			if (enableBallAcceleration.checked)
+				ball_acc = true;
+			if (powersOption.checked)
+				power = true;
+			const matchData =
+			{
+				game: "pong",
+				player1: player1Id,
+				match_type: "online_multiplayer",
+				ball_speed: ball_step,
+				ball_acc: ball_acc,
+				powers: power
+			};
+			matchId = await createGame(matchData);
+			const onlineMatchData =
+			{
+				type: "new_match",
+				game: "pong",
+				matchId: matchId,
+			};
+			sendMessage(onlineMatchData);
 			$("#inviteModal").modal("show");
-			socket.addEventListener('message', function(event)
+			socket.addEventListener('message', async function(event)
 			{
 				const message = JSON.parse(event.data);
 				console.log('Parsed message:', message);
 				if (message.type = "match_update")
+				{
 					if (message.player1Position !== undefined)
 						player.style.top = message.player1Position + "px";
-				if (message.type = "match_update")
 					if (message.player2Position !== undefined)
 						enemy.style.top = message.player2Position + "px";
+				}
+				if (message.type = "accept_invite")
+				{
+					const opponent = await fetchUserById(message.inviteeId);
+					if (opponent.pong_slider >= 1 && opponent.pong_slider < 8)
+					{
+						enemy.style.backgroundImage = `url(../Assets/slider${opponent.pong_slider}.jpg)`;
+						enemy.style.backgroundSize = "cover";
+					}
+					else if (opponent.pong_slider == 8)
+					{
+						enemy.style.background = "linear-gradient(270deg, #ff7e5f, #feb47b, #6a82fb, #fc5c7d, #ff7e5f)";
+						enemy.style.backgroundSize = "800% 800%";
+						enemy.style.animation = "gradient-animation 3s ease infinite";
+					}
+					player2Id = opponent.id;
+					playerTitle.style.display = "none";
+					const playerusername = document.getElementById('playerUsername');
+					const opponentTitle = document.getElementById('opponentUsername');
+					playerusername.textContent = "You : " + data.username;
+					opponentTitle.textContent = "Opponent : " + opponent.username;
+					startOnlineButton.display = 'block';
+					startOnlineButton.addEventListener('click', async function()
+					{
+						const starting =
+						{
+							type: "match_update",
+							hostId: player1Id,
+							inviteeId: player2Id,
+							matchId: matchId,
+							match_start: "true"
+						};
+						sendMessage(starting);
+						document.addEventListener("keydown", function(event)
+						{
+							event.preventDefault();
+						
+							// Only listening when game has started
+						
+							if (start && !finish)
+							{
+								const currentTop = parseInt(window.getComputedStyle(player).top, 10);
+								const current2pTop = parseInt(window.getComputedStyle(enemy).top, 10);
+								const parentDiv = player.parentElement;
+								const parentHeight = parentDiv.clientHeight;
+								const rectangleHeight = player.clientHeight;
+								const rectangle2pHeight = enemy.clientHeight;
+						
+								let newTop;
+								if (event.key === "ArrowUp")
+								{
+									newTop = currentTop - step;
+									if (newTop < 0)
+										newTop = 0;
+								}
+								else if (event.key === "ArrowDown")
+								{
+									newTop = currentTop + step;
+									if (newTop > parentHeight - rectangleHeight)
+										newTop = parentHeight - rectangleHeight;
+								}
+								const matchData =
+								{
+									type: "match_update",
+									matchId: matchId,
+									hostId: player1Id,
+									inviteeId: player2Id,
+									player1Position: newTop
+								};
+								sendMessage(matchData)
+							}
+						});
+						start = true;
+						page.classList.remove('blur');
+						clearInterval(startOnlineButton);
+					});
+				}
 				
 			});
 
 			
 			inviteButton.addEventListener('click', async function()
 			{
+				$("#inviteModal").modal("hide");
 				let dataSecondUser = await getUser(usernameInput.value);
 				if (dataSecondUser === "")
 				{
@@ -129,7 +223,6 @@ function hideModal()
 				else
 				{
 					console.log(dataSecondUser);
-		
 					const matchData =
 					{
 						type: "send_invite",
@@ -138,108 +231,33 @@ function hideModal()
 						hostId: player1Id,
 						game: "pong"
 					};
+					startOnlineButton.display = 'none';
 					await sendMessage(matchData);
-					document.addEventListener("keydown", function(event)
-					{
-						event.preventDefault();
-					
-						// Only listening when game has started
-					
-						if (start && !finish)
-						{
-							const currentTop = parseInt(window.getComputedStyle(player).top, 10);
-							const current2pTop = parseInt(window.getComputedStyle(enemy).top, 10);
-							const parentDiv = player.parentElement;
-							const parentHeight = parentDiv.clientHeight;
-							const rectangleHeight = player.clientHeight;
-							const rectangle2pHeight = enemy.clientHeight;
-							
-							// Arrow up/down for player up/down
-							if ((single || multi) && !finish)
-							{
-								if (event.key === "ArrowUp")
-								{
-									let newTop = currentTop - step;
-									if (newTop < 0)
-										newTop = 0;
-									player.style.top = newTop + "px";
-								}
-								else if (event.key === "ArrowDown")
-								{
-									let newTop = currentTop + step;
-									if (newTop > parentHeight - rectangleHeight)
-										newTop = parentHeight - rectangleHeight;
-									player.style.top = newTop + "px";
-								}
-							}
-					
-							if (multi_online)
-							{
-								//console.log('yes');
-								let newTop;
-								if (event.key === "ArrowUp")
-								{
-									newTop = currentTop - step;
-									if (newTop < 0)
-										newTop = 0;
-									//player.style.top = newTop + "px";
-								}
-								else if (event.key === "ArrowDown")
-								{
-									newTop = currentTop + step;
-									if (newTop > parentHeight - rectangleHeight)
-										newTop = parentHeight - rectangleHeight;
-									//player.style.top = newTop + "px";
-								}
-								//if 
-								console.log(matchId);
-								//const matchData =
-								//{
-								//	type: "match_update",
-								//	matchId: matchId,
-								//	player1Position: newTop
-								//};
-								//sendMessage(matchData)
-							}
-					
-							// In case of multiplayer chosen enemy up/down
-					
-							if (multi && !finish)
-							{
-								if (event.key === "w")
-								{
-									let newTop2 = current2pTop - step;
-									if (newTop2 < 0)
-										newTop2 = 0;
-									enemy.style.top = newTop2 + "px";
-								}
-								else if (event.key === "s")
-								{
-									let newTop2 = current2pTop + step;
-									if (newTop2 > parentHeight - rectangle2pHeight)
-										newTop2 = parentHeight - rectangle2pHeight;
-									enemy.style.top = newTop2 + "px";
-								}
-							}
-						}
-					});
 				}
 			})
 		}
 		else
 		{
 			ball_step = parseInt(ballSpeed.value);
-			console.log(ballSpeed.value);
-			console.log(ball_step);
 			if (enableBallAcceleration.checked)
 				ball_acc = true;
 			if (powersOption.checked)
 				power = true;
 			page.classList.remove('blur');
+			if (connected)
+			{
+				const matchData =
+				{
+					game: "pong",
+					player1: player1Id,
+					match_type: "singleplayer",
+					ball_speed: ball_step,
+					ball_acc: ball_acc,
+					powers: power
+				};
+				matchId = await createGame(matchData);
+			}
 			start = true;
-		}
-		if (!multi_online)
-		{
 			document.addEventListener("keydown", function(event)
 			{
 				event.preventDefault();
@@ -294,13 +312,6 @@ function hideModal()
 						}
 						//if 
 						console.log(matchId);
-						//const matchData =
-						//{
-						//	type: "match_update",
-						//	matchId: matchId,
-						//	player1Position: newTop
-						//};
-						//sendMessage(matchData)
 					}
 			
 					// In case of multiplayer chosen enemy up/down
@@ -491,7 +502,7 @@ async function sendMessage(message)
 	{
 		let json_message = JSON.stringify(message);
 		socket.send(json_message);
-		//console.log(json_message);
+		console.log("message sent " + json_message);
 	}
 	else
 	{
@@ -502,7 +513,6 @@ async function sendMessage(message)
 
 async function retry()
 {
-	console.log('yes');
 	start = false;
 	finish = false;
 	score_enemy = 0;
@@ -532,32 +542,12 @@ async function retry()
 
 	singleplayerBtn.addEventListener('click', async function ()
 	{
-		if (connected)
-		{
-			const matchData =
-			{
-				game: "pong",
-				player1: player1Id,
-				match_type: "singleplayer",
-			};
-			matchId = await createGame(matchData);
-		}
 		single = true;
 		hideModal();
 		clearInterval(singleplayerBtn);
 	});
 	multiplayerBtn.addEventListener('click', async function()
 	{
-		if (connected)
-		{
-			const matchData =
-			{
-				game: "pong",
-				player1: player1Id,
-				match_type: "local_multiplayer",
-			};
-			matchId = await createGame(matchData);
-		}
 		multi = true;
 		hideModal();
 		clearInterval(multiplayerBtn);
@@ -581,20 +571,6 @@ async function retry()
 		}
 		else
 		{
-			const matchData =
-			{
-				game: "pong",
-				player1: player1Id,
-				match_type: "online_multiplayer",
-			};
-			matchId = await createGame(matchData);
-			const onlineMatchData =
-			{
-				type: "new_match",
-				game: "pong",
-				matchId: matchId,
-			};
-			sendMessage(onlineMatchData);
 			multi_online = true;
 			hideModal();
 			clearInterval(multiplayerOnlineBtn);
@@ -614,7 +590,7 @@ async function retry()
 
 function startMovingSquare()
 {
-	console.log(ball_step);
+	//console.log(ball_step);
 	const contentArea = player.parentElement;
 	enemy.style.left = contentArea.getBoundingClientRect().right - 97 + "px";
 
@@ -636,7 +612,6 @@ function startMovingSquare()
 	let bounce_Y = 1;
 
 	// Since AI makes its own calculation of the trajectory of the ball we need to update it every 50ms
-
 	const ballSPeed = setInterval(() =>
 	{
 		if (!finish)
@@ -650,13 +625,16 @@ function startMovingSquare()
 
 	// This is making sure the AI has info of the trajectory of the ball only every second
 
-	const ai_info = setInterval(() =>
+	if (single)
 	{
-		if (!finish)
-			ai_ball_info = deltaY;
-		else
-			clearInterval(ai_info);
-	}, 1000);
+		const ai_info = setInterval(() =>
+		{
+			if (!finish)
+				ai_ball_info = deltaY;
+			else
+				clearInterval(ai_info);
+		}, 1000);
+	}
 
 	const moveInterval = setInterval(() =>
 	{
@@ -745,7 +723,7 @@ function startMovingSquare()
 
 		// Singleplayer's AI
 
-		if (newLeftPosition >= centerX && single && bounce_X == -1)
+		if (newLeftPosition >= centerX && single && bounce_X == -1 && single)
 		{
 
 			// The AI has 9 frames in advance to try and predict the ball direction
@@ -803,6 +781,7 @@ function startMovingSquare()
 		}
 		else
 		{
+			console.log('yes');
 			if (newLeftPosition >= ParentRect.right - 50)
 			{
 				score_player++;
@@ -815,7 +794,8 @@ function startMovingSquare()
 			}
 			if (score_player >= 3 || score_enemy >= 3)
 			{
-				if (connected)
+				document.getElementById("score").textContent = score_player + " : " + score_enemy;
+				if (connected && !hasValue)
 				{
 					const currentTime = getCurrentTime();
 					const matchData =
@@ -855,7 +835,7 @@ function startMovingSquare()
 				});
 				return ;
 			}
-			if (connected)
+			if (connected && !hasValue)
 			{
 				const matchData =
 				{
@@ -884,127 +864,210 @@ function startMovingSquare()
 
 document.addEventListener("DOMContentLoaded", async function()
 {
-	data = await fetchUserData();
-	if (data !== "")
+	const path = window.location.pathname;
+	const pathSegments = path.split('/');
+	hasValue = pathSegments[2] && pathSegments[2] !== "";
+	if (hasValue)
 	{
-		if (data.pong_ball >= 1 && data.pong_ball <= 8)
+		data = await fetchUserData();
+		if (data !== "")
 		{
-			movingSquare.style.backgroundImage = `url(../Assets/ball${data.pong_ball}.svg)`;
-			movingSquare.style.backgroundSize = "contain";
-			movingSquare.style.backgroundColor = "transparent"
+			if (data.pong_ball >= 1 && data.pong_ball <= 8)
+			{
+				movingSquare.style.backgroundImage = `url(../Assets/ball${data.pong_ball}.svg)`;
+				movingSquare.style.backgroundSize = "contain";
+				movingSquare.style.backgroundColor = "transparent"
+			}
+			if (data.pong_slider >= 1 && data.pong_slider < 8)
+			{
+				enemy.style.backgroundImage = `url(../Assets/slider${data.pong_slider}.jpg)`;
+				enemy.style.backgroundSize = "cover";
+			}
+			else if (data.pong_slider == 8)
+			{
+				enemy.style.background = "linear-gradient(270deg, #ff7e5f, #feb47b, #6a82fb, #fc5c7d, #ff7e5f)";
+				enemy.style.backgroundSize = "800% 800%";
+				enemy.style.animation = "gradient-animation 3s ease infinite";
+			}
+			player2Id = data.id;
+			connected = true;
 		}
-		if (data.pong_slider >= 1 && data.pong_slider < 8)
+		if (connected)
 		{
-			player.style.backgroundImage = `url(../Assets/slider${data.pong_slider}.jpg)`;
-			player.style.backgroundSize = "cover";
+			socket = await getWebSocket();
+			const value = pathSegments[2];
+			const numberValue = parseInt(value, 10);
+			console.log(`The value in the URL is: ${pathSegments[2]}`);
+			let gameValues = await fetchMatch(numberValue);
+			if (gameValues.match_type == "online_multiplayer")
+			{
+				const opponent = await fetchUserById(gameValues.player1);
+				if (opponent.pong_ball >= 1 && opponent.pong_ball <= 8)
+				{
+					movingSquare.style.backgroundImage = `url(../Assets/ball${opponent.pong_ball}.svg)`;
+					movingSquare.style.backgroundSize = "contain";
+					movingSquare.style.backgroundColor = "transparent"
+				}
+				if (opponent.pong_slider >= 1 && opponent.pong_slider < 8)
+				{
+					player.style.backgroundImage = `url(../Assets/slider${opponent.pong_slider}.jpg)`;
+					player.style.backgroundSize = "cover";
+				}
+				else if (opponent.pong_slider == 8)
+				{
+					player.style.background = "linear-gradient(270deg, #ff7e5f, #feb47b, #6a82fb, #fc5c7d, #ff7e5f)";
+					player.style.backgroundSize = "800% 800%";
+					player.style.animation = "gradient-animation 3s ease infinite";
+				}
+				ball_step = gameValues.ball_speed;
+				ball_acc = gameValues.ball_acc;
+				power = gameValues.powers;
+				player1Id = opponent.id;
+				playerTitle.style.display = "none";
+				const playerusername = document.getElementById('playerUsername');
+				const opponentTitle = document.getElementById('opponentUsername');
+				playerusername.textContent = "You : " + data.username;
+				opponentTitle.textContent = "Opponent : " + opponent.username;
+				startOnlineButton.style.display = 'none';
+				var page = document.getElementById('page');
+				page.classList.add('blur');
+				$("#waitingModal").modal("show");
+				socket.addEventListener('message', async function(event)
+				{
+					const message = JSON.parse(event.data);
+					console.log('Parsed message:', message);
+					if (message.type == "match_update")
+					{
+						if (message.player1Position !== undefined)
+							player.style.top = message.player1Position + "px";
+						if (message.player2Position !== undefined)
+							enemy.style.top = message.player2Position + "px";
+						if (message.match_start == "true")
+						{
+							document.addEventListener("keydown", function(event)
+							{
+								event.preventDefault();
+							
+								// Only listening when game has started
+							
+								if (start && !finish)
+								{
+									const currentTop = parseInt(window.getComputedStyle(enemy).top, 10);
+									const parentDiv = enemy.parentElement;
+									const parentHeight = parentDiv.clientHeight;
+									const rectangleHeight = enemy.clientHeight;
+							
+									let newTop;
+									if (event.key === "ArrowUp")
+									{
+										newTop = currentTop - enemy_step;
+										if (newTop < 0)
+											newTop = 0;
+									}
+									else if (event.key === "ArrowDown")
+									{
+										newTop = currentTop + enemy_step;
+										if (newTop > parentHeight - rectangleHeight)
+											newTop = parentHeight - rectangleHeight;
+									}
+									const matchData =
+									{
+										type: "match_update",
+										matchId: matchId,
+										hostId: player1Id,
+										inviteeId: player2Id,
+										player2Position: newTop
+									};
+									sendMessage(matchData)
+								}
+							});
+							start = true;
+							$("#waitingModal").modal("hide");
+							page.classList.remove('blur');
+							let checkValue = setInterval(function()
+							{
+								if (start && !finish)
+								{
+									setTimeout(startMovingSquare, 1000);
+									clearInterval(checkValue);
+								}
+							}, 100);
+						}
+					}
+				});
+			}
 		}
-		else if (data.pong_slider == 8)
-		{
-			player.style.background = "linear-gradient(270deg, #ff7e5f, #feb47b, #6a82fb, #fc5c7d, #ff7e5f)";
-			player.style.backgroundSize = "800% 800%";
-			player.style.animation = "gradient-animation 3s ease infinite";
-		}
-		player1Id = data.id;
-		connected = true;
 	}
-	if (connected)
-		socket = await getWebSocket();
-	//end_modal.classList.remove('show');
-	//end_modal.style.display = 'none';
-	//inviteModal.classList.remove('show');
-	//inviteModal.style.display = 'none';
-	//notConnectedModal.classList.remove('show');
-	//notConnectedModal.style.display = 'none';
-	//var gameModeModal = document.getElementById('gameModeModal');
-        var page = document.getElementById('page');
-        
-	// Showing game modes
-
-	//gameModeModal.classList.add('show');
-        //gameModeModal.style.display = 'block';
-	$("#gameModeModal").modal("show");
-        //gameModeModal.setAttribute('aria-modal', 'true');
-        //gameModeModal.setAttribute('role', 'dialog');
-        page.classList.add('blur'); // Add blur effect to the background
-
-        var singleplayerBtn = document.getElementById('singleplayer-btn');
-        var multiplayerBtn = document.getElementById('multiplayer-btn');
-	var multiplayerOnlineBtn = document.getElementById('multiplayer_online-btn');
-
-	// Saving the gamemode and launching settings
-
-	singleplayerBtn.addEventListener('click', async function ()
+	else
 	{
-		console.log('yes');
+		console.log("No value found in the URL after '/pong/'.");
+		data = await fetchUserData();
+		if (data !== "")
+		{
+			if (data.pong_ball >= 1 && data.pong_ball <= 8)
+			{
+				movingSquare.style.backgroundImage = `url(../Assets/ball${data.pong_ball}.svg)`;
+				movingSquare.style.backgroundSize = "contain";
+				movingSquare.style.backgroundColor = "transparent"
+			}
+			if (data.pong_slider >= 1 && data.pong_slider < 8)
+			{
+				player.style.backgroundImage = `url(../Assets/slider${data.pong_slider}.jpg)`;
+				player.style.backgroundSize = "cover";
+			}
+			else if (data.pong_slider == 8)
+			{
+				player.style.background = "linear-gradient(270deg, #ff7e5f, #feb47b, #6a82fb, #fc5c7d, #ff7e5f)";
+				player.style.backgroundSize = "800% 800%";
+				player.style.animation = "gradient-animation 3s ease infinite";
+			}
+			player1Id = data.id;
+			connected = true;
+		}
 		if (connected)
+			socket = await getWebSocket();
+		var page = document.getElementById('page');
+		$("#gameModeModal").modal("show");
+		page.classList.add('blur');
+	
+		var singleplayerBtn = document.getElementById('singleplayer-btn');
+		var multiplayerBtn = document.getElementById('multiplayer-btn');
+		var multiplayerOnlineBtn = document.getElementById('multiplayer_online-btn');
+	
+		singleplayerBtn.addEventListener('click', async function ()
 		{
-			const matchData =
-			{
-				game: "pong",
-				player1: player1Id,
-				match_type: "singleplayer",
-			};
-			matchId = await createGame(matchData);
-		}
-		single = true;
-		hideModal();
-		clearInterval(singleplayerBtn);
-	});
-	multiplayerBtn.addEventListener('click', async function()
-	{
-		if (connected)
-		{
-			const matchData =
-			{
-				game: "pong",
-				player1: player1Id,
-				match_type: "local_multiplayer",
-			};
-			matchId = await createGame(matchData);
-		}
-		multi = true;
-		hideModal();
-		clearInterval(multiplayerBtn);
-	});
-	multiplayerOnlineBtn.addEventListener('click', async function()
-	{
-		if (!connected)
-		{
-			//console.log('yes');
-			//$("#gameModeModal").modal("hide");
-			//gameModeModal.classList.remove('show');
-			//gameModeModal.style.display = 'none';
-			notConnectedModal.classList.add('show');
-			notConnectedModal.style.display = "block";
-			clearInterval(multiplayerOnlineBtn);
-			changeGMButoon.addEventListener('click', function()
-			{
-				notConnectedModal.classList.remove('show');
-				notConnectedModal.style.display = "none";
-				reset = true;
-				retry();
-				clearInterval(changeGMButoon);
-			})
-		}
-		else
-		{
-			const matchData =
-			{
-				game: "pong",
-				player1: player1Id,
-				match_type: "online_multiplayer",
-			};
-			matchId = await createGame(matchData);
-			const onlineMatchData =
-			{
-				type: "new_match",
-				game: "pong",
-				matchId: matchId,
-			};
-			sendMessage(onlineMatchData);
-			multi_online = true;
+			single = true;
 			hideModal();
-			clearInterval(multiplayerOnlineBtn);
-		}
-	});
+			clearInterval(singleplayerBtn);
+		});
+		multiplayerBtn.addEventListener('click', async function()
+		{
+			multi = true;
+			hideModal();
+			clearInterval(multiplayerBtn);
+		});
+		multiplayerOnlineBtn.addEventListener('click', async function()
+		{
+			if (!connected)
+			{
+				notConnectedModal.classList.add('show');
+				notConnectedModal.style.display = "block";
+				clearInterval(multiplayerOnlineBtn);
+				changeGMButoon.addEventListener('click', function()
+				{
+					notConnectedModal.classList.remove('show');
+					notConnectedModal.style.display = "none";
+					reset = true;
+					retry();
+					clearInterval(changeGMButoon);
+				})
+			}
+			else
+			{
+				multi_online = true;
+				hideModal();
+				clearInterval(multiplayerOnlineBtn);
+			}
+		});
+	}
 });

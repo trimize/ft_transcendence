@@ -14,7 +14,7 @@ export const securelyGetAccessToken = async () => {
     console.log("Token expired, refreshing...");
     try {
       const refreshToken = localStorage.getItem("refresh");
-      const response = await fetch("http://localhost:8000/api/token/refresh/", {
+      const response = await fetch("http://10.32.3.2:8000/api/token/refresh/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -43,7 +43,7 @@ export const securelyGetAccessToken = async () => {
 export async function fetchUserData() {
   const accessToken = await securelyGetAccessToken();
   try {
-    let response = await fetch("http://localhost:8000/api/user_info/", {
+    let response = await fetch("http://10.32.3.2:8000/api/user_info/", {
       method: "GET",
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -62,7 +62,7 @@ export async function fetchUserData() {
 export async function updateUserData(username, email, profilePicture) {
   const accessToken = await securelyGetAccessToken();
   try {
-    let response = await fetch("http://localhost:8000/api/update_user/", {
+    let response = await fetch("http://10.32.3.2:8000/api/update_user/", {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -92,7 +92,7 @@ export async function updateUserData(username, email, profilePicture) {
 export async function updateGame(body) {
   const accessToken = await securelyGetAccessToken();
   try {
-    let response = await fetch("http://localhost:8000/api/update_match/", {
+    let response = await fetch("http://10.32.3.2:8000/api/update_match/", {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -110,7 +110,7 @@ export async function updateGame(body) {
 export async function createGame(body) {
   const accessToken = await securelyGetAccessToken();
   try {
-    let response = await fetch("http://localhost:8000/api/create_match/", {
+    let response = await fetch("http://10.32.3.2:8000/api/create_match/", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -131,7 +131,7 @@ export async function getUser(username) {
   const accessToken = await securelyGetAccessToken();
   try {
     let response = await fetch(
-      "http://localhost:8000/api/get_user/" + username + "/",
+      "http://10.32.3.2:8000/api/get_user/" + username + "/",
       {
         method: "GET",
         headers: {
@@ -152,7 +152,7 @@ export async function getUser(username) {
 export async function fetchUsers() {
   const accessToken = await securelyGetAccessToken();
   try {
-    let response = await fetch("http://localhost:8000/api/users/", {
+    let response = await fetch("http://10.32.3.2:8000/api/users/", {
       method: "GET",
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -172,7 +172,7 @@ export async function addFriend(user) {
   const accessToken = await securelyGetAccessToken();
   try {
     const response = await fetch(
-      `http://localhost:8000/api/add_friend/${user}/`,
+      `http://10.32.3.2:8000/api/add_friend/${user}/`,
       {
         method: "PUT",
         headers: {
@@ -197,7 +197,7 @@ export async function fetchMatches(userId) {
   const accessToken = await securelyGetAccessToken();
   try {
     let response = await fetch(
-      `http://localhost:8000/api/matches/player/${userId}/`,
+      `http://10.32.3.2:8000/api/matches/player/${userId}/`,
       {
         method: "GET",
         headers: {
@@ -213,4 +213,48 @@ export async function fetchMatches(userId) {
     console.error(error.message);
     return "";
   }
+}
+
+export async function fetchMatch(matchId) {
+	const accessToken = await securelyGetAccessToken();
+	try {
+	  let response = await fetch(
+	    `http://10.32.3.2:8000/api/matches/${matchId}/`,
+	    {
+	      method: "GET",
+	      headers: {
+		Authorization: `Bearer ${accessToken}`,
+		"Content-Type": "application/json",
+	      },
+	    }
+	  );
+	  if (!response.ok) throw new Error("Failed to fetch user data");
+	  const matches = await response.json();
+	  return matches;
+	} catch (error) {
+	  console.error(error.message);
+	  return "";
+	}
+}
+
+export async function fetchUserById(userId) {
+	const accessToken = await securelyGetAccessToken();
+	try {
+	  let response = await fetch(
+	    `http://10.32.3.2:8000/api/users/${userId}/`,
+	    {
+	      method: "GET",
+	      headers: {
+		Authorization: `Bearer ${accessToken}`,
+		"Content-Type": "application/json",
+	      },
+	    }
+	  );
+	  if (!response.ok) throw new Error("Failed to fetch user data");
+	  const user = await response.json();
+	  return user;
+	} catch (error) {
+	  console.error(error.message);
+	  return "";
+	}
 }

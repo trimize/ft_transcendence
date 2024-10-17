@@ -68,6 +68,9 @@ class Match_Record(models.Model):
 	player1_consec_touch = models.IntegerField(default=0)
 	player2_consec_touch = models.IntegerField(default=0)
 	fastest_ball_speed = models.IntegerField(default=0)
+	ball_speed = models.IntegerField(default=20)
+	ball_acc = models.BooleanField(default=False)
+	powers = models.BooleanField(default=False)
 	start_time = models.DateTimeField(auto_now_add=True)
 	end_time = models.DateTimeField(null=True)
 

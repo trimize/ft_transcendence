@@ -7,8 +7,10 @@ let connected = false;
 
 async function sendMessage(message)
 {
+	console.log('trying to send message');
 	if (socket.readyState === WebSocket.OPEN)
 	{
+		console.log('socket still opened')
 		let json_message = JSON.stringify(message);
 		socket.send(json_message);
 	}
@@ -18,7 +20,7 @@ async function sendMessage(message)
 	}
 }
 
-function addNewDropdownItem(text, href, matchId)
+function addNewDropdownItem(text, href, matchId, inviteeId)
 {
 	const dropdownMenu = document.getElementById('notifications');
 	
@@ -34,10 +36,12 @@ function addNewDropdownItem(text, href, matchId)
 		const notifData =
 		{
 			type: "accept_invite",
+			inviteeId: inviteeId,
 			matchId: matchId
 		};
+		console.log(notifData);
 		await sendMessage(notifData);
-		window.location.href = href;
+		window.location.href = href + "/" + matchId + "/";
 	};
 
 	// Create the second button
@@ -48,6 +52,7 @@ function addNewDropdownItem(text, href, matchId)
 		const notifData =
 		{
 			type: "refuse_invite",
+			inviteeId: inviteeId,
 			matchId: matchId
 		};
 		await sendMessage(notifData);
@@ -64,42 +69,18 @@ function addNewDropdownItem(text, href, matchId)
 	dropdownMenu.appendChild(newItem);
 }
 
-//document.addEventListener('DOMContentLoaded', async function ()
-//{
-//	data = await fetchUserData();
-//	console.log('trying to connect');
-//	if (data === "")
-//		connected = true;
-//	if (connected)
-//	{
-//		console.log('connected');
-//		socket = await getWebSocket();
-//		socket.addEventListener('message', function(event)
-//		{
-//			const message = JSON.parse(event.data);
-//			console.log('Parsed message:', message);
-//			if (message.type == "receive_invite")
-//				addNewDropdownItem(message.game, '/' + message.game, message.matchId);
-				
-//		});
-//	}
-//});
-
-
 data = await fetchUserData();
-console.log('trying to connect');
 if (data !== "")
 	connected = true;
 if (connected)
 {
-	console.log('connected');
 	socket = await getWebSocket();
 	socket.addEventListener('message', function(event)
 	{
 		const message = JSON.parse(event.data);
 		console.log('Parsed message:', message);
 		if (message.type == "send_invite")
-			addNewDropdownItem(message.game, '/' + message.game, message.matchId);
+			addNewDropdownItem(message.game, '/' + message.game, message.matchId, data.id);
 			
 	});
 	document.getElementById('logdiv').textContent = 'Profile';

@@ -162,19 +162,23 @@
 
 		<div class="modal fade" id="waitingModal" tabindex="-1" role="dialog" aria-labelledby="inviteModalLabel" aria-hidden="true" data-backdrop="static">
 			<div class="modal-dialog modal-dialog-centered" role="document">
-			    <div class="modal-content">
-				<div class="modal-header">
-				    <h5 class="modal-title" id="inviteModalLabel">Waiting for user</h5>
-				    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				    </button>
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="waitingLabel">
+							Waiting for user
+						</h5>
+						<span id="playerUsername" class="ml-2"></span>
+						<span id="opponentUsername" class="ml-2"></span>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-primary" data-dismiss="modal" id="startingGameOnline">start Game</button>
+					</div>
 				</div>
-				<div class="modal-footer">
-				    <button type="button" class="btn btn-primary" data-dismiss="modal" id="inviteOnline">start Game</button>
-				</div>
-			    </div>
 			</div>
-		    </div>
+		</div>
 		
 		<!--<script src="../JS/Pong.js"></script>-->
 		<script type="module" src="/js/Pong.js"></script>
