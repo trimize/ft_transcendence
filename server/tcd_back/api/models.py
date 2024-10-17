@@ -71,7 +71,7 @@ class Match_Record(models.Model):
 	ball_speed = models.IntegerField(default=20)
 	ball_acc = models.BooleanField(default=False)
 	powers = models.BooleanField(default=False)
-	start_time = models.DateTimeField(auto_now_add=True)
+	start_time = models.DateTimeField(null=True)
 	end_time = models.DateTimeField(null=True)
 
 	def __str__(self):
