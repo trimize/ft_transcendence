@@ -60,16 +60,6 @@ def update_user(request):
         return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# @api_view(['DELETE'])
-# def delete_user(request, pk):
-#     try:
-#         user = User.objects.get(pk=pk)
-#     except User.DoesNotExist:
-#         return Response(status=status.HTTP_404_NOT_FOUND)
-
-#     user.delete()
-#     return Response(status=status.HTTP_204_NO_CONTENT)
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_user(request, pk):
@@ -273,6 +263,31 @@ def update_tic_tac_toe_background(request, tic_tac_toe_background):
 
     user.tic_tac_toe_background = tic_tac_toe_background
     user.save()
+    return Response(status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def anonymize_user(request):
+    user = request.user
+    user.username = f'anonymous_{user.id}'
+    user.email = ''
+    user.save()
+
+    user_data = {
+        'username': user.username,
+    }
+    
+    return Response(user_data, status=status.HTTP_200_OK)
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_account(request):
+    user = request.user
+
+    Match_Record.objects.filter(player1=user).update(player1=None)
+    Match_Record.objects.filter(player2=user).update(player2=None)
+
+    user.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
 
 @api_view(['GET'])

@@ -40,8 +40,12 @@ function populateMatchesHistory(matches, userData) {
 
 function getOpponent(match, userData) {
     let opponent = match.player1 === userData.id ? match.player2 : match.player1;
-    if (opponent === null) {
+    if (opponent === null && match.type === 'singleplayer') {
         return "AI Agent";
+    else if (opponent === null && match.type === 'local_multiplayer') {
+        return "Local player";
+    else if (opponent === null && match.type === 'online_multiplayer') {
+            return "Anonymous user";
     } else {
         return opponent;
     }
