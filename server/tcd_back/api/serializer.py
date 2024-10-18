@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
-from .models import User, Match_Record
+from .models import User, Match_Record, FriendInvitation
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -54,7 +54,9 @@ class MatchSerializer(serializers.ModelSerializer):
 		fields = '__all__'
 
 class FriendInvitationSerializer(serializers.ModelSerializer):
+    sender = UserSerializer(read_only=True)
+    receiver = UserSerializer(read_only=True)
+
     class Meta:
-        model = User
-        fields = ['id', 'username', 'email', 'profile_pic']
-        extra_kwargs = {'username': {'read_only': True}, 'email': {'read_only': True}, 'profile_pic': {'read_only': True}}
+        model = FriendInvitation
+        fields = ['id', 'sender', 'receiver', 'status', 'timestamp']

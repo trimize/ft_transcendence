@@ -140,7 +140,7 @@ export async function getUser(username) {
         },
       }
     );
-    if (!response.ok) throw new Error("Failed to fetch user data by id");
+    if (!response.ok) throw new Error("Failed to fetch user data by username");
     const userData = await response.json();
     return userData;
   } catch (error) {
@@ -242,6 +242,94 @@ export async function fetchUserById(userId) {
 	try {
 	  let response = await fetch(
 	    `http://localhost:8000/api/users/${userId}/`,
+	    {
+	      method: "GET",
+	      headers: {
+		Authorization: `Bearer ${accessToken}`,
+		"Content-Type": "application/json",
+	      },
+	    }
+	  );
+	  if (!response.ok) throw new Error("Failed to fetch user data");
+	  const user = await response.json();
+	  return user;
+	} catch (error) {
+	  console.error(error.message);
+	  return "";
+	}
+}
+
+export async function sendFriendRequest(username) {
+	const accessToken = await securelyGetAccessToken();
+	try {
+	  let response = await fetch(
+	    `http://localhost:8000/api/send_friend_request/${username}/`,
+	    {
+	      method: "POST",
+	      headers: {
+		Authorization: `Bearer ${accessToken}`,
+		"Content-Type": "application/json",
+	      },
+	    }
+	  );
+	  if (!response.ok) throw new Error("Failed to fetch user data");
+	  const user = await response.json();
+	  return user;
+	} catch (error) {
+	  console.error(error.message);
+	  return "";
+	}
+}
+
+export async function getFriendNotifications() {
+	const accessToken = await securelyGetAccessToken();
+	try {
+	  let response = await fetch(
+	    `http://localhost:8000/api/get_friend_invitations_received/`,
+	    {
+	      method: "GET",
+	      headers: {
+		Authorization: `Bearer ${accessToken}`,
+		"Content-Type": "application/json",
+	      },
+	    }
+	  );
+	  if (!response.ok) throw new Error("Failed to fetch user data");
+	  const user = await response.json();
+	  return user;
+	} catch (error) {
+	  console.error(error.message);
+	  return "";
+	}
+}
+
+export async function refuseFriendRequest(friend_id) {
+	const accessToken = await securelyGetAccessToken();
+	try {
+	  let response = await fetch(
+	    `http://localhost:8000/api/refuse_friend_request/${friend_id}`,
+	    {
+	      method: "PUT",
+	      headers: {
+		Authorization: `Bearer ${accessToken}`,
+		"Content-Type": "application/json",
+	      },
+	    }
+	  );
+	  if (!response.ok) throw new Error("Failed to fetch user data");
+	  const user = await response.json();
+	  return user;
+	} catch (error) {
+	  console.error(error.message);
+	  return "";
+	}
+}
+
+export async function getPendingRequest() {
+	const accessToken = await securelyGetAccessToken();
+	try {
+	  let response = await fetch(
+	    `http://localhost:8000/api/get_friend_invitations_sent/`,
 	    {
 	      method: "GET",
 	      headers: {

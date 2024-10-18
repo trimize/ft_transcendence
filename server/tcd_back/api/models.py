@@ -58,6 +58,7 @@ class User(AbstractBaseUser):
         )
 
 class FriendInvitation(models.Model):
+    id = models.AutoField(primary_key=True)
     sender = models.ForeignKey(User, related_name='sent_invitations', on_delete=models.CASCADE)
     receiver = models.ForeignKey(User, related_name='received_invitations', on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)

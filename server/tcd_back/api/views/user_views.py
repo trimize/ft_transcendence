@@ -129,14 +129,14 @@ def send_friend_request(request, friend_username):
 
     if user == friend:
         return Response(status=status.HTTP_400_BAD_REQUEST)
-    if user.friends.filter(pk=friend).exists():
+    if user.friends.filter(pk=friend.id).exists():
         return Response(status=status.HTTP_400_BAD_REQUEST)
-    if user.invitations_sent.filter(pk=friend).exists():
+    if user.invitations_sent.filter(pk=friend.id).exists():
         return Response(status=status.HTTP_400_BAD_REQUEST)
-    if user.blocked_friends.filter(pk=friend).exists():
+    if user.blocked_friends.filter(pk=friend.id).exists():
         return Response(status=status.HTTP_400_BAD_REQUEST)
     
-    if user.invitations_received.filter(pk=friend).exists():
+    if user.invitations_received.filter(pk=friend.id).exists():
         add_friend(request, friend.id)
     
     FriendInvitation.objects.create(sender=user, receiver=friend, status='pending')
@@ -171,11 +171,11 @@ def add_friend(request, new_friend):
 
     if user == friend:
         return Response(status=status.HTTP_400_BAD_REQUEST)
-    if user.friends.filter(pk=friend).exists():
+    if user.friends.filter(pk=friend.id).exists():
         return Response(status=status.HTTP_400_BAD_REQUEST)
-    if not user.sent_invitations.filter(pk=friend).exists():
+    if not user.sent_invitations.filter(pk=friend.id).exists():
         return Response(status=status.HTTP_400_BAD_REQUEST)
-    if user.blocked_friends.filter(pk=friend).exists():
+    if user.blocked_friends.filter(pk=friend.id).exists():
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
     try:
