@@ -70,3 +70,13 @@
 	border-radius: 5px;
 	background: rgba(255, 255, 255, 0.8);
 }
+
+.notification-dot
+{
+	display: inline-block; /* Ensure it behaves like an inline element */
+	width: 10px;
+	height: 10px;
+	background-color: red; /* Make it red */
+	border-radius: 50%; /* Circular dot */
+	margin-right: 5px; /* Spacing between dot and text */
+}

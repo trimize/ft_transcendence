@@ -7,8 +7,10 @@ let connected = false;
 let searchedUser;
 let friend_found = false;
 let errorFound = false;
-let userMessageId = 0;
-
+let allMessages = [];
+let currentChatUserId = 0;
+let friendId = 0;
+let senderUserId = 0;
 
 const searchFriendButton = document.getElementById('searchFriendBtn');
 const friendsList = document.getElementById('friendsListDiv');
@@ -20,10 +22,10 @@ const chatDiv = document.getElementById('chatDiv');
 
 async function sendMessage(message)
 {
-	console.log('trying to send message');
+	//console.log('trying to send message');
 	if (socket.readyState === WebSocket.OPEN)
 	{
-		console.log('socket still opened')
+		//console.log('socket still opened')
 		let json_message = JSON.stringify(message);
 		socket.send(json_message);
 	}
@@ -33,24 +35,33 @@ async function sendMessage(message)
 	}
 }
 
-function addChatMessage(message)
+function addChatMessages(userId, friendId)
 {
-	const newMessage = document.createElement('span');
-	newMessage.textContent = message;
-	chatMessages.appendChild(newMessage);
+	chatMessages.innerHTML = '';
+	for (let i = 0; i < allMessages.length; i++)
+	{
+		if ((allMessages[i].receiverId == userId && allMessages[i].senderId == friendId) || (allMessages[i].senderId == userId && allMessages[i].receiverId == friendId))
+		{
+			const newMessage = document.createElement('span');
+			newMessage.textContent = allMessages[i].message;
+			chatMessages.appendChild(newMessage);
 
-	chatMessages.scrollTop = chatMessages.scrollHeight;
+			chatMessages.scrollTop = chatMessages.scrollHeight;
 
-	if (chatMessages.children.length > 10) {
-		chatMessages.removeChild(chatMessages.firstChild);
+			if (chatMessages.children.length > 6) {
+				chatMessages.removeChild(chatMessages.firstChild);
+			}
+		}
 	}
 }
 
 async function checkMessages(id)
 {
-	const	friendComponent = document.getElementById(id);
-	const redDotComponent = friendComponent.firstElementChild;
-	redDotComponent.style.display = "block";
+	const friendComponent = document.getElementById(String(id));
+	//console.log(friendComponent);
+	const redDotComponent = document.getElementById('dot' + String(id));
+	if (chatDiv.style.display == "none")
+		redDotComponent.style.display = "block";
 }
 
 function addNewFriendNotif(username, id)
@@ -109,7 +120,7 @@ function addNewDropdownItem(text, href, matchId, inviteeId)
 			inviteeId: inviteeId,
 			matchId: matchId
 		};
-		console.log(notifData);
+		//console.log(notifData);
 		await sendMessage(notifData);
 		window.location.href = href + "/" + matchId + "/";
 	};
@@ -153,23 +164,30 @@ function addFriendToList(friendName)
 function addAcceptedFriends(friendName, id)
 {
 	const acceptedFriendsItems = document.getElementById('acceptedFriendsItems');
-
 	const listItem = document.createElement('li');
 	listItem.setAttribute('id', id);
 	const notificationDot = document.createElement('span');
 	notificationDot.classList.add('notification-dot');
+	notificationDot.setAttribute('id', 'dot' + id);
+	listItem.className = 'list-group-item';
+	listItem.textContent = friendName;
+	acceptedFriendsItems.appendChild(listItem);
 	listItem.appendChild(notificationDot);
 	notificationDot.style.display = 'none';
 
 	listItem.addEventListener('click', function()
 	{
-		notificationDot.style.display = 'none';
+		addChatMessages(data.id, id);
+		currentChatUserId = id;
+		document.getElementById('dot' + String(id)).style.display = 'none';
 		chatDiv.style.display = 'block';
 		chatInput.addEventListener('keydown', async function (event)
 		{
 			if (event.key === 'Enter' && chatInput.value.trim() !== '')
 			{
-				addChatMessage(chatInput.value);
+				addNewMessageJSON(data.id, id, chatInput.value);
+				if (currentChatUserId == friendId || data.id == senderUserId)
+					addChatMessages(data.id, id);
 				const liveChatData =
 				{
 					type: "chat_message",
@@ -182,11 +200,6 @@ function addAcceptedFriends(friendName, id)
 			}
 		});
 	});
-
-	listItem.className = 'list-group-item';
-	listItem.textContent = friendName;
-	//listItem.style.color = "grey";
-	acceptedFriendsItems.appendChild(listItem);
 }
 
 async function searchAndAddFriend(friendPendingArray)
@@ -198,7 +211,7 @@ async function searchAndAddFriend(friendPendingArray)
 		modalError.style.display = 'none';
 		modalError.style.color = "red";
 		const userData = await getUser(searchedUser);
-		console.log(userData);
+		//console.log(userData);
 		if (userData == "")
 		{
 			searchedUser = "No user found!"
@@ -209,7 +222,7 @@ async function searchAndAddFriend(friendPendingArray)
 		{
 			for(let i = 0; i < friendPendingArray.length; i++)
 			{
-				if (searchedUser == friendPendingArray[i].slice(0, -3))
+				if (searchedUser == friendPendingArray[i])
 				{
 					modalError.style.display = "block";
 					modalError.style.textContent = "Already sent a friend request to " + friendPendingArray[i].slice(0, -3);
@@ -241,6 +254,17 @@ async function searchAndAddFriend(friendPendingArray)
 	});
 }
 
+function addNewMessageJSON(senderId, receiverId, messageData)
+{
+	const newObject = 
+	{
+		senderId: senderId,
+		receiverId: receiverId,
+		message: messageData
+	}
+	allMessages.push(newObject);
+}
+
 chatDiv.style.display = 'none';
 data = await fetchUserData();
 if (data !== "")
@@ -255,9 +279,15 @@ if (connected)
 		if (message.type == "send_invite")
 			addNewDropdownItem(message.game, '/' + message.game, message.matchId, data.id);
 		if (message.type == "chat_message")
+			senderUserId = message.senderId;
+		if (message.type == "chat_message" && message.senderId != data.id)
 		{
-			addChatMessage(message.message);
+			friendId = message.senderId;
+			addNewMessageJSON(message.senderId, message.receiverId, message.message);
 			checkMessages(message.senderId);
+			//console.log(currentChatUserId);
+			if (currentChatUserId == message.senderId);
+				addChatMessages(data.id, message.senderId);
 		}
 	});
 
