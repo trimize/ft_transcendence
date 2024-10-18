@@ -178,7 +178,7 @@ class SocketConsumer(AsyncWebsocketConsumer):
 
 				if receiver_id in user_channels:
 					receiver_channel_name = user_channels.get(receiver_id)
-				else
+				else:
 					print(f"User {receiver_id} is not connected")
 					await self.channel_layer.send(
 						self.channel_name,
