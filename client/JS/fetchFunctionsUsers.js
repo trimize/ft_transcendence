@@ -38,3 +38,41 @@ export const verify2FA = async (otpToken) => {
 		return "";
 	}
 }
+
+export const deleteUser = async (userId) => {
+	const accessToken = await securelyGetAccessToken();
+	try {
+		//path might need to be changed
+		let response = await fetch("http://localhost:8000/api/delete_user/" + userId + "/", {
+			method: "DELETE",
+			headers: {
+				Authorization: `Bearer ${accessToken}`,
+			},
+		});
+		if (!response.ok) throw new Error("Failed to delete user");
+		const data = await response.json();
+		return data;
+	} catch (error) {
+		console.error(error.message);
+		return "";
+	}
+}
+
+export const anonymiseUser = async (userId) => {
+	const accessToken = await securelyGetAccessToken();
+	try {
+		//path might need to be changed
+		let response = await fetch("http://localhost:8000/api/anonymise_user/" + userId + "/", {
+			method: "PUT",
+			headers: {
+				Authorization: `Bearer ${accessToken}`,
+			},
+		});
+		if (!response.ok) throw new Error("Failed to anonymise user");
+		const data = await response.json();
+		return data;
+	} catch (error) {
+		console.error(error.message);
+		return "";
+	}
+}
