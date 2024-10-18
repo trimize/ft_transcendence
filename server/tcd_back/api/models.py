@@ -88,3 +88,26 @@ class Match_Record(models.Model):
 
 	def __str__(self):
 		return self.game
+
+class Tournament(models.Model):
+    id = models.AutoField(primary_key=True)
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+# Assign unique related_name for each player
+    player1 = models.ForeignKey(User, related_name='tournaments_as_player1', on_delete=models.PROTECT)
+    player2 = models.ForeignKey(User, related_name='tournaments_as_player2', on_delete=models.PROTECT)
+    player3 = models.ForeignKey(User, related_name='tournaments_as_player3', on_delete=models.PROTECT)
+    player4 = models.ForeignKey(User, related_name='tournaments_as_player4', on_delete=models.PROTECT)
+
+    # Assign unique related_name for each match
+    match1 = models.ForeignKey(Match_Record, related_name='tournament_match1', on_delete=models.PROTECT)
+    match2 = models.ForeignKey(Match_Record, related_name='tournament_match2', on_delete=models.PROTECT)
+    playoff = models.ForeignKey(Match_Record, related_name='tournament_playoff', on_delete=models.PROTECT)
+    final_match = models.ForeignKey(Match_Record, related_name='tournament_final', on_delete=models.PROTECT)
+
+    first_place = models.ForeignKey(User, related_name='tournaments_won', on_delete=models.PROTECT, null=True, blank=True)
+    second_place = models.ForeignKey(User, related_name='tournaments_second', on_delete=models.PROTECT, null=True, blank=True)
+    third_place = models.ForeignKey(User, related_name='tournaments_third', on_delete=models.PROTECT, null=True, blank=True)
+
+    def __str__(self):
+        return f"Tournament {self.id}"

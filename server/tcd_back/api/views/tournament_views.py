@@ -2,20 +2,20 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
-from ..models import Match_Record
-from ..serializer import MatchSerializer
+from ..models import Tournament
+from ..serializer import TournamentSerializer
 
 @api_view(['GET'])
 # @permission_classes([IsAuthenticated])
-def get_matches(request):
-	matches = Match_Record.objects.all()
-	serializer = MatchSerializer(matches, many=True)
+def get_tournaments(request):
+	tournaments = Tournament.objects.all()
+	serializer = TournamentSerializer(tournaments, many=True)
 	return Response(serializer.data)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def create_match(request):
-	serializer = MatchSerializer(data=request.data)
+def create_tournament(request):
+	serializer = TournamentSerializer(data=request.data)
 	if serializer.is_valid():
 		serializer.save()
 		return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -23,17 +23,17 @@ def create_match(request):
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
-def update_match(request):
-	match_id = request.data.get('id')
-	if not match_id:
+def update_tournament(request):
+	tournament_id = request.data.get('id')
+	if not tournament_id:
 		return Response({'error': 'ID is required'}, status=status.HTTP_400_BAD_REQUEST)
 
 	try:
-		match = Match_Record.objects.get(id=match_id)
-	except Match_Record.DoesNotExist:
+		tournament = Tournament.objects.get(id=tournament_id)
+	except Tournament.DoesNotExist:
 		return Response(status=status.HTTP_404_NOT_FOUND)
 
-	serializer = MatchSerializer(match, data=request.data, partial=True)
+	serializer = TournamentSerializer(tournament, data=request.data, partial=True)
 	if serializer.is_valid():
 		serializer.save()
 		return Response(serializer.data)
@@ -41,18 +41,11 @@ def update_match(request):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_match(request, pk):
+def get_tournament(request, pk):
 	try:
-		match = Match_Record.objects.get(pk=pk)
-	except Match_Record.DoesNotExist:
+		tournament = Tournament.objects.get(pk=pk)
+	except Tournament.DoesNotExist:
 		return Response(status=status.HTTP_404_NOT_FOUND)
+	return Response(TournamentSerializer(tournament).data)
 
-	serializer = MatchSerializer(match)
-	return Response(serializer.data)
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_match_by_player(request, player_id):
-	matches = Match_Record.objects.filter(player1_id=player_id) | Match_Record.objects.filter(player2_id=player_id)
-	serializer = MatchSerializer(matches, many=True)
-	return Response(serializer.data)

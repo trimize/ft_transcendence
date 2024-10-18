@@ -175,7 +175,37 @@ class SocketConsumer(AsyncWebsocketConsumer):
 			elif text_data_json['type'] == 'chat_message':
 				sender_id = str(text_data_json.get('senderId'))
 				receiver_id = str(text_data_json.get('receiverId'))
-				
+
+				if receiver_id in user_channels:
+					receiver_channel_name = user_channels.get(receiver_id)
+				else
+					print(f"User {receiver_id} is not connected")
+					await self.channel_layer.send(
+						self.channel_name,
+						{
+							'type': 'chat_message',
+							'message': {
+								'text': 'User is not connected'
+							}
+						}
+					)
+					return
+				print(f"Sending message to user {receiver_id} on channel {receiver_channel_name}")
+				await self.channel_layer.send(
+					receiver_channel_name,
+					{
+						'type': 'chat_message',
+						'message': text_data_json
+					}
+				)
+				await self.channel_layer.send(
+					self.channel_name,
+					{
+						'type': 'chat_message',
+						'message': text_data_json
+					}
+				)
+
 
 	async def send_message(self, event):
 		message = event['message']

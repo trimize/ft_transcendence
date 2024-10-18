@@ -60,16 +60,6 @@ def update_user(request):
         return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# @api_view(['DELETE'])
-# def delete_user(request, pk):
-#     try:
-#         user = User.objects.get(pk=pk)
-#     except User.DoesNotExist:
-#         return Response(status=status.HTTP_404_NOT_FOUND)
-
-#     user.delete()
-#     return Response(status=status.HTTP_204_NO_CONTENT)
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_user(request, pk):
@@ -266,24 +256,27 @@ def update_tic_tac_toe_background(request, tic_tac_toe_background):
     user.save()
     return Response(status=status.HTTP_204_NO_CONTENT)
 
-# @api_view(['GET'])
-# @permission_classes([IsAuthenticated])
-# def get_user_wins(request, pk):
-#     try:
-#         user = User.objects.get(pk=pk)
-#     except User.DoesNotExist:
-#         return Response(status=status.HTTP_404_NOT_FOUND)
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def anonymize_user(request):
+    user = request.user
+    user.username = f'anonymous_{user.id}'
+    user.email = ''
+    user.save()
 
-#     wins = user.player1_matches.filter(player1_score__gt=F('player2_score')).count() + user.player2_matches.filter(player2_score__gt=F('player1_score')).count()
-#     return Response(wins)
+    user_data = {
+        'username': user.username,
+    }
+    
+    return Response(user_data, status=status.HTTP_200_OK)
 
-# @api_view(['GET'])
-# @permission_classes([IsAuthenticated])
-# def get_user_losses(request, pk):
-#     try:
-#         user = User.objects.get(pk=pk)
-#     except User.DoesNotExist:
-#         return Response(status=status.HTTP_404_NOT_FOUND)
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_account(request):
+    user = request.user
 
-#     losses = user.player1_matches.filter(player1_score__lt=F('player2_score')).count() + user.player2_matches.filter(player2_score__lt=F('player1_score')).count()
-#     return Response(losses)
+    Match_Record.objects.filter(player1=user).update(player1=None)
+    Match_Record.objects.filter(player2=user).update(player2=None)
+
+    user.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
