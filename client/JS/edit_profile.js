@@ -1,8 +1,10 @@
 import { updateUserData, fetchUserData } from "./fetchFunctions.js";
 import { setup2FA, verify2FA } from "./fetchFunctionsUsers.js";
+import { createNavbar } from "./utils.js";
 
 document.addEventListener("DOMContentLoaded", async function () {
   try {
+    await createNavbar();
     const userData = await fetchUserData();
     document.getElementById("username").value = userData.username;
     document.getElementById("email").value = userData.email;

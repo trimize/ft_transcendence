@@ -1,8 +1,10 @@
 import { fetchMatches, fetchUserData } from './fetchFunctions.js';
+import { createNavbar } from './utils.js';
 
 document.addEventListener('DOMContentLoaded', async function()
 {
 	try {
+        await createNavbar();
         const userData = await fetchUserData();
         const matches = await fetchMatches(userData.id);
         populateMatchesHistory(matches, userData);

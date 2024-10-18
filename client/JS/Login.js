@@ -1,5 +1,10 @@
 import { getWebSocket } from "./singletonSocket.js";
+import { createNavbar } from "./utils.js";
 
+document.addEventListener('DOMContentLoaded', async function()
+{
+	await createNavbar();
+});
 document.getElementById('loginForm').addEventListener('submit', function(event)
 {
 	event.preventDefault(); // Prevent default form submission

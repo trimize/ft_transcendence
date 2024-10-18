@@ -1,4 +1,11 @@
-document.getElementById('registerForm').addEventListener('submit', function(event)
+import { createNavbar } from './utils.js';
+
+document.addEventListener('DOMContentLoaded', async function()
+{
+	await createNavbar();
+});
+
+document.getElementById('registerForm').addEventListener('submit', async function(event)
 {
 	event.preventDefault();
 

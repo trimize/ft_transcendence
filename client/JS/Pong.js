@@ -1,6 +1,6 @@
 import { fetchUserData, getUser, updateGame, createGame } from './fetchFunctions.js';
 import { getWebSocket } from './singletonSocket.js';
-import { getCurrentTime } from './utlis.js';
+import { getCurrentTime } from './utils.js';
 
 let start = false;
 let score_player = 0;

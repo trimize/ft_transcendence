@@ -1,8 +1,10 @@
 import { fetchUsers, fetchUserData, addFriend } from "./fetchFunctions.js";
+import { createNavbar } from "./utils.js";
 
 document.addEventListener('DOMContentLoaded', async function()
 {
 	try {
+        await createNavbar(); 
         const leaderboardData = await fetchUsers();
         const userData = await fetchUserData();
         populateLeaderboard(leaderboardData, userData);
