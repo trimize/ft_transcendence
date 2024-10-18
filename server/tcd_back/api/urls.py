@@ -29,6 +29,9 @@ urlpatterns = [
 	path('update_pong_slider/<int:pong_slider>', user_views.update_pong_slider, name='update_pong_slider'),
 	path('update_tic_tac_toe_sign/<int:tic_tac_toe_sign>', user_views.update_tic_tac_toe_sign, name='update_tic_tac_toe_sign'),
 	path('update_tic_tac_toe_background/<int:tic_tac_toe_background>', user_views.update_tic_tac_toe_background, name='update_tic_tac_toe_background'),
+	path('get_friends/', user_views.get_friends, name='get_friends'),
+	# path('get_user_wins/<int:pk>/', user_views.get_user_wins, name='get_user_wins'),
+	# path('get_user_losses/<int:pk>/', user_views.get_user_losses, name='get_user_losses'),
 
 	# 2FA urls
 	path('setup_2fa/', tf_views.setup_2fa, name='setup_2fa'),

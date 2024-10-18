@@ -346,3 +346,25 @@ export async function getPendingRequest() {
 	  return "";
 	}
 }
+
+export async function getFriends() {
+	const accessToken = await securelyGetAccessToken();
+	try {
+	  let response = await fetch(
+	    `http://localhost:8000/api/get_friends/`,
+	    {
+	      method: "GET",
+	      headers: {
+		Authorization: `Bearer ${accessToken}`,
+		"Content-Type": "application/json",
+	      },
+	    }
+	  );
+	  if (!response.ok) throw new Error("Failed to fetch user data");
+	  const user = await response.json();
+	  return user;
+	} catch (error) {
+	  console.error(error.message);
+	  return "";
+	}
+}

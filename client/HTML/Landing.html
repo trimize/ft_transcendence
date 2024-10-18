@@ -45,12 +45,6 @@
 						
 					</div>
 				</div>
-				<div class="dropdown">
-				<a class="navbar-brand dropdown-toggle" href="#" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-					Notifications
-				</a>
-				<div class="dropdown-menu" aria-labelledby="dropdownMenuLink" id="notificationsDropdown"></div>
-			</div>
 				<!-- Rest of the navbar -->
 				<div class="collapse navbar-collapse d-flex align-items-stretch">
 					<ul class="navbar-nav w-100 flex-grow-1">
@@ -72,7 +66,17 @@
 					<div class="friends-list bg-light p-3" id="friendsList">
 						<h5>Friends List</h5>
 						<input type="text" name="username" placeholder="Search John Doe" id="inputFriend"><button class="btn btn-outline-secondary" type="button" id="searchFriendBtn">Search</button>
+						<div>
+							<span aria-hidden="true">Pending requests</span>
+						</div>
+						<div></div>
+							<span aria-hidden="true" id="modalError"></span>
+						</div>
 						<ul class="list-group" id="friendsListItems">
+							<!-- Friends will be added here dynamically -->
+						</ul>
+						<span aria-hidden="true">Friends</span>
+						<ul class="list-group" id="acceptedFriendsItems"></ul>
 							<!-- Friends will be added here dynamically -->
 						</ul>
 					</div>
@@ -84,7 +88,7 @@
 						<div class="modal-header">
 							<h5 class="modal-title" id="addFriendModalLabel"></h5>
 							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-							<span aria-hidden="true">&times;</span>
+								<span aria-hidden="true">&times;</span>
 							</button>
 						</div>
 						<div class="modal-footer">
@@ -93,6 +97,12 @@
 						</div>
 					</div>
 				</div>
+			</div>
+			<div class="chat-container" id="chatDiv">
+				<div class="chat-messages" id="chatMessages">
+					<!-- Chat messages will be dynamically added here -->
+				</div>
+				<input type="text" id="chatInput" class="form-control" placeholder="Type your message...">
 			</div>
 		</div>
 

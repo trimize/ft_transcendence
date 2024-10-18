@@ -35,3 +35,38 @@
 {
 	background-color: #495057; /* Darker background on hover */
 }
+
+.chat-container
+{
+        position: fixed;
+        bottom: 0;
+        right: 0;
+        width: 25%;
+        max-height: 40%;
+        background: rgba(0, 0, 0, 0.7);
+        border-top-left-radius: 10px;
+        color: white;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+}
+
+.chat-messages
+{
+	flex: 1;
+	overflow-y: auto;
+	margin-bottom: 10px;
+}
+
+.chat-messages span
+{
+	display: block;
+	margin-bottom: 5px;
+	word-wrap: break-word;
+}
+
+#chatInput
+{
+	border-radius: 5px;
+	background: rgba(255, 255, 255, 0.8);
+}

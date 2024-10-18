@@ -121,12 +121,12 @@ def send_friend_request(request, friend_username):
         return Response(status=status.HTTP_400_BAD_REQUEST)
     if user.friends.filter(pk=friend.id).exists():
         return Response(status=status.HTTP_400_BAD_REQUEST)
-    if user.invitations_sent.filter(pk=friend.id).exists():
+    if FriendInvitation.objects.filter(sender=user, receiver=friend, status='pending').exists():
         return Response(status=status.HTTP_400_BAD_REQUEST)
     if user.blocked_friends.filter(pk=friend.id).exists():
         return Response(status=status.HTTP_400_BAD_REQUEST)
     
-    if user.invitations_received.filter(pk=friend.id).exists():
+    if FriendInvitation.objects.filter(sender=friend, receiver=user, status='pending').exists():
         add_friend(request, friend.id)
     
     FriendInvitation.objects.create(sender=user, receiver=friend, status='pending')
@@ -159,19 +159,28 @@ def add_friend(request, new_friend):
     except User.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
+    print("user is")
+    print(user)
+    print("friend is")
+    print(friend)
+
     if user == friend:
+        print("got here 1")
         return Response(status=status.HTTP_400_BAD_REQUEST)
     if user.friends.filter(pk=friend.id).exists():
+        print("got here 2")
         return Response(status=status.HTTP_400_BAD_REQUEST)
-    if not user.sent_invitations.filter(pk=friend.id).exists():
+    if not FriendInvitation.objects.filter(sender=friend, receiver=user, status='pending').exists():
+        print("got here 3")
         return Response(status=status.HTTP_400_BAD_REQUEST)
     if user.blocked_friends.filter(pk=friend.id).exists():
+        print("got here 4")
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
     try:
         invitation = FriendInvitation.objects.get(sender=friend, receiver=user)
         invitation.status = 'accepted'
-        invitation.save()
+        invitation.save(update_fields=['status'])
     except FriendInvitation.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -280,3 +289,11 @@ def delete_account(request):
 
     user.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_friends(request):
+    user = request.user
+    friends = user.friends.all()  # Get all friends for the authenticated user
+    serializer = UserSerializer(friends, many=True)  # Serialize the friends list
+    return Response(serializer.data)
