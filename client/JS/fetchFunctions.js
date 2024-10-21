@@ -368,3 +368,71 @@ export async function getFriends() {
 	  return "";
 	}
 }
+
+export async function createTournament(body) {
+	const accessToken = await securelyGetAccessToken();
+	try {
+	  let response = await fetch(
+	    `http://localhost:8000/api/create_tournament/`,
+	    {
+	      method: "POST",
+	      headers: {
+		Authorization: `Bearer ${accessToken}`,
+		"Content-Type": "application/json",
+	      },
+	      body: JSON.stringify(body),
+	    }
+	  );
+	  if (!response.ok) throw new Error("Failed to fetch user data");
+	  const user = await response.json();
+	  return user;
+	} catch (error) {
+	  console.error(error.message);
+	  return "";
+	}
+}
+
+export async function getTournaments() {
+	const accessToken = await securelyGetAccessToken();
+	try {
+	  let response = await fetch(
+	    `http://localhost:8000/api/get_tournaments/`,
+	    {
+	      method: "GET",
+	      headers: {
+		Authorization: `Bearer ${accessToken}`,
+		"Content-Type": "application/json",
+	      },
+	    }
+	  );
+	  if (!response.ok) throw new Error("Failed to fetch user data");
+	  const user = await response.json();
+	  return user;
+	} catch (error) {
+	  console.error(error.message);
+	  return "";
+	}
+}
+
+export async function updateTournament(body) {
+	const accessToken = await securelyGetAccessToken();
+	try {
+	  let response = await fetch(
+	    `http://localhost:8000/api/update_tournament/`,
+	    {
+	      method: "PUT",
+	      headers: {
+		Authorization: `Bearer ${accessToken}`,
+		"Content-Type": "application/json",
+	      },
+	      body: JSON.stringify(body),
+	    }
+	  );
+	  if (!response.ok) throw new Error("Failed to fetch user data");
+	  const user = await response.json();
+	  return user;
+	} catch (error) {
+	  console.error(error.message);
+	  return "";
+	}
+}

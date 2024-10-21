@@ -1,5 +1,5 @@
 import { fetchUserData, getUser, sendFriendRequest, getFriendNotifications, addFriend, refuseFriendRequest, getPendingRequest, getFriends} from "./fetchFunctions.js";
-import { getWebSocket } from "./singletonSocket.js"
+import { getWebSocket, sendMessage } from "./singletonSocket.js"
 
 let data;
 let socket;
@@ -20,21 +20,6 @@ const cancelModal = document.getElementById('cancelModal');
 const chatInput = document.getElementById('chatInput');
 const chatMessages = document.getElementById('chatMessages');
 const chatDiv = document.getElementById('chatDiv');
-
-async function sendMessage(message)
-{
-	//console.log('trying to send message');
-	if (socket.readyState === WebSocket.OPEN)
-	{
-		//console.log('socket still opened')
-		let json_message = JSON.stringify(message);
-		socket.send(json_message);
-	}
-	else
-	{
-	    console.log('WebSocket is not open.');
-	}
-}
 
 function addChatMessages()
 {
@@ -101,7 +86,7 @@ function addNewFriendNotif(username, id)
 	dropdownMenu.appendChild(newItem);
 }
 
-function addNewDropdownItem(text, href, matchId, inviteeId)
+function addNewDropdownItem(text, href, matchId, inviteeId, tournamentBool, playerNumber)
 {
 	const dropdownMenu = document.getElementById('notifications');
 	
@@ -112,31 +97,61 @@ function addNewDropdownItem(text, href, matchId, inviteeId)
 	// Create the first button
 	const button1 = document.createElement('button');
 	button1.classList.add('btn', 'btn-primary', 'btn-sm');
-	button1.textContent = 'Button 1';
-	button1.onclick = async () => {
-		const notifData =
+	button1.textContent = 'Accept';
+	button1.onclick = async () =>
+	{
+		if (!tournamentBool)
 		{
-			type: "accept_invite",
-			inviteeId: inviteeId,
-			matchId: matchId
-		};
-		//console.log(notifData);
-		await sendMessage(notifData);
-		window.location.href = href + "/" + matchId + "/";
+			const notifData =
+			{
+				type: "accept_invite",
+				inviteeId: inviteeId,
+				matchId: matchId
+			};
+			await sendMessage(notifData);
+			window.location.href = href + "/" + matchId + "/";
+		}
+		else
+		{
+			const notifData =
+			{
+				type: "accept_invite",
+				inviteeId: inviteeId,
+				tournamentId: matchId,
+				player_number: playerNumber
+			};
+			console.log('yes');
+			await sendMessage(notifData);
+			//window.location.href = href + "/" + matchId + "/";
+		}
 	};
 
 	// Create the second button
 	const button2 = document.createElement('button');
 	button2.classList.add('btn', 'btn-secondary', 'btn-sm', 'ml-2');
-	button2.textContent = 'Button 2';
-	button2.onclick = async () => {
-		const notifData =
+	button2.textContent = 'Refuse';
+	button2.onclick = async () =>
+	{
+		if (!tournamentBool)
 		{
-			type: "refuse_invite",
-			inviteeId: inviteeId,
-			matchId: matchId
-		};
-		await sendMessage(notifData);
+			const notifData =
+			{
+				type: "refuse_invite",
+				inviteeId: inviteeId,
+				matchId: matchId
+			};
+			await sendMessage(notifData);
+		}
+		else
+		{
+			const notifData =
+			{
+				type: "refuse_invite",
+				inviteeId: inviteeId,
+				tournamentId: matchId,
+			};
+			await sendMessage(notifData);
+		}
 	};
 
 	// Append the buttons to the <a> element
@@ -275,9 +290,15 @@ if (connected)
 	socket.addEventListener('message', function(event)
 	{
 		const message = JSON.parse(event.data);
-		//console.log('Parsed message:', message);
+		console.log('Parsed message:', message);
 		if (message.type == "send_invite")
-			addNewDropdownItem(message.game, '/' + message.game, message.matchId, data.id);
+		{
+			console.log(message.tournament);
+			if (!message.tournament)
+				addNewDropdownItem(message.game, '/' + message.game, message.matchId, data.id, message.tournament, 0);
+			else
+				addNewDropdownItem(message.game, '/tournament', message.tournamentId, data.id, message.tournament, message.player_number);
+		}
 		if (message.type == "chat_message" && message.senderId == data.id)
 		{
 			//console.log('user is sender');

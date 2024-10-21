@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
 from .models import User, Match_Record, FriendInvitation, Tournament
 
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -62,18 +63,17 @@ class FriendInvitationSerializer(serializers.ModelSerializer):
         fields = ['id', 'sender', 'receiver', 'status', 'timestamp']
 
 class TournamentSerializer(serializers.ModelSerializer):
-    player1 = UserSerializer(read_only=True)
-    player2 = UserSerializer(read_only=True)
-    player3 = UserSerializer(read_only=True)
-    player4 = UserSerializer(read_only=True)
-    first_place = UserSerializer(read_only=True)
-    second_place = UserSerializer(read_only=True)
-    third_place = UserSerializer(read_only=True)
-    match1 = MatchSerializer(read_only=True)
-    match2 = MatchSerializer(read_only=True)
-    playoff = MatchSerializer(read_only=True)
-    final_match = MatchSerializer(read_only=True)
-
+    player1 = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    player2 = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False, allow_null=True)
+    player3 = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False, allow_null=True)
+    player4 = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False, allow_null=True)
+    first_place = UserSerializer(read_only=True, required=False, allow_null=True)
+    second_place = UserSerializer(read_only=True, required=False, allow_null=True)
+    third_place = UserSerializer(read_only=True, required=False, allow_null=True)
+    match1 = MatchSerializer(read_only=True, required=False, allow_null=True)
+    match2 = MatchSerializer(read_only=True, required=False, allow_null=True)
+    playoff = MatchSerializer(read_only=True, required=False, allow_null=True)
+    final_match = MatchSerializer(read_only=True, required=False, allow_null=True)
     class Meta:
         model = Tournament
         fields = '__all__'

@@ -102,6 +102,17 @@ class SocketConsumer(AsyncWebsocketConsumer):
 					self.room_group_name,
 					self.channel_name
 				)
+			elif text_data_json['type'] == 'new_tournament':
+				tournament_id = text_data_json.get('tournamentId')
+				if not tournament_id:
+					print("tournament ID not provided")
+					return
+				self.room_group_name = f'tournament_{tournament_id}'
+				print(f"Adding to group: {self.room_group_name}")
+				await self.channel_layer.group_add(
+					self.room_group_name,
+					self.channel_name
+				)
 			elif text_data_json['type'] == 'match_update':
 				match_id = text_data_json.get('matchId')
 				self.room_group_name = f'match_{match_id}'
@@ -131,9 +142,13 @@ class SocketConsumer(AsyncWebsocketConsumer):
 					return
 				match_id = text_data_json.get('matchId')
 				if not match_id:
-					print("Match ID not provided")
+					tournament_id = text_data_json.get('tournamentId')
+					if not tournament_id:
+						print("Tournament ID or Match ID not provided")
+					self.room_group_name = f'tournament_{tournament_id}'
 					return
-				self.room_group_name = f'match_{match_id}'
+				else:
+					self.room_group_name = f'match_{match_id}'
 				print(f"Adding to group: {self.room_group_name}")
 				await self.channel_layer.group_add(
 					self.room_group_name,

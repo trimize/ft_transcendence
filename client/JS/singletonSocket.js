@@ -52,7 +52,7 @@ export async function sendMessage(message)
 	if (socket.readyState === WebSocket.OPEN)
 	{
 		let json_message = JSON.stringify(message);
-		socket.send(json_message);
+		await socket.send(json_message);
 		console.log("message sent " + json_message);
 	}
 	else
