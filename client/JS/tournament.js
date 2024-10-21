@@ -6,6 +6,7 @@ let userData;
 let tournamentData;
 let socket = await getWebSocket();
 let isExistingTournament = false;
+let players_to_invite = [2, 3, 4];
 
 async function invitePlayer(playerNumber)
 {
@@ -71,6 +72,7 @@ async function initializingTournament()
 	};
 	await sendMessage(socketTournamentData);
 	document.getElementById('player1').textContent = userData.username;
+	document.getElementById('match-player1').textContent = userData.username;
 	for(let i = 2; i < 5; i++)
 	{
 		document.getElementById('button' + i).addEventListener('click', function()
@@ -131,20 +133,45 @@ async function resumeTournament()
 	}
 }
 
+function fillRemainingPlayers(Data)
+{
+	if (tournamentData.player2 != undefined)
+		Data["player2"] = tournamentData.player2;
+	else
+		Data["player2"] = null;
+	if (tournamentData.player2 != undefined)
+		Data["player3"] = tournamentData.player3;
+	else
+		Data["player3"] = null;
+	if (tournamentData.player2 != undefined)
+		Data["player4"] = tournamentData.player4;
+	else
+		Data["player4"] = null;
+}
+
 async function preparePlayer(id, number)
 {
 	const playerData = await fetchUserById(id);
-	console.log(playerData);
 	const Data =
 	{
 		id: tournamentData.id,
-		[`player${number}`]: playerData.id
+		[`player${number}`]: playerData.id,
+		player1: userData.id,
+
 	};
-	tournamentData = updateTournament(Data);
+	const index = players_to_invite.findIndex(item => item === number);
+	players_to_invite.splice(index, 1);
+	tournamentData = await updateTournament(Data);
+	fillRemainingPlayers(Data);
+	Data["type"] = "update_tournament";
+	await sendMessage(Data);
 	document.getElementById(`player${number}`).style.display = 'none';
 	document.getElementById(`player${number}Spand`).classList.remove('d-none');
 	document.getElementById(`player${number}Spand`).textContent = playerData.username;
 	document.getElementById(`button${number}`).style.display = 'none';
+	document.getElementById(`match-player${number}`)
+	if (players_to_invite.length == 0)
+		document.getElementById('startTournamentButton').classList.remove('d-none');
 }
 
 async function socketEvents(event)
