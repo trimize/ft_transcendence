@@ -8,22 +8,25 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="tournament.js" defer></script>
+    <script type="module" src="/js/tournament.js"></script>
 </head>
 <body>
     <div class="container mt-5">
         <h2 class="text-center">Tournament Setup</h2>
         <div class="row mb-4">
             <div class="col-md-3">
-                <label for="player1">You</label>
-                <input type="text" id="player1" class="form-control" value="Your Username" readonly>
+                <label>You</label>
+		<div class="input-group-append">
+			<span id="player1" class="align-middle"></span>
+		</div>
             </div>
             <div class="col-md-3">
                 <label for="player2">Player 2</label>
                 <div class="input-group">
                     <input type="text" id="player2" class="form-control" placeholder="Enter username">
                     <div class="input-group-append">
-                        <button class="btn btn-primary" type="button" onclick="invitePlayer(2)">+</button>
+			<span id="player2Spand" class="align-middle d-none"></span>
+                        <button class="btn btn-primary" type="button">+</button>
                     </div>
                 </div>
             </div>
@@ -32,7 +35,8 @@
                 <div class="input-group">
                     <input type="text" id="player3" class="form-control" placeholder="Enter username">
                     <div class="input-group-append">
-                        <button class="btn btn-primary" type="button" onclick="invitePlayer(3)">+</button>
+			<span id="player3Spand" class="align-middle d-none"></span>
+                        <button class="btn btn-primary" type="button">+</button>
                     </div>
                 </div>
             </div>
@@ -41,7 +45,8 @@
                 <div class="input-group">
                     <input type="text" id="player4" class="form-control" placeholder="Enter username">
                     <div class="input-group-append">
-                        <button class="btn btn-primary" type="button" onclick="invitePlayer(4)">+</button>
+			<span id="player4Spand" class="align-middle d-none"></span>
+                        <button class="btn btn-primary" type="button">+</button>
                     </div>
                 </div>
             </div>

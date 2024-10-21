@@ -229,7 +229,8 @@ function hideModal()
 						matchId: matchId,
 						inviteeId: dataSecondUser.id,
 						hostId: player1Id,
-						game: "pong"
+						game: "pong",
+						tournament: false
 					};
 					startOnlineButton.display = 'none';
 					await sendMessage(matchData);

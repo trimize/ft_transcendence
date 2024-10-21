@@ -45,3 +45,18 @@ export async function getWebSocket() {
     }
     return socket;
 }
+
+export async function sendMessage(message)
+{
+	const socket = await getWebSocket();
+	if (socket.readyState === WebSocket.OPEN)
+	{
+		let json_message = JSON.stringify(message);
+		socket.send(json_message);
+		console.log("message sent " + json_message);
+	}
+	else
+	{
+	    console.log('WebSocket is not open.');
+	}
+}
