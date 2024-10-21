@@ -36,23 +36,24 @@ export const securelyGetAccessToken = async () => {
       throw new Error("Error refreshing token:" + error);
     }
   }
-  // Accesss token is still valid
+  // Access token is still valid
   return token;
 };
 
 export async function fetchUserData() {
   const accessToken = await securelyGetAccessToken();
   try {
-    let response = await fetch("http://localhost:8000/api/user_info/", {
+    let response = await fetch("http://localhost:8000/api/ssr/profile/", {
       method: "GET",
       headers: {
         Authorization: `Bearer ${accessToken}`,
         "Content-Type": "application/json",
       },
     });
+    console.log("Access token:", accessToken);
     if (!response.ok) throw new Error("Failed to fetch user data");
-    const userData = await response.json();
-    return userData;
+    // const userData = await response.json();
+    // return userData;
   } catch (error) {
     console.error(error.message);
     return "";

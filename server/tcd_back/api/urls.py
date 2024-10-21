@@ -41,4 +41,6 @@ urlpatterns = [
 	# path('delete_match/', match_views.delete_match, name='delete_match'),
 	path('matches/<int:pk>/', match_views.get_match, name='get_match'),
 	path('matches/player/<int:player_id>/', match_views.get_match_by_player, name='get_match_by_player'),
+	path('ssr/profile/', user_views.ssr_profile, name='ssr_profile'),
+	path('ssr/login/', user_views.ssr_login, name='ssr_login'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

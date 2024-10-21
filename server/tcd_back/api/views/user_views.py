@@ -1,4 +1,4 @@
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, login
 from django_otp.plugins.otp_totp.models import TOTPDevice
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
@@ -6,9 +6,13 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.decorators import api_view, permission_classes, parser_classes
 from rest_framework.response import Response
 from rest_framework import status
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render, redirect
 from ..models import User
 from ..serializer import UserSerializer
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+
 
 @api_view(['GET'])
 # @permission_classes([IsAuthenticated])
@@ -37,6 +41,7 @@ def login_user(request):
             return Response({'message': '2FA required'}, status=status.HTTP_200_OK)
         else:
             # User does not have 2FA enabled, return tokens
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             refresh = RefreshToken.for_user(user)
             websocket_url = f"ws://{request.get_host()}/ws/api/"
             return Response({
@@ -214,3 +219,14 @@ def update_tic_tac_toe_background(request, tic_tac_toe_background):
 
 #     losses = user.player1_matches.filter(player1_score__lt=F('player2_score')).count() + user.player2_matches.filter(player2_score__lt=F('player1_score')).count()
 #     return Response(losses)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def ssr_profile(request):
+    user = request.user
+    serializer = UserSerializer(user)
+    return render(request, 'user_profile_template.html', {'user': serializer.data})
+
+@api_view(['GET'])
+def ssr_login(request):
+    return render(request, 'login.html')

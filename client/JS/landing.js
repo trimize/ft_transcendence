@@ -86,22 +86,22 @@ function addNewDropdownItem(text, href, matchId)
 //});
 
 
-data = await fetchUserData();
-console.log('trying to connect');
-if (data !== "")
-	connected = true;
-if (connected)
-{
-	console.log('connected');
-	socket = await getWebSocket();
-	socket.addEventListener('message', function(event)
-	{
-		const message = JSON.parse(event.data);
-		console.log('Parsed message:', message);
-		if (message.type == "send_invite")
-			addNewDropdownItem(message.game, '/' + message.game, message.matchId);
+// data = await fetchUserData();
+// console.log('trying to connect');
+// if (data !== "")
+// 	connected = true;
+// if (connected)
+// {
+// 	console.log('connected');
+// 	socket = await getWebSocket();
+// 	socket.addEventListener('message', function(event)
+// 	{
+// 		const message = JSON.parse(event.data);
+// 		console.log('Parsed message:', message);
+// 		if (message.type == "send_invite")
+// 			addNewDropdownItem(message.game, '/' + message.game, message.matchId);
 			
-	});
-	document.getElementById('logdiv').textContent = 'Profile';
-	document.getElementById('logdiv').href = '/profile';
-}
+// 	});
+// 	document.getElementById('logdiv').textContent = 'Profile';
+// 	document.getElementById('logdiv').href = '/profile';
+// }

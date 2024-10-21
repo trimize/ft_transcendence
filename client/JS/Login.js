@@ -14,7 +14,8 @@ document.getElementById('loginForm').addEventListener('submit', function(event)
 		headers: {
 			'Content-Type': 'application/json',
 		},
-		body: JSON.stringify(credentials)
+		body: JSON.stringify(credentials),
+		credentials: 'include'
 	})
 	.then(response => response.json())
 	.then(async data => {
@@ -24,7 +25,7 @@ document.getElementById('loginForm').addEventListener('submit', function(event)
 			localStorage.setItem('websocket_url', data.websocket_url);
 			console.log(data.websocket_url);
 			await getWebSocket();
-			//window.location.href = '/landing';
+			window.location.href = '/profile/';
 		}
 		else if (data.message === '2FA required')
 		{
@@ -67,7 +68,7 @@ document.getElementById('verify2FA').addEventListener('click', function()
 			localStorage.setItem('websocket_url', data.websocket_url);
 			console.log(data.websocket_url);
 			await getWebSocket();
-			window.location.href = '/Landing';
+			window.location.href = '/profile/';
 		}
 		else
 		{
