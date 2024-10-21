@@ -145,8 +145,8 @@ class SocketConsumer(AsyncWebsocketConsumer):
 					tournament_id = text_data_json.get('tournamentId')
 					if not tournament_id:
 						print("Tournament ID or Match ID not provided")
+						return
 					self.room_group_name = f'tournament_{tournament_id}'
-					return
 				else:
 					self.room_group_name = f'match_{match_id}'
 				print(f"Adding to group: {self.room_group_name}")

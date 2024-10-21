@@ -138,7 +138,7 @@ async function preparePlayer(id, number)
 	const Data =
 	{
 		id: tournamentData.id,
-		[`player${number}`]: playerData
+		[`player${number}`]: playerData.id
 	};
 	tournamentData = updateTournament(Data);
 	document.getElementById(`player${number}`).style.display = 'none';
