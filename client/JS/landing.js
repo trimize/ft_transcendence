@@ -9,6 +9,7 @@ let friend_found = false;
 let errorFound = false;
 let allMessages = [];
 let currentChatUserId = 0;
+let currentChatUsername;
 let friendId = 0;
 let senderUserId = 0;
 
@@ -35,12 +36,13 @@ async function sendMessage(message)
 	}
 }
 
-function addChatMessages(userId, friendId)
+function addChatMessages()
 {
 	chatMessages.innerHTML = '';
+	//console.log(allMessages);
 	for (let i = 0; i < allMessages.length; i++)
 	{
-		if ((allMessages[i].receiverId == userId && allMessages[i].senderId == friendId) || (allMessages[i].senderId == userId && allMessages[i].receiverId == friendId))
+		if ((allMessages[i].receiverId == data.id && allMessages[i].senderId == friendId) || (allMessages[i].senderId == data.id && allMessages[i].receiverId == friendId))
 		{
 			const newMessage = document.createElement('span');
 			newMessage.textContent = allMessages[i].message;
@@ -57,10 +59,8 @@ function addChatMessages(userId, friendId)
 
 async function checkMessages(id)
 {
-	const friendComponent = document.getElementById(String(id));
-	//console.log(friendComponent);
 	const redDotComponent = document.getElementById('dot' + String(id));
-	if (chatDiv.style.display == "none")
+	if (chatDiv.style.display == "none" || currentChatUserId != id)
 		redDotComponent.style.display = "block";
 }
 
@@ -177,17 +177,17 @@ function addAcceptedFriends(friendName, id)
 
 	listItem.addEventListener('click', function()
 	{
-		addChatMessages(data.id, id);
 		currentChatUserId = id;
+		friendId = currentChatUserId;
 		document.getElementById('dot' + String(id)).style.display = 'none';
+		addChatMessages();
+		currentChatUsername = friendName;
 		chatDiv.style.display = 'block';
 		chatInput.addEventListener('keydown', async function (event)
 		{
 			if (event.key === 'Enter' && chatInput.value.trim() !== '')
 			{
-				addNewMessageJSON(data.id, id, chatInput.value);
-				if (currentChatUserId == friendId || data.id == senderUserId)
-					addChatMessages(data.id, id);
+				//addNewMessageJSON(data.id, id, chatInput.value);
 				const liveChatData =
 				{
 					type: "chat_message",
@@ -275,19 +275,24 @@ if (connected)
 	socket.addEventListener('message', function(event)
 	{
 		const message = JSON.parse(event.data);
-		console.log('Parsed message:', message);
+		//console.log('Parsed message:', message);
 		if (message.type == "send_invite")
 			addNewDropdownItem(message.game, '/' + message.game, message.matchId, data.id);
-		if (message.type == "chat_message")
+		if (message.type == "chat_message" && message.senderId == data.id)
+		{
+			//console.log('user is sender');
 			senderUserId = message.senderId;
+			friendId = message.receiverId;
+			addNewMessageJSON(message.senderId, message.receiverId, message.message);
+			addChatMessages();
+		}
 		if (message.type == "chat_message" && message.senderId != data.id)
 		{
 			friendId = message.senderId;
 			addNewMessageJSON(message.senderId, message.receiverId, message.message);
 			checkMessages(message.senderId);
-			//console.log(currentChatUserId);
-			if (currentChatUserId == message.senderId);
-				addChatMessages(data.id, message.senderId);
+			if (currentChatUserId == message.senderId)
+				addChatMessages();
 		}
 	});
 
@@ -308,9 +313,7 @@ if (connected)
 	const friendsArray = await getFriends();
 
 	for(let i = 0; i < friendsArray.length; i++)
-	{
 		addAcceptedFriends(friendsArray[i].username, friendsArray[i].id);
-	}
 	searchAndAddFriend(friendPendingArray);
 }
 
