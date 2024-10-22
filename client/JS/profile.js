@@ -25,6 +25,9 @@ const renderProfilePage = () => {
                                 </div>
                         </div>
                     </div>
+                    <div class="card-footer text-muted">
+                    <p>Match History</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -84,6 +87,49 @@ const attachEventListeners = () => {
         } catch (error) {
             console.error('Error anonymising user:', error);
         }
+
+    editButton.addEventListener('click', function() {
+        document.getElementsByClassName('container')[1].innerHTML = `<div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body" style="border: none;">
+                            <h2 class="card-title text-center">Edit Profile</h2>
+                            <form id="editProfileForm">
+                                <div class="form-group">
+                                    <label for="username">Username</label>
+                                    <input type="text" class="form-control" id="username">
+                                </div>
+                                <div class="form-group">
+                                    <label for="email">Email</label>
+                                    <input type="email" class="form-control" id="email">
+                                </div>
+                                <div class="form-group">
+                                    <label for="profilePicture">Profile Picture URL</label>
+                                    <input type="text" class="form-control" id="profilePicture">
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-block">Save Changes</button>
+                                <button type="button" class="btn btn-secondary btn-block" id="setup2FA">Setup 2-Factor Authentication</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6" id="2faSetupContainer" style="display: none;">
+                    <div class="card">
+                        <div class="card-body">
+                            <h3 class="card-title text-center">Setup 2-Factor Authentication</h3>
+                            <div id="2faSetup">
+                                <img id="qrCode" src="" alt="QR Code" class="img-fluid mb-3">
+                                <div class="form-group">
+                                    <label for="otpToken">Enter OTP Token</label>
+                                    <input type="text" class="form-control" id="otpToken">
+                                </div>
+                                <button type="button" class="btn btn-primary btn-block" id="verify2FA">Verify 2FA</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+    });
 
 });
 };
