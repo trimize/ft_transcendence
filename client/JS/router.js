@@ -1,5 +1,6 @@
 import { renderHome } from "./home.js"
 import { renderLogin } from "./login.js"
+import { renderRegister } from "./register.js"
 
 // Function to render the Profile page
 const renderProfile = () => {
@@ -11,6 +12,9 @@ const router = () => {
     const path = window.location.pathname.replace('/', '') || 'home';
 
     switch (path) {
+        case 'register':
+            renderRegister();
+            break;
         case 'login':
             renderLogin();
             break;
