@@ -1,45 +1,71 @@
-import { fetchUserData } from "./fetchFunctions.js";
+import { fetchUserData, updateUserData } from "./fetchFunctions.js";
+import { deleteUser, anonymiseUser } from "./fetchFunctionsUsers.js";
 import { hideNavButtons } from "./utlis.js";
 
 const renderProfilePage = () => {
     return `<div class="container-fluid">
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card" style="border: none;>
-                    <div class="row no-gutters">
-                        <div class="col-md-4 text-center">
-                            <img alt="Profile Picture" class="img-fluid" id="profilePicture" style="width: 200px; height: 200px;">
-                        </div>
-                        <div class="col-md-8">
-                            <div class="card-body">
-                                <h2 class="card-title" id="username"></h2>
-                                <p class="card-text" id="email"></p>
-                                <p class="card-text" id="wins">Wins: </p>
-                                <p class="card-text" id="losses">Losses: </p>
-                                <p class="card-text" id="friends">Friends: </p>
-                                <button type="button" class="btn btn-primary" id="editBtn">Edit Profile</button>
-                                <button type="button" class="btn btn-primary" id="anonymizeBtn">Anonymize</button>
-                                <button type="button" class="btn btn-danger" id="deleteBtn">Delete Account</button>
-                                <button type="button" class="btn btn-danger" id="logoutBtn">Log out</button>
+        <div class="container mt-5" id="profileArea">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card" style="border: none;">
+                        <div class="row no-gutters">
+                            <div class="col-md-4 text-center">
+                                <img alt="Profile Picture" class="img-fluid" id="profilePicture" style="width: 200px; height: 200px;">
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card-body">
+                                    <h2 class="card-title" id="username"></h2>
+                                    <p class="card-text" id="email"></p>
+                                    <p class="card-text" id="wins">Wins: </p>
+                                    <p class="card-text" id="losses">Losses: </p>
+                                    <p class="card-text" id="friends">Friends: </p>
+                                    <button type="button" class="btn btn-primary" id="editBtn">Edit Profile</button>
+                                    <button type="button" class="btn btn-primary" id="anonymizeBtn">Anonymize</button>
+                                    <button type="button" class="btn btn-danger" id="deleteBtn">Delete Account</button>
+                                    <button type="button" class="btn btn-danger" id="logoutBtn">Log out</button>
                                 </div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="card-footer text-muted">
-                    <p>Match History</p>
+                        <div class="card-footer text-muted">
+                            <p>Match History</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
+    </div>`;
+}
 
-<style>
-    .card {
-        border: 1px solid #ced4da;
-        border-radius: 0.5rem;
-    }
-</style>`;
+const renderEditProfileForm = () => {
+    return `<div class="container-fluid">
+        <div class="container mt-5" id="profileArea">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card" style="border: none;">
+                        <div class="card-body">
+                            <h2 class="card-title text-center">Edit Profile</h2>
+                            <form id="editProfileForm">
+                                <div class="form-group">
+                                    <label for="username">Username</label>
+                                    <input type="text" class="form-control" id="username" value="">
+                                </div>
+                                <div class="form-group">
+                                    <label for="email">Email</label>
+                                    <input type="email" class="form-control" id="email" value="">
+                                </div>
+                                <div class="form-group">
+                                    <label for="profilePicture">Profile Picture URL</label>
+                                    <input type="text" class="form-control" id="profilePicture" value="">
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-block">Save Changes</button>
+                                <button type="button" class="btn btn-secondary btn-block" id="cancelBtn">Cancel</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>`;
 }
 
 const attachEventListeners = () => {
@@ -48,12 +74,7 @@ const attachEventListeners = () => {
     const editButton = document.getElementById('editBtn');
     const anonymiseButton = document.getElementById('anonymizeBtn');
     const deleteButton = document.getElementById('deleteBtn');
-	
     fetchUserData().then(profileData => {
-        if (profileData === "") {
-            window.location.href = '/login';
-            return;
-        }    
         if (profileData.profile_pic !== null)
             profilePicture.src = profileData.profile_pic;
         else
@@ -66,76 +87,62 @@ const attachEventListeners = () => {
     })
     .catch(error => {
         console.error('Failed to fetch user data:', error);
+        // window.location.href = '/login';
     });
 
-    logoutButton.addEventListener('click', function()
-    {
-	    localStorage.clear();
-	    window.location.href = '/';
+    editButton.addEventListener('click', function() {
+        console.log('Edit button clicked');
+        // Replace profile info with the edit form
+        document.getElementById('profileArea').innerHTML = renderEditProfileForm();
+        attachEditFormEventListeners();
     });
+
+    logoutButton.addEventListener('click', function() {
+        localStorage.clear();
+        window.location.href = '/';
+    });
+
     deleteButton.addEventListener('click', async function () {
         try {
             await deleteUser();
         } catch (error) {
             console.error('Error deleting user:', error);
         }
-    })
-    
+    });
+
     anonymiseButton.addEventListener('click', async function () {
         try {
             await anonymiseUser();
         } catch (error) {
             console.error('Error anonymising user:', error);
         }
+    });
+}
 
-    editButton.addEventListener('click', function() {
-        document.getElementsByClassName('container')[1].innerHTML = `<div class="row justify-content-center">
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-body" style="border: none;">
-                            <h2 class="card-title text-center">Edit Profile</h2>
-                            <form id="editProfileForm">
-                                <div class="form-group">
-                                    <label for="username">Username</label>
-                                    <input type="text" class="form-control" id="username">
-                                </div>
-                                <div class="form-group">
-                                    <label for="email">Email</label>
-                                    <input type="email" class="form-control" id="email">
-                                </div>
-                                <div class="form-group">
-                                    <label for="profilePicture">Profile Picture URL</label>
-                                    <input type="text" class="form-control" id="profilePicture">
-                                </div>
-                                <button type="submit" class="btn btn-primary btn-block">Save Changes</button>
-                                <button type="button" class="btn btn-secondary btn-block" id="setup2FA">Setup 2-Factor Authentication</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6" id="2faSetupContainer" style="display: none;">
-                    <div class="card">
-                        <div class="card-body">
-                            <h3 class="card-title text-center">Setup 2-Factor Authentication</h3>
-                            <div id="2faSetup">
-                                <img id="qrCode" src="" alt="QR Code" class="img-fluid mb-3">
-                                <div class="form-group">
-                                    <label for="otpToken">Enter OTP Token</label>
-                                    <input type="text" class="form-control" id="otpToken">
-                                </div>
-                                <button type="button" class="btn btn-primary btn-block" id="verify2FA">Verify 2FA</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>`;
+const attachEditFormEventListeners = () => {
+    document.getElementById('editProfileForm').addEventListener('submit', async function(event) {
+        event.preventDefault();
+
+        const username = document.getElementById('username').value;
+        const email = document.getElementById('email').value;
+        const profilePicture = document.getElementById('profilePicture').value;
+
+        try {
+            await updateUserData(username, email, profilePicture);
+            window.location.href = '/profile';
+        } catch (error) {
+            console.error('Error updating profile:', error);
+            alert('Failed to update profile. Please try again.');
+        }
     });
 
-});
-};
+    document.getElementById('cancelBtn').addEventListener('click', function() {
+        document.getElementById('profileArea').innerHTML = renderProfilePage();
+        attachEventListeners(); 
+    });
+}
 
-export const renderProfile = () =>
-{
+export const renderProfile = () => {
     document.getElementById('content').innerHTML = renderProfilePage();
     hideNavButtons();
     attachEventListeners();
