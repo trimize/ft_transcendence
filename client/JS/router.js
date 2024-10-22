@@ -1,13 +1,8 @@
 import { renderHome } from "./home.js"
 import { renderLogin } from "./login.js"
 import { renderRegister } from "./register.js"
+import { renderProfile } from "./profile.js"
 
-// Function to render the Profile page
-const renderProfile = () => {
-    document.getElementById('content').innerHTML = '<h1>Profile Page</h1><p>This is your profile.</p>';
-};
-
-// Router function
 const router = () => {
     const path = window.location.pathname.replace('/', '') || 'home';
 
