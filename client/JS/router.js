@@ -1,9 +1,5 @@
 import { renderHome } from "./home.js"
-
-// Function to render the Login page
-const renderLogin = () => {
-    document.getElementById('content').innerHTML = '<h1>Login Page</h1><p>Please log in.</p>';
-};
+import { renderLogin } from "./login.js"
 
 // Function to render the Profile page
 const renderProfile = () => {
