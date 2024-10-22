@@ -1,6 +1,4 @@
-const renderHome = () => {
-    document.getElementById('content').innerHTML = '<h1>Home Page</h1><p>Welcome to the Home page!</p>';
-};
+import { renderHome } from "./home.js"
 
 // Function to render the Login page
 const renderLogin = () => {
@@ -23,7 +21,7 @@ const router = () => {
         case 'profile':
             renderProfile();
             break;
-        case 'home':
+        case '/':
         default:
             renderHome();
             break;
@@ -48,7 +46,7 @@ window.addEventListener('popstate', router);
 window.addEventListener('load', () => {
     const path = window.location.pathname.replace('/', '');
     if (!path) {
-        navigate('home'); // Default to home if no path
+        navigate('/'); // Default to home if no path
     } else {
         router();
     }
