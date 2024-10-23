@@ -52,11 +52,11 @@ const renderEditProfileForm = () => {
                             <form id="editProfileForm" enctype="multipart/form-data">
                                 <div class="form-group">
                                     <label for="username">Username</label>
-                                    <input type="text" class="form-control" id="username" value="">
+                                    <input type="text" class="form-control" id="username" value="" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="email">Email</label>
-                                    <input type="email" class="form-control" id="email" value="">
+                                    <input type="email" class="form-control" id="email" value="" required>
                                 </div>
                                 
                                 <div class="form-group">
@@ -212,7 +212,7 @@ const attachEditFormEventListeners = () => {
         } catch (error) {
             console.error('Error updating profile:', error);
             alert('Failed to update profile. Please try again.');
-        }
+        }      
     });
 
     document.getElementById('goBackBtn').addEventListener('click', function() {

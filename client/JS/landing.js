@@ -286,7 +286,7 @@ if (data !== "")
 	connected = true;
 if (connected)
 {
-	socket = await getWebSocket();
+	// socket = await getWebSocket();
 	socket.addEventListener('message', function(event)
 	{
 		const message = JSON.parse(event.data);

@@ -2,6 +2,7 @@ import { renderHome } from "./home.js"
 import { renderLogin } from "./login.js"
 import { renderRegister } from "./register.js"
 import { renderProfile } from "./profile.js"
+import { getWebSocket } from "./singletonSocket.js";
 
 const router = () => {
     const path = window.location.pathname.replace('/', '') || 'home';
@@ -34,6 +35,8 @@ document.getElementById('homeBtn').addEventListener('click', () => navigate('hom
 document.getElementById('loginBtn').addEventListener('click', () => navigate('login'));
 document.getElementById('profileBtn').addEventListener('click', () => navigate('profile'));
 
+export const socket = getWebSocket();
+console.log(socket);
 // Event listener for popstate to handle back/forward navigation
 window.addEventListener('popstate', router);
 

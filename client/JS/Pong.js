@@ -895,7 +895,7 @@ document.addEventListener("DOMContentLoaded", async function()
 		}
 		if (connected)
 		{
-			socket = await getWebSocket();
+			// socket = await getWebSocket();
 			const value = pathSegments[2];
 			const numberValue = parseInt(value, 10);
 			console.log(`The value in the URL is: ${pathSegments[2]}`);
@@ -1026,7 +1026,7 @@ document.addEventListener("DOMContentLoaded", async function()
 			connected = true;
 		}
 		if (connected)
-			socket = await getWebSocket();
+			// socket = await getWebSocket();
 		var page = document.getElementById('page');
 		$("#gameModeModal").modal("show");
 		page.classList.add('blur');

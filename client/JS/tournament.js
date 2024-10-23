@@ -4,7 +4,7 @@ import { getCurrentTime } from './utlis.js'
 
 let userData;
 let tournamentData;
-let socket = await getWebSocket();
+// let socket = await getWebSocket();
 let isExistingTournament = false;
 let players_to_invite = [2, 3, 4];
 

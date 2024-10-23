@@ -86,7 +86,7 @@ const attachEventListeners = () => {
                 localStorage.setItem('refresh', data.refresh);
                 localStorage.setItem('websocket_url', data.websocket_url);
                 console.log(data.websocket_url);
-                await getWebSocket();
+                // await getWebSocket();
                 window.location.href = '/profile';
             } else if (data.message === '2FA required') {
                 document.getElementById('loginForm').style.display = 'none';
@@ -123,7 +123,7 @@ const attachEventListeners = () => {
                 localStorage.setItem('refresh', data.refresh);
                 localStorage.setItem('websocket_url', data.websocket_url);
                 console.log(data.websocket_url);
-                await getWebSocket();
+                // await getWebSocket();
                 window.location.href = '/profile';
             } else {
                 console.error('2FA verification failed:', data);
