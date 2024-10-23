@@ -44,7 +44,7 @@ const renderEditProfileForm = () => {
                     <div class="card" style="border: none;">
                         <div class="card-body">
                             <h2 class="card-title text-center">Edit Profile</h2>
-                            <form id="editProfileForm">
+                            <form id="editProfileForm" enctype="multipart/form-data">
                                 <div class="form-group">
                                     <label for="username">Username</label>
                                     <input type="text" class="form-control" id="username" value="">
@@ -53,10 +53,15 @@ const renderEditProfileForm = () => {
                                     <label for="email">Email</label>
                                     <input type="email" class="form-control" id="email" value="">
                                 </div>
+                                
                                 <div class="form-group">
-                                    <label for="profilePicture">Profile Picture URL</label>
-                                    <input type="text" class="form-control" id="profilePicture" value="">
+                                    <label for="formFile" class="form-label">Profile picture</label>
+                                    <div class="custom-file">
+                                        <input type="file" class="custom-file-input" id="formFile" accept="image/*">
+                                        <label class="custom-file-label" for="formFile">Choose file</label>
+                                    </div>
                                 </div>
+
                                 <button type="submit" class="btn btn-primary btn-block">Save Changes</button>
                                 <button type="button" class="btn btn-secondary btn-block" id="cancelBtn">Cancel</button>
                             </form>
@@ -125,11 +130,12 @@ const attachEditFormEventListeners = () => {
 
         const username = document.getElementById('username').value;
         const email = document.getElementById('email').value;
-        const profilePicture = document.getElementById('profilePicture').value;
+        const profilePicture = document.getElementById("formFile").files[0];
+        console.log(profilePicture);
 
         try {
             await updateUserData(username, email, profilePicture);
-            window.location.href = '/profile';
+            // window.location.href = '/profile';
         } catch (error) {
             console.error('Error updating profile:', error);
             alert('Failed to update profile. Please try again.');
@@ -139,6 +145,12 @@ const attachEditFormEventListeners = () => {
     document.getElementById('cancelBtn').addEventListener('click', function() {
         document.getElementById('profileArea').innerHTML = renderProfilePage();
         attachEventListeners(); 
+    });
+
+    document.getElementById('formFile').addEventListener('change', function (event) {
+        var fileName = event.target.files[0].name;
+        var nextSibling = event.target.nextElementSibling;
+        nextSibling.innerText = fileName;
     });
 }
 

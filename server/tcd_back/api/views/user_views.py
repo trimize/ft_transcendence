@@ -2,12 +2,13 @@ from django.contrib.auth import authenticate
 from django_otp.plugins.otp_totp.models import TOTPDevice
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.decorators import api_view, permission_classes, parser_classes
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
-from ..models import User, FriendInvitation
-from ..serializer import UserSerializer, FriendInvitationSerializer
+from ..models import User
+from ..serializer import UserSerializer
 
 @api_view(['GET'])
 # @permission_classes([IsAuthenticated])
@@ -48,6 +49,7 @@ def login_user(request):
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
+@parser_classes([MultiPartParser, FormParser])
 def update_user(request):
     try:
         user = request.user
