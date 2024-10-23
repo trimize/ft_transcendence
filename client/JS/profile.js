@@ -1,6 +1,7 @@
-import { fetchUserData, updateUserData } from "./fetchFunctions.js";
+import { fetchUserData, updateUserData, fetchMatches } from "./fetchFunctions.js";
 import { deleteUser, anonymiseUser } from "./fetchFunctionsUsers.js";
 import { hideNavButtons } from "./utlis.js";
+import { populateMatchesHistory } from "./matchHistory.js";
 
 const renderProfilePage = () => {
     return `<div class="container-fluid">
@@ -19,15 +20,13 @@ const renderProfilePage = () => {
                                     <p class="card-text" id="wins">Wins: </p>
                                     <p class="card-text" id="losses">Losses: </p>
                                     <p class="card-text" id="friends">Friends: </p>
+                                    <button type="button" class="btn btn-primary" id="matchBtn">View Match History</button>
                                     <button type="button" class="btn btn-primary" id="editBtn">Edit Profile</button>
                                     <button type="button" class="btn btn-primary" id="anonymizeBtn">Anonymize</button>
                                     <button type="button" class="btn btn-danger" id="deleteBtn">Delete Account</button>
                                     <button type="button" class="btn btn-danger" id="logoutBtn">Log out</button>
                                 </div>
                             </div>
-                        </div>
-                        <div class="card-footer text-muted">
-                            <p>Match History</p>
                         </div>
                     </div>
                 </div>
@@ -37,7 +36,9 @@ const renderProfilePage = () => {
 }
 
 const renderEditProfileForm = () => {
-    return `<div class="container-fluid">
+    return `
+    <div class="container-fluid">
+    <button type="button" class="btn btn-secondary btn-block" id="goBackBtn">Go back</button>
         <div class="container mt-5" id="profileArea">
             <div class="row justify-content-center">
                 <div class="col-md-8">
@@ -63,7 +64,6 @@ const renderEditProfileForm = () => {
                                 </div>
 
                                 <button type="submit" class="btn btn-primary btn-block">Save Changes</button>
-                                <button type="button" class="btn btn-secondary btn-block" id="cancelBtn">Cancel</button>
                             </form>
                         </div>
                     </div>
@@ -73,22 +73,49 @@ const renderEditProfileForm = () => {
     </div>`;
 }
 
+const renderMatchHistory = () => {
+    return `<div class="container-fluid">
+     <button type="button" class="btn btn-secondary btn-block" id="goBackBtn">Go back</button>
+				<h1 class="text-center mt-5">Match History</h1>
+				<div class="container mt-5">
+					<table class="table table-dark table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">N</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Game</th>
+                                <th scope="col">Game type</th>
+                                <th scope="col">Opponent</th>
+                                <th scope="col">Result</th>
+                            </tr>
+                        </thead>
+                        <tbody id="matchHistoryTable">
+                        </tbody>
+                    </table>
+				</div>
+			</div>`;
+}
+
 const attachEventListeners = () => {
     const profilePicture = document.getElementById('profilePicture');
     const logoutButton = document.getElementById('logoutBtn');
     const editButton = document.getElementById('editBtn');
     const anonymiseButton = document.getElementById('anonymizeBtn');
     const deleteButton = document.getElementById('deleteBtn');
+    const matchButton = document.getElementById('matchBtn');
     fetchUserData().then(profileData => {
         if (profileData.profile_pic !== null)
             profilePicture.src = `http://localhost:8000${profileData.profile_pic}`;
         else
             profilePicture.src = 'https://cdn-icons-png.flaticon.com/512/9203/9203764.png';
-        document.getElementById('username').textContent = profileData.username;
+        let friendsNum = 0;
+        if (profileData.friends != null)
+            friendsNum = profileData.friends.length;
+        document.getElementById('username').textContent = profileData.username.toUpperCase();
         document.getElementById('email').textContent = profileData.email;
         document.getElementById('wins').textContent = `Wins : ${profileData.wins}`;
         document.getElementById('losses').textContent = `Losses : ${profileData.losses}`;
-        document.getElementById('friends').textContent = `Friends : ${profileData.friends.length}`;
+        document.getElementById('friends').textContent = `Friends : ${friendsNum}`;
     })
     .catch(error => {
         console.error('Failed to fetch user data:', error);
@@ -96,7 +123,6 @@ const attachEventListeners = () => {
     });
 
     editButton.addEventListener('click', function() {
-        console.log('Edit button clicked');
         // Replace profile info with the edit form
         document.getElementById('profileArea').innerHTML = renderEditProfileForm();
         attachEditFormEventListeners();
@@ -122,6 +148,25 @@ const attachEventListeners = () => {
             console.error('Error anonymising user:', error);
         }
     });
+
+    matchButton.addEventListener('click', async function() {
+        document.getElementById('profileArea').innerHTML = renderMatchHistory();
+        attachMatchHistoryEventListeners();
+        try {
+            const userData = await fetchUserData();
+            const matches = await fetchMatches(userData.id);
+            populateMatchesHistory(matches, userData);
+        } catch (error) {
+            console.error('Failed to fetch user data:', error);
+        }
+    })
+}
+
+const attachMatchHistoryEventListeners = () => {
+    document.getElementById('goBackBtn').addEventListener('click', function() {
+        document.getElementById('profileArea').innerHTML = renderProfilePage();
+        attachEventListeners(); 
+    });
 }
 
 const attachEditFormEventListeners = () => {
@@ -142,7 +187,7 @@ const attachEditFormEventListeners = () => {
         }
     });
 
-    document.getElementById('cancelBtn').addEventListener('click', function() {
+    document.getElementById('goBackBtn').addEventListener('click', function() {
         document.getElementById('profileArea').innerHTML = renderProfilePage();
         attachEventListeners(); 
     });
