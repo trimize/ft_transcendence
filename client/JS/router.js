@@ -1,4 +1,4 @@
-import { renderHome } from "./home.js"
+import { renderBaseHomePage } from "./home.js"
 
 // Function to render the Login page
 const renderLogin = () => {
@@ -12,7 +12,7 @@ const renderProfile = () => {
 
 // Router function
 const router = () => {
-    const path = window.location.pathname.replace('/', '') || 'home';
+    const path = window.location.pathname.replace('/', '');
 
     switch (path) {
         case 'login':
@@ -23,7 +23,7 @@ const router = () => {
             break;
         case '/':
         default:
-            renderHome();
+            renderBaseHomePage();
             break;
     }
 };

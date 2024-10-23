@@ -15,6 +15,7 @@
     <body>
         <div id="content" class="vh-100">
             <div class="half left">
+                <span id="backButtonGameMenu">&lt;</span>
                 <div id="gameTitle">
                     <span class="text" id="gameTitletext"></span>
                 </div>
@@ -24,8 +25,22 @@
             <div class="half right">
                 <span class= "gameMenuText" id="singleplayer">Singleplayer</span>
                 <span class= "gameMenuText" id="singleplayer">Multiplayer</span>
+                <span class= "gameMenuText" id="CustomizeGameText">Customize the game</span>
+                <div class="align-items-center justify-content-between" id="inputRangeDiv">
+                    <label for="ballSpeed" id="ballSpeedText" class="customizeGameTitles">Ball Speed</label>
+                    <input type="range" id="ballSpeed" class="form-control w-50" min="5" max="40">
+                </div>
+                <span id="inputRangeText"></span>
+                <div class="align-items-center justify-content-between" id="powersDiv">
+                    <label class="customizeGameTitles" for="powers">Enable powers</label>
+                    <input id="powers" type="checkbox">
+                </div>
+                <div class="align-items-center justify-content-between" id="ballAccDiv">
+                    <label class="customizeGameTitles" for="ballAcc">Enable ball acceleration</label>
+                    <input id="ballAcc" type="checkbox">
+                </div>
             </div>
-            <a id="loginBtn">Login</a>
+            <a id="loginBtn" href="/login">Login</a>
             <div id="bg"></div>
             <div class="Cube">
                 <a class="Face pongFace" front>PONG</a>
