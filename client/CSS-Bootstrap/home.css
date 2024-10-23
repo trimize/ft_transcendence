@@ -296,12 +296,13 @@ html, body
     right: 80px;
     top: 30px;
     color: rgb(255, 255, 255);
+    font-family: "Roboto", sans-serif;
 }
 
 #loginBtn:hover
 {
     cursor: pointer;
-    
+    text-decoration: none;
 }
 
 #gamePicture
@@ -349,30 +350,18 @@ html, body
     letter-spacing: 7px;
     font-size: 40px;
     transition: text-shadow 0.2s ease;
-    margin-top: 10px;
+    margin-top: 80px;
 }
 
 .gameMenuText:hover
 {
-    text-shadow: 0 0 3px rgb(255, 255, 255);
     cursor: pointer;
 }
 
-#singleplayer
+/*#singleplayer
 {
 	margin-top: 100px;
-}
-
-#CustomizeGameText
-{
-	margin-top: 100px;
-}
-
-#CustomizeGameText:hover
-{
-	cursor: auto;
-	text-shadow: none;
-}
+}*/
 
 #inputRangeDiv
 {
@@ -387,6 +376,7 @@ html, body
 	font-size: 20px;
 	letter-spacing: 1px;
 	margin-top: 100px;
+    margin-right: 50px;
 }
 
 #ballSpeed
@@ -442,4 +432,159 @@ input[type=range]:focus
 #backButtonGameMenu:hover
 {
     cursor: pointer;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 20px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* The slider */
+.slider
+{
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 45px;
+    background-color: rgb(70, 70, 70);
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+.slider:before
+{
+    position: absolute;
+    content: "";
+    height: 17px;
+    width: 17px;
+    left: 4px;
+    bottom: 2px;
+    border-width: 1px;
+    border: 1px solid rgb(122, 122, 122);
+    background-color: rgb(255, 255, 255);
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+input:checked + .slider
+{
+    background-color: #32a71b;
+}
+
+input:checked + .slider:before
+{
+    -webkit-transform: translateX(20px);
+    -ms-transform: translateX(20px);
+    transform: translateX(20px);
+}
+
+/* Rounded sliders */
+.slider.round
+{
+    border-radius: 34px;
+}
+
+.slider.round:before
+{
+    border-radius: 50%;
+}
+
+.button-85
+{
+    padding: 0.6em 2em;
+    margin-top: 100px;
+    border: none;
+    outline: none;
+    color: rgb(0, 0, 0);
+    background: #ffffff46;
+    cursor: pointer;
+    position: relative;
+    z-index: 0;
+    border-radius: 10px;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    font-family: "Roboto", sans-serif;
+}
+
+.button-85:before
+{
+    content: "";
+    background: linear-gradient(
+        45deg,
+        #ff0000,
+        #ff7300,
+        #fffb00,
+        #48ff00,
+        #00ffd5,
+        #002bff,
+        #7a00ff,
+        #ff00c8,
+        #ff0000
+    );
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    background-size: 400%;
+    z-index: -1;
+    filter: blur(5px);
+    -webkit-filter: blur(5px);
+    width: calc(100% + 4px);
+    height: calc(100% + 4px);
+    animation: glowing-button-85 20s linear infinite;
+    transition: opacity 0.3s ease-in-out;
+    border-radius: 10px;
+}
+
+.hide-before::before
+{
+    content: none;
+}
+
+@keyframes glowing-button-85
+{
+    0% {
+        background-position: 0 0;
+    }
+    50% {
+        background-position: 400% 0;
+    }
+    100% {
+        background-position: 0 0;
+    }
+}
+
+.button-85:after
+{
+    z-index: -1;
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #ffffff;
+    left: 0;
+    top: 0;
+    border-radius: 10px;
+}
+
+.hide-after::after
+{
+    content: none;
+}
+
+.hide-hover:hover
+{
+    cursor: auto;
 }

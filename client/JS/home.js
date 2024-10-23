@@ -1,10 +1,9 @@
-// export const renderHome = () => {
-//     document.getElementById('content').innerHTML = '<h1>Home Page</h1><p>Welcome to the Home page!</p>';
-
 import { hideNavButtons } from "./utlis.js";
 
 // };
 const addEventListeners = () => {
+    let singleClicked = false;
+    let multiClicked = false;
     const faces = document.querySelectorAll('.Face');
     const ballSlider = document.getElementById('ballSpeed');
     const ballSpeedComment = document.getElementById('inputRangeText');
@@ -14,6 +13,48 @@ const addEventListeners = () => {
     {
         face.addEventListener('click', (event) =>
         {
+            const singleplayerMenu = document.getElementById('singleplayer');
+            const buttonPlay = document.getElementById('buttonPlay');
+            buttonPlay.classList.add('hide-before');
+            buttonPlay.classList.add('hide-after');
+            buttonPlay.classList.add('hide-hover');
+            buttonPlay.style.color = "rgb(94, 93, 93)";
+            singleplayerMenu.addEventListener('click', function()
+            {
+                if (singleClicked == false && multiClicked == false)
+                {
+                    singleplayerMenu.style.textShadow = "0 0 15px rgb(255, 255, 255)";
+                    singleClicked = true;
+                    buttonPlay.classList.remove('hide-before');
+                    buttonPlay.classList.remove('hide-after');
+                    buttonPlay.classList.remove('hide-hover');
+                    buttonPlay.style.color = "rgb(0, 0, 0)";
+                }
+                else if (singleClicked == true)
+                {
+                    singleplayerMenu.style.textShadow = "0 0 0px rgb(255, 255, 255)";
+                    singleClicked = false;
+                }
+            });
+
+            const multiplayerMenu = document.getElementById('multiplayer')
+            multiplayerMenu.addEventListener('click', function()
+            {
+                if (multiClicked == false && singleClicked == false)
+                {
+                    multiplayerMenu.style.textShadow = "0 0 15px rgb(255, 255, 255)";
+                    multiClicked = true;
+                    buttonPlay.classList.remove('hide-before');
+                    buttonPlay.classList.remove('hide-after');
+                    buttonPlay.classList.remove('hide-hover');
+                    buttonPlay.style.color = "rgb(0, 0, 0)";
+                }
+                else if (multiClicked == true)
+                {
+                    multiplayerMenu.style.textShadow = "0 0 0px rgb(255, 255, 255)";
+                    multiClicked = false;
+                }
+            });
             const backButtonGameMenu = document.getElementById('backButtonGameMenu');
             const leftDiv = document.getElementsByClassName('left')[0];
             const rightDiv = document.getElementsByClassName('right')[0];
@@ -72,6 +113,46 @@ const addEventListeners = () => {
         });
     });
 };
+
+addEventListeners();
+
+showChat();
+
+function showChat()
+{
+    let showFriendBool = false;
+    const friendItems = document.querySelectorAll('friendItem');
+    friendItems.forEach((friendItem) => 
+    {
+        friendItem.addEventListener('click', function()
+        {
+            
+        });
+    });
+    const showFriends = document.getElementById('showFriends');
+    showFriends.addEventListener('click', function()
+    {
+        if (showFriendBool == false)
+        {
+            document.getElementById('friendsListBg').style.right = "0px";
+            document.getElementById('friendsListDiv').style.right = "0px";
+            showFriends.style.right = "248px";
+            showFriendBool = true;
+        }
+        else
+        {
+            document.getElementById('friendsListBg').style.right = "-250px";
+            document.getElementById('friendsListDiv').style.right = "-250px";
+            showFriends.style.right = "0px";
+            showFriendBool = false;
+        }
+    });
+}
+
+function renderConnected()
+{
+    
+}
 
 function renderBaseHomeBlock()
 {

@@ -1,0 +1,118 @@
+#profileDiv
+{
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    width: 140px;
+    height: 80px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-family: "Roboto", sans-serif;
+    font-size: 25px;
+    color: white;
+    border-radius: 45px;
+    transition: background-color ease 0.4s;
+}
+
+#profileDiv:hover
+{
+    background-color: rgba(119, 117, 117, 0.363);
+    cursor: pointer;
+}
+
+#profilePicture
+{
+    background-image: url('../Assets/bg7.jpg');
+    background-size: cover;
+    height: 70%;
+    width: 40%;
+    border-radius: 50%;
+    margin-right: 30px;
+}
+
+#friendsListDiv
+{
+    position: absolute;
+    right: -250px;
+    top: 300px;
+    width: 250px;
+    height: calc(100% - 300px);
+    max-height: calc(100% - 300px);
+    transition: right ease 0.3s;
+}
+
+#friendsList
+{
+    display: flex;
+    width: 250px;
+    flex-direction: column;
+    padding-left: 0;
+    margin-bottom: 0;
+}
+
+#friendsListBg
+{
+    position: absolute;
+    z-index: 0;
+    right: -250px;
+    width: 250px;
+    height: 100%;
+    background-color: rgba(34, 34, 34, 0.651);
+    filter: blur(3px);
+    transition: right ease 0.3s;
+}
+
+.firstItem
+{
+    border-top: 1px solid rgba(255, 255, 255, 0.527);
+}
+
+.friendItem
+{
+    z-index: 1;
+    height: 70px;
+    width: 100%;
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    font-family: "Roboto", sans-serif;
+    font-size: 20px;
+    color: aliceblue;
+    /*background-color: rgba(119, 119, 115, 0.521);*/
+    border-bottom: 1px solid rgba(255, 255, 255, 0.527);
+    transition: background-color ease 0.3s;
+}
+
+.friendItem:hover
+{
+    background-color: rgba(130, 132, 134, 0.356);
+    cursor: pointer;
+}
+
+#showFriends
+{
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    top: calc(100% - 300px - 40px);
+    right: 0px;
+    background-color: rgba(34, 34, 34, 0.651);
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    background-image: url('../Assets/arrow.svg');
+    background-size: contain;
+    transition: right ease 0.3s;
+}
+
+#showFriends:hover
+{
+    cursor: pointer;
+}
+
+#chatRoom
+{
+    
+}
