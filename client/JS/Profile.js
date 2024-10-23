@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 			return;
 		}
 		if (data.profile_pic !== null)
-			profilePicture.src = `http://localhost:8000${data.profile_pic}`;
+			profilePicture.src = `${BACKEND_URL}${data.profile_pic}`;
 		else
 			profilePicture.src = 'https://cdn-icons-png.flaticon.com/512/9203/9203764.png';
 		document.getElementById('username').textContent = data.username;

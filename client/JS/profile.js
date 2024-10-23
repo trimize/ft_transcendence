@@ -2,6 +2,7 @@ import { fetchUserData, updateUserData, fetchMatches } from "./fetchFunctions.js
 import { deleteUser, anonymizeUser, setup2FA, verify2FA } from "./fetchFunctionsUsers.js";
 import { hideNavButtons } from "./utlis.js";
 import { populateMatchesHistory } from "./matchHistory.js";
+import { DEFAULT_PROFILE_PIC, BACKEND_URL } from "./appconfig.js";
 
 const renderProfilePage = () => {
     return `<div class="container-fluid">
@@ -126,9 +127,10 @@ const attachEventListeners = () => {
     const matchButton = document.getElementById('matchBtn');
     fetchUserData().then(profileData => {
         if (profileData.profile_pic !== null)
-            profilePicture.src = `http://localhost:8000${profileData.profile_pic}`;
+            profilePicture.src = `${BACKEND_URL}${profileData.profile_pic}`;
         else
-            profilePicture.src = 'https://cdn-icons-png.flaticon.com/512/9203/9203764.png';
+            profilePicture.src = DEFAULT_PROFILE_PIC;
+        console.log(profilePicture.src);
         let friendsNum = 0;
         if (profileData.friends != null)
             friendsNum = profileData.friends.length;
@@ -166,11 +168,9 @@ const attachEventListeners = () => {
     anonymiseButton.addEventListener('click', async function () {
         try {
             await anonymizeUser();
-            // alert('User anonymised successfully');
-            
-            notificationAnonym.classList.remove('d-none'); // Remove 'd-none' to show the alert
+            notificationAnonym.classList.remove('d-none');
             setTimeout(() => {
-                notificationAnonym.classList.add('d-none'); // Add 'd-none' to hide the alert
+                notificationAnonym.classList.add('d-none');
             }, 3000);
         } catch (error) {
             console.error('Error anonymising user:', error);

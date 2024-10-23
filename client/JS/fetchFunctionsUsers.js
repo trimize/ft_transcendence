@@ -1,9 +1,10 @@
 import { securelyGetAccessToken } from "./fetchFunctions.js"
+import { BACKEND_URL } from "./appconfig.js";
 
 export const setup2FA = async () => {
 	const accessToken = await securelyGetAccessToken();
 	try {
-		let response = await fetch("http://localhost:8000/api/setup_2fa/", {
+		let response = await fetch(`${BACKEND_URL}/api/setup_2fa/`, {
 			method: "POST",
 			headers: {
 				Authorization: `Bearer ${accessToken}`,
@@ -20,7 +21,7 @@ export const setup2FA = async () => {
 export const verify2FA = async (otpToken) => {
 	const accessToken = await securelyGetAccessToken();
 	try {
-		let response = await fetch("http://localhost:8000/api/setup_2fa/", {
+		let response = await fetch(`${BACKEND_URL}/api/setup_2fa/`, {
 			method: "POST",
 			headers: {
 				Authorization: `Bearer ${accessToken}`,
@@ -39,7 +40,7 @@ export const verify2FA = async (otpToken) => {
 export const deleteUser = async () => {
 	const accessToken = await securelyGetAccessToken();
 	try {
-		let response = await fetch("http://localhost:8000/api/delete_account/", {
+		let response = await fetch(`${BACKEND_URL}/api/delete_account/`, {
 			method: "DELETE",
 			headers: {
 				Authorization: `Bearer ${accessToken}`,
@@ -55,7 +56,7 @@ export const deleteUser = async () => {
 export const anonymizeUser = async () => {
 	const accessToken = await securelyGetAccessToken();
 	try {
-		let response = await fetch("http://localhost:8000/api/anonymize_user/", {
+		let response = await fetch(`${BACKEND_URL}/api/anonymize_user/`, {
 			method: "PUT",
 			headers: {
 				Authorization: `Bearer ${accessToken}`,

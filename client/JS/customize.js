@@ -1,11 +1,6 @@
-import { createNavbar } from './utils.js';
 const toggleSwitches = document.querySelectorAll('.toggle-switch');
 const accessToken = localStorage.getItem('access');
-
-document.addEventListener('DOMContentLoaded', async function()
-{
-	await createNavbar();
-});
+import { BACKEND_URL } from "./appconfig.js";
 
 toggleSwitches.forEach(toggleSwitch =>
 {
@@ -19,7 +14,7 @@ toggleSwitches.forEach(toggleSwitch =>
 			switch (this.dataset.form)
 			{
 				case "1" :
-					fetch(`http://localhost:8000/api/update_pong_ball/${this.dataset.switch}`,
+					fetch(`${BACKEND_URL}/api/update_pong_ball/${this.dataset.switch}`,
 					{
 						method: 'PUT',
 						headers:
@@ -30,7 +25,7 @@ toggleSwitches.forEach(toggleSwitch =>
 					})
 					break ;
 				case "2" :
-					fetch(`http://localhost:8000/api/update_pong_slider/${this.dataset.switch}`,
+					fetch(`${BACKEND_URL}/api/update_pong_slider/${this.dataset.switch}`,
 					{
 						method: 'PUT',
 						headers:
@@ -41,7 +36,7 @@ toggleSwitches.forEach(toggleSwitch =>
 					})
 					break ;
 				case "3" :
-					fetch(`http://localhost:8000/api/update_tic_tac_toe_sign/${this.dataset.switch}`,
+					fetch(`${BACKEND_URL}/api/update_tic_tac_toe_sign/${this.dataset.switch}`,
 					{
 						method: 'PUT',
 						headers:
@@ -52,7 +47,7 @@ toggleSwitches.forEach(toggleSwitch =>
 					})
 					break ;
 				case "4" :
-					fetch(`http://localhost:8000/api/update_tic_tac_toe_background/${this.dataset.switch}`,
+					fetch(`${BACKEND_URL}/api/update_tic_tac_toe_background/${this.dataset.switch}`,
 					{
 						method: 'PUT',
 						headers:

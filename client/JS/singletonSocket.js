@@ -1,3 +1,4 @@
+import { BACKEND_URL } from './appconfig.js';
 let socket = null;
 
 export async function getWebSocket() {
@@ -10,7 +11,7 @@ export async function getWebSocket() {
             console.log('WebSocket connection established');
             
             try {
-                const response = await fetch('http://localhost:8000/api/user_info/', {
+                const response = await fetch(`${BACKEND_URL}/api/user_info/`, {
                     method: 'GET',
                     headers: {
 			'Authorization': `Bearer ${accessToken}`,

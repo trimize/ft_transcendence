@@ -1,5 +1,6 @@
 import { hideNavButtons } from "./utlis.js";
 import { getWebSocket } from "./singletonSocket.js";
+import { BACKEND_URL } from "./appconfig.js";
 
 const renderLoginForm = () => {
     return `<div class="container-fluid">
@@ -70,7 +71,7 @@ const attachEventListeners = () => {
             password: formData.get('password')
         };
 
-        fetch('http://localhost:8000/api/login_user/', {
+        fetch(`${BACKEND_URL}/api/login_user/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -108,7 +109,7 @@ const attachEventListeners = () => {
         const password = document.querySelector('#loginForm input[name="password"]').value;
         const otpToken = document.getElementById('otpToken').value;
 
-        fetch('http://localhost:8000/api/verify_2fa/', {
+        fetch(`${BACKEND_URL}/api/verify_2fa/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

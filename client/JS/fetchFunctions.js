@@ -1,3 +1,5 @@
+import { BACKEND_URL } from "./appconfig.js";
+
 export const securelyGetAccessToken = async () => {
   let token = localStorage.getItem("access");
   if (!token) {
@@ -14,7 +16,7 @@ export const securelyGetAccessToken = async () => {
     console.log("Token expired, refreshing...");
     try {
       const refreshToken = localStorage.getItem("refresh");
-      const response = await fetch("http://localhost:8000/api/token/refresh/", {
+      const response = await fetch(`${BACKEND_URL}/api/token/refresh/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -43,7 +45,7 @@ export const securelyGetAccessToken = async () => {
 export async function fetchUserData() {
   const accessToken = await securelyGetAccessToken();
   try {
-    let response = await fetch("http://localhost:8000/api/user_info/", {
+    let response = await fetch(`${BACKEND_URL}/api/user_info/`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -69,7 +71,7 @@ export async function updateUserData(username, email, profilePicture) {
       formData.append('profile_pic', profilePicture);
     }
 
-    let response = await fetch("http://localhost:8000/api/update_user/", {
+    let response = await fetch(`${BACKEND_URL}/api/update_user/`, {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -95,7 +97,7 @@ export async function updateUserData(username, email, profilePicture) {
 export async function updateGame(body) {
   const accessToken = await securelyGetAccessToken();
   try {
-    let response = await fetch("http://localhost:8000/api/update_match/", {
+    let response = await fetch(`${BACKEND_URL}/api/update_match/`, {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -113,7 +115,7 @@ export async function updateGame(body) {
 export async function createGame(body) {
   const accessToken = await securelyGetAccessToken();
   try {
-    let response = await fetch("http://localhost:8000/api/create_match/", {
+    let response = await fetch(`${BACKEND_URL}/api/create_match/`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -134,7 +136,7 @@ export async function getUser(username) {
   const accessToken = await securelyGetAccessToken();
   try {
     let response = await fetch(
-      "http://localhost:8000/api/get_user/" + username + "/",
+      `${BACKEND_URL}/api/get_user/${username}`,
       {
         method: "GET",
         headers: {
@@ -148,14 +150,13 @@ export async function getUser(username) {
     return userData;
   } catch (error) {
     console.error(error.message);
-    return "";
   }
 }
 
 export async function fetchUsers() {
   const accessToken = await securelyGetAccessToken();
   try {
-    let response = await fetch("http://localhost:8000/api/users/", {
+    let response = await fetch(`${BACKEND_URL}/api/users/`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -175,7 +176,7 @@ export async function addFriend(user) {
   const accessToken = await securelyGetAccessToken();
   try {
     const response = await fetch(
-      `http://localhost:8000/api/add_friend/${user}/`,
+      `${BACKEND_URL}/api/add_friend/${user}/`,
       {
         method: "PUT",
         headers: {
@@ -200,7 +201,7 @@ export async function fetchMatches(userId) {
   const accessToken = await securelyGetAccessToken();
   try {
     let response = await fetch(
-      `http://localhost:8000/api/matches/player/${userId}/`,
+      `${BACKEND_URL}/api/matches/player/${userId}/`,
       {
         method: "GET",
         headers: {
@@ -222,7 +223,7 @@ export async function fetchMatch(matchId) {
 	const accessToken = await securelyGetAccessToken();
 	try {
 	  let response = await fetch(
-	    `http://localhost:8000/api/matches/${matchId}/`,
+	    `${BACKEND_URL}/api/matches/${matchId}/`,
 	    {
 	      method: "GET",
 	      headers: {
@@ -244,7 +245,7 @@ export async function fetchUserById(userId) {
 	const accessToken = await securelyGetAccessToken();
 	try {
 	  let response = await fetch(
-	    `http://localhost:8000/api/users/${userId}/`,
+	    `${BACKEND_URL}/api/users/${userId}/`,
 	    {
 	      method: "GET",
 	      headers: {
@@ -266,7 +267,7 @@ export async function sendFriendRequest(username) {
 	const accessToken = await securelyGetAccessToken();
 	try {
 	  let response = await fetch(
-	    `http://localhost:8000/api/send_friend_request/${username}/`,
+	    `${BACKEND_URL}/api/send_friend_request/${username}/`,
 	    {
 	      method: "POST",
 	      headers: {
@@ -288,7 +289,7 @@ export async function getFriendNotifications() {
 	const accessToken = await securelyGetAccessToken();
 	try {
 	  let response = await fetch(
-	    `http://localhost:8000/api/get_friend_invitations_received/`,
+	    `${BACKEND_URL}/api/get_friend_invitations_received/`,
 	    {
 	      method: "GET",
 	      headers: {
@@ -310,7 +311,7 @@ export async function refuseFriendRequest(friend_id) {
 	const accessToken = await securelyGetAccessToken();
 	try {
 	  let response = await fetch(
-	    `http://localhost:8000/api/refuse_friend_request/${friend_id}`,
+	    `${BACKEND_URL}/api/refuse_friend_request/${friend_id}`,
 	    {
 	      method: "PUT",
 	      headers: {
@@ -324,7 +325,6 @@ export async function refuseFriendRequest(friend_id) {
 	  return user;
 	} catch (error) {
 	  console.error(error.message);
-	  return "";
 	}
 }
 
@@ -332,7 +332,7 @@ export async function getPendingRequest() {
 	const accessToken = await securelyGetAccessToken();
 	try {
 	  let response = await fetch(
-	    `http://localhost:8000/api/get_friend_invitations_sent/`,
+	    `${BACKEND_URL}/api/get_friend_invitations_sent/`,
 	    {
 	      method: "GET",
 	      headers: {
@@ -346,7 +346,6 @@ export async function getPendingRequest() {
 	  return user;
 	} catch (error) {
 	  console.error(error.message);
-	  return "";
 	}
 }
 
@@ -354,7 +353,7 @@ export async function getFriends() {
 	const accessToken = await securelyGetAccessToken();
 	try {
 	  let response = await fetch(
-	    `http://localhost:8000/api/get_friends/`,
+	    `${BACKEND_URL}/api/get_friends/`,
 	    {
 	      method: "GET",
 	      headers: {
@@ -368,7 +367,6 @@ export async function getFriends() {
 	  return user;
 	} catch (error) {
 	  console.error(error.message);
-	  return "";
 	}
 }
 
@@ -376,7 +374,7 @@ export async function createTournament(body) {
 	const accessToken = await securelyGetAccessToken();
 	try {
 	  let response = await fetch(
-	    `http://localhost:8000/api/create_tournament/`,
+	    `${BACKEND_URL}/api/create_tournament/`,
 	    {
 	      method: "POST",
 	      headers: {
@@ -391,7 +389,6 @@ export async function createTournament(body) {
 	  return user;
 	} catch (error) {
 	  console.error(error.message);
-	  return "";
 	}
 }
 
@@ -399,7 +396,7 @@ export async function getTournaments() {
 	const accessToken = await securelyGetAccessToken();
 	try {
 	  let response = await fetch(
-	    `http://localhost:8000/api/get_tournaments/`,
+	    `${BACKEND_URL}/api/get_tournaments/`,
 	    {
 	      method: "GET",
 	      headers: {
@@ -413,7 +410,6 @@ export async function getTournaments() {
 	  return user;
 	} catch (error) {
 	  console.error(error.message);
-	  return "";
 	}
 }
 
@@ -421,7 +417,7 @@ export async function updateTournament(body) {
 	const accessToken = await securelyGetAccessToken();
 	try {
 	  let response = await fetch(
-	    `http://localhost:8000/api/update_tournament/`,
+	    `${BACKEND_URL}/api/update_tournament/`,
 	    {
 	      method: "PUT",
 	      headers: {
@@ -436,6 +432,5 @@ export async function updateTournament(body) {
 	  return user;
 	} catch (error) {
 	  console.error(error.message);
-	  return "";
 	}
 }

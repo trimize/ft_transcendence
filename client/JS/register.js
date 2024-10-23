@@ -1,4 +1,5 @@
 import { hideNavButtons } from "./utlis.js";
+import { BACKEND_URL } from "./appconfig.js";
 
 const renderRegisterForm = () => {
 	return `<div class="container-fluid">
@@ -74,7 +75,7 @@ document.getElementById('registerForm').addEventListener('submit', function(even
 		password: this.password.value
 	};
 
-	fetch('http://localhost:8000/api/create_user/', 
+	fetch(`${BACKEND_URL}/api/create_user/`, 
 	{
 		method: 'POST',
 		headers:
