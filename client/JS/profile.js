@@ -81,7 +81,7 @@ const attachEventListeners = () => {
     const deleteButton = document.getElementById('deleteBtn');
     fetchUserData().then(profileData => {
         if (profileData.profile_pic !== null)
-            profilePicture.src = profileData.profile_pic;
+            profilePicture.src = `http://localhost:8000${profileData.profile_pic}`;
         else
             profilePicture.src = 'https://cdn-icons-png.flaticon.com/512/9203/9203764.png';
         document.getElementById('username').textContent = profileData.username;
@@ -135,7 +135,7 @@ const attachEditFormEventListeners = () => {
 
         try {
             await updateUserData(username, email, profilePicture);
-            // window.location.href = '/profile';
+            window.location.href = '/profile';
         } catch (error) {
             console.error('Error updating profile:', error);
             alert('Failed to update profile. Please try again.');

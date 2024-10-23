@@ -60,37 +60,37 @@ export async function fetchUserData() {
 }
 
 export async function updateUserData(username, email, profilePicture) {
-	const accessToken = await securelyGetAccessToken();
-	try {
-	  const formData = new FormData();
-	  formData.append('username', username);
-	  formData.append('email', email);
-	  if (profilePicture) {
-		formData.append('profile_pic', profilePicture);
-	  }
-  
-	  let response = await fetch("http://localhost:8000/api/update_user/", {
-		method: "PUT",
-		headers: {
-		  Authorization: `Bearer ${accessToken}`,
-		},
-		body: formData,
-	  });
-  
-	  if (!response.ok) {
-		const errorData = await response.json();
-		console.error("Failed to update user data:", errorData);
-		throw new Error("Failed to update user data");
-	  }
-  
-	  const data = await response.json();
-	  console.log("User data updated successfully:", data);
-	  alert("User data updated");
-	} catch (error) {
-	  console.error("Error updating user data:", error);
-	  alert("Failed to update user data. Please try again.");
-	}
+  const accessToken = await securelyGetAccessToken();
+  try {
+    const formData = new FormData();
+    formData.append('username', username);
+    formData.append('email', email);
+    if (profilePicture) {
+      formData.append('profile_pic', profilePicture);
+    }
+
+    let response = await fetch("http://localhost:8000/api/update_user/", {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("Failed to update user data:", errorData);
+      throw new Error("Failed to update user data");
+    }
+
+    const data = await response.json();
+    console.log("User data updated successfully:", data);
+    alert("User data updated");
+  } catch (error) {
+    console.error("Error updating user data:", error);
+    alert("Failed to update user data. Please try again.");
   }
+}
 
 export async function updateGame(body) {
   const accessToken = await securelyGetAccessToken();

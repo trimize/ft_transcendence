@@ -1,5 +1,11 @@
+import { createNavbar } from './utils.js';
 const toggleSwitches = document.querySelectorAll('.toggle-switch');
 const accessToken = localStorage.getItem('access');
+
+document.addEventListener('DOMContentLoaded', async function()
+{
+	await createNavbar();
+});
 
 toggleSwitches.forEach(toggleSwitch =>
 {

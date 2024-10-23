@@ -1,41 +1,32 @@
 import { fetchUserData } from "./fetchFunctions.js";
+import { createNavbar } from "./utils.js";
 
-// const usernameDiv = document.getElementById('username');
-// const emailDiv = document.getElementById('email');
-// const winsDiv = document.getElementById('wins');
-// const lossesDiv = document.getElementById('losses');
-// const profilePicture = document.getElementById('profilePicture');
 const profilePicture = document.getElementById('profilePicture');
 const logoutButton = document.getElementById('logoutBtn');
 
-document.addEventListener('DOMContentLoaded', function()
-{
-	fetchUserData().then(profileData =>
-	{
-		if (profileData === "")
-		{
+document.addEventListener('DOMContentLoaded', async function () {
+	try {
+		await createNavbar();
+		const data = await fetchUserData();
+		if (data === "") {
 			window.location.href = '/Login';
 			return;
-		}	
-		if (profileData.profile_pic !== null)
-			profilePicture.src = profileData.profile_pic;
+		}
+		if (data.profile_pic !== null)
+			profilePicture.src = `http://localhost:8000${data.profile_pic}`;
 		else
 			profilePicture.src = 'https://cdn-icons-png.flaticon.com/512/9203/9203764.png';
-		document.getElementById('username').textContent = profileData.username;
-		document.getElementById('email').textContent = profileData.email;
-		document.getElementById('wins').textContent = `Wins : ${profileData.wins}`;
-		document.getElementById('losses').textContent = `Losses : ${profileData.losses}`;
-		document.getElementById('friends').textContent = `Friends : ${profileData.friends.length}`;
-	})
-	.catch(error =>
-	{
-		console.error('Failed to fetch user data:', error);
+		document.getElementById('username').textContent = data.username;
+		document.getElementById('email').textContent = data.email;
+		document.getElementById('wins').textContent = `Wins : ${data.wins}`;
+		document.getElementById('losses').textContent = `Losses : ${data.losses}`;
+		document.getElementById('friends').textContent = `Friends : ${data.friends.length}`;
+	} catch (error) {
+		console.error(error);
+	}
 	});
 
-});
-
-logoutButton.addEventListener('click', function()
-{
+logoutButton.addEventListener('click', function () {
 	localStorage.clear();
 	window.location.href = '/';
 });
