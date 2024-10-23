@@ -1,20 +1,16 @@
 import { renderBaseHomePage } from "./home.js"
+import { renderLogin } from "./login.js"
+import { renderRegister } from "./register.js"
+import { renderProfile } from "./profile.js"
+import { getWebSocket } from "./singletonSocket.js";
 
-// Function to render the Login page
-const renderLogin = () => {
-    document.getElementById('content').innerHTML = '<h1>Login Page</h1><p>Please log in.</p>';
-};
-
-// Function to render the Profile page
-const renderProfile = () => {
-    document.getElementById('content').innerHTML = '<h1>Profile Page</h1><p>This is your profile.</p>';
-};
-
-// Router function
 const router = () => {
     const path = window.location.pathname.replace('/', '');
 
     switch (path) {
+        case 'register':
+            renderRegister();
+            break;
         case 'login':
             renderLogin();
             break;
@@ -22,6 +18,8 @@ const router = () => {
             renderProfile();
             break;
         case '/':
+            renderBaseHomePage();
+            break;
         default:
             renderBaseHomePage();
             break;
@@ -39,6 +37,8 @@ document.getElementById('homeBtn').addEventListener('click', () => navigate('hom
 document.getElementById('loginBtn').addEventListener('click', () => navigate('login'));
 document.getElementById('profileBtn').addEventListener('click', () => navigate('profile'));
 
+export const socket = getWebSocket();
+console.log(socket);
 // Event listener for popstate to handle back/forward navigation
 window.addEventListener('popstate', router);
 

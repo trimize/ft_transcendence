@@ -1,5 +1,8 @@
 // export const renderHome = () => {
 //     document.getElementById('content').innerHTML = '<h1>Home Page</h1><p>Welcome to the Home page!</p>';
+
+import { hideNavButtons } from "./utlis.js";
+
 // };
 const addEventListeners = () => {
     const faces = document.querySelectorAll('.Face');
@@ -115,4 +118,5 @@ function renderBaseHomeBlock()
 export const renderBaseHomePage = () => {
     document.getElementById('content').innerHTML = renderBaseHomeBlock();
     addEventListeners();
+    hideNavButtons();
 }

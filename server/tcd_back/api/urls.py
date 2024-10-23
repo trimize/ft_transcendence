@@ -1,9 +1,11 @@
-from django.urls import path
+from django.urls import path, include
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
-from .views import user_views, match_views, tf_views, tournament_views
+from .views import user_views, match_views, tf_views
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
 
@@ -15,6 +17,7 @@ urlpatterns = [
 	path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 	path('update_user/', user_views.update_user, name='update_user'),
 	path('delete_account/', user_views.delete_account, name='delete_account'),
+	path('anonymize_user/', user_views.anonymize_user, name='anonymize_user'),
 	path('get_user/<str:username>/', user_views.get_username, name='get_username'),
 	path('users/<int:pk>/', user_views.get_user, name='get_user'),
 	path('search_user/<str:username>/', user_views.search_user, name='search_user'),
@@ -43,10 +46,9 @@ urlpatterns = [
 	path('update_match/', match_views.update_match, name='update_match'),
 	path('matches/<int:pk>/', match_views.get_match, name='get_match'),
 	path('matches/player/<int:player_id>/', match_views.get_match_by_player, name='get_match_by_player'),
-
-	# Tournament urls
-	path('get_tournaments/', tournament_views.get_tournaments, name='get_tournaments'),
-	path('create_tournament/', tournament_views.create_tournament, name='create_tournament'),
-	path('update_tournament/', tournament_views.update_tournament, name='update_tournament'),
-	path('get_tournament/<int:pk>/', tournament_views.get_tournament, name='get_tournament')
-]
+	# # Tournament urls
+	# path('get_tournaments/', tournament_views.get_tournaments, name='get_tournaments'),
+	# path('create_tournament/', tournament_views.create_tournament, name='create_tournament'),
+	# path('update_tournament/', tournament_views.update_tournament, name='update_tournament'),
+	# path('get_tournament/<int:pk>/', tournament_views.get_tournament, name='get_tournament')
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

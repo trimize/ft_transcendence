@@ -20,3 +20,9 @@ export function getCurrentTime()
 	const currentTime = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}${offsetSign}${offsetHours}:${offsetMinutes}`;
 	return currentTime;
 }
+
+export const hideNavButtons = () => {
+    document.getElementById('loginBtn').style.display = 'none';
+    document.getElementById('profileBtn').style.display = 'none';
+    document.getElementById('homeBtn').style.display = 'none';
+}

@@ -1,18 +1,4 @@
-import { fetchMatches, fetchUserData } from './fetchFunctions.js';
-
-document.addEventListener('DOMContentLoaded', async function()
-{
-	try {
-        const userData = await fetchUserData();
-        const matches = await fetchMatches(userData.id);
-        populateMatchesHistory(matches, userData);
-    } catch (error) {
-        // window.location.href = '/Login';
-        console.error('Failed to fetch user data:', error);
-    }
-});
-
-function populateMatchesHistory(matches, userData) {
+export const populateMatchesHistory = (matches, userData) => {
     const tbody = document.getElementById('matchHistoryTable');
     tbody.innerHTML = '';
     if (matches.length === 0) {
@@ -38,12 +24,13 @@ function populateMatchesHistory(matches, userData) {
     });
 }
 
-function getOpponent(match, userData) {
+export const  getOpponent = (match, userData) => {
     let opponent = match.player1 === userData.id ? match.player2 : match.player1;
     if (opponent === null && match.type === 'singleplayer') {
         return "AI Agent";
+    }
     else if (opponent === null && match.type === 'local_multiplayer') {
-        return "Local player";
+        return "Local player";}
     else if (opponent === null && match.type === 'online_multiplayer') {
             return "Anonymous user";
     } else {
@@ -51,7 +38,7 @@ function getOpponent(match, userData) {
     }
 }
 
-function getMatchResult(match, userData) {
+export const getMatchResult = (match, userData) => {
     if ((match.player1_score > match.player2_score && match.player1 === userData.id) || (match.player2_score > match.player1_score && match.player2 === userData.id)) {
         return "Victory";
     } else {
@@ -59,7 +46,7 @@ function getMatchResult(match, userData) {
     }
 }
 
-function showEmptyLine() {
+export const showEmptyLine = () => {
     const tbody = document.getElementById('matchHistoryTable');
     const tr = document.createElement('tr');
     tr.innerHTML = `
