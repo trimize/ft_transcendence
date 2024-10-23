@@ -14,6 +14,9 @@ const renderProfilePage = () => {
                                 <img alt="Profile Picture" class="img-fluid" id="profilePicture" style="width: 200px; height: 200px;">
                             </div>
                             <div class="col-md-8">
+                            <div id="notificationAnonym" class="alert alert-success d-none" role="alert">
+                                Profile anonymized successfully!
+                            </div>
                                 <div class="card-body">
                                     <h2 class="card-title" id="username"></h2>
                                     <p class="card-text" id="email"></p>
@@ -159,14 +162,20 @@ const attachEventListeners = () => {
             console.error('Error deleting user:', error);
         }
     });
-
+    const notificationAnonym = document.getElementById('notificationAnonym');
     anonymiseButton.addEventListener('click', async function () {
         try {
             await anonymizeUser();
+            // alert('User anonymised successfully');
             
+            notificationAnonym.classList.remove('d-none'); // Remove 'd-none' to show the alert
+            setTimeout(() => {
+                notificationAnonym.classList.add('d-none'); // Add 'd-none' to hide the alert
+            }, 3000);
         } catch (error) {
             console.error('Error anonymising user:', error);
         }
+        
     });
 
     matchButton.addEventListener('click', async function() {
