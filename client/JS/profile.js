@@ -1,4 +1,4 @@
-import { fetchUserData, updateUserData } from "./fetchFunctions.js";
+import { fetchUserData } from "./fetchFunctions.js";
 import { deleteUser, anonymiseUser } from "./fetchFunctionsUsers.js";
 import { hideNavButtons } from "./utlis.js";
 
@@ -36,38 +36,6 @@ const renderProfilePage = () => {
     </div>`;
 }
 
-const renderEditProfileForm = () => {
-    return `<div class="container-fluid">
-        <div class="container mt-5" id="profileArea">
-            <div class="row justify-content-center">
-                <div class="col-md-8">
-                    <div class="card" style="border: none;">
-                        <div class="card-body">
-                            <h2 class="card-title text-center">Edit Profile</h2>
-                            <form id="editProfileForm">
-                                <div class="form-group">
-                                    <label for="username">Username</label>
-                                    <input type="text" class="form-control" id="username" value="">
-                                </div>
-                                <div class="form-group">
-                                    <label for="email">Email</label>
-                                    <input type="email" class="form-control" id="email" value="">
-                                </div>
-                                <div class="form-group">
-                                    <label for="profilePicture">Profile Picture URL</label>
-                                    <input type="text" class="form-control" id="profilePicture" value="">
-                                </div>
-                                <button type="submit" class="btn btn-primary btn-block">Save Changes</button>
-                                <button type="button" class="btn btn-secondary btn-block" id="cancelBtn">Cancel</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>`;
-}
-
 const attachEventListeners = () => {
     const profilePicture = document.getElementById('profilePicture');
     const logoutButton = document.getElementById('logoutBtn');
@@ -91,10 +59,7 @@ const attachEventListeners = () => {
     });
 
     editButton.addEventListener('click', function() {
-        console.log('Edit button clicked');
-        // Replace profile info with the edit form
-        document.getElementById('profileArea').innerHTML = renderEditProfileForm();
-        attachEditFormEventListeners();
+        window.location.href = '/profile_settings';
     });
 
     logoutButton.addEventListener('click', function() {
@@ -116,29 +81,6 @@ const attachEventListeners = () => {
         } catch (error) {
             console.error('Error anonymising user:', error);
         }
-    });
-}
-
-const attachEditFormEventListeners = () => {
-    document.getElementById('editProfileForm').addEventListener('submit', async function(event) {
-        event.preventDefault();
-
-        const username = document.getElementById('username').value;
-        const email = document.getElementById('email').value;
-        const profilePicture = document.getElementById('profilePicture').value;
-
-        try {
-            await updateUserData(username, email, profilePicture);
-            window.location.href = '/profile';
-        } catch (error) {
-            console.error('Error updating profile:', error);
-            alert('Failed to update profile. Please try again.');
-        }
-    });
-
-    document.getElementById('cancelBtn').addEventListener('click', function() {
-        document.getElementById('profileArea').innerHTML = renderProfilePage();
-        attachEventListeners(); 
     });
 }
 

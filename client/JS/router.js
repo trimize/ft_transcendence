@@ -2,7 +2,7 @@ import { renderHome } from "./home.js"
 import { renderLogin } from "./login.js"
 import { renderRegister } from "./register.js"
 import { renderProfile } from "./profile.js"
-
+import { renderProfileSettings } from "./profileSettings.js"
 const router = () => {
     const path = window.location.pathname.replace('/', '') || 'home';
 
@@ -16,8 +16,12 @@ const router = () => {
         case 'profile':
             renderProfile();
             break;
+        case 'profile_settings':
+            renderProfileSettings();
+            break;
         case '/':
         default:
+            //loading state?
             renderHome();
             break;
     }
