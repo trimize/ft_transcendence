@@ -1,5 +1,5 @@
 import { fetchUserData, updateUserData, fetchMatches } from "./fetchFunctions.js";
-import { deleteUser, anonymiseUser } from "./fetchFunctionsUsers.js";
+import { deleteUser, anonymizeUser, setup2FA, verify2FA } from "./fetchFunctionsUsers.js";
 import { hideNavButtons } from "./utlis.js";
 import { populateMatchesHistory } from "./matchHistory.js";
 
@@ -64,10 +64,28 @@ const renderEditProfileForm = () => {
                                 </div>
 
                                 <button type="submit" class="btn btn-primary btn-block">Save Changes</button>
+                                <button type="button" class="btn btn-secondary btn-block" id="setup2FA">Setup 2-Factor
+                                    Authentication</button>
                             </form>
                         </div>
                     </div>
                 </div>
+            <div class="col-md-6" id="2faSetupContainer" style="display: none;">
+                    <div class="card">
+                        <div class="card-body">
+                            <h3 class="card-title text-center">Setup 2-Factor Authentication</h3>
+                            <div id="2faSetup">
+                                <img id="qrCode" src="" alt="QR Code" class="img-fluid mb-3">
+                                <div class="form-group">
+                                    <label for="otpToken">Enter OTP Token</label>
+                                    <input type="text" class="form-control" id="otpToken">
+                                </div>
+                                <button type="button" class="btn btn-primary btn-block" id="verify2FA">Verify
+                                    2FA</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>    
             </div>
         </div>
     </div>`;
@@ -136,6 +154,7 @@ const attachEventListeners = () => {
     deleteButton.addEventListener('click', async function () {
         try {
             await deleteUser();
+            window.location.href = '/'; 
         } catch (error) {
             console.error('Error deleting user:', error);
         }
@@ -143,7 +162,8 @@ const attachEventListeners = () => {
 
     anonymiseButton.addEventListener('click', async function () {
         try {
-            await anonymiseUser();
+            await anonymizeUser();
+            
         } catch (error) {
             console.error('Error anonymising user:', error);
         }
@@ -197,6 +217,38 @@ const attachEditFormEventListeners = () => {
         var nextSibling = event.target.nextElementSibling;
         nextSibling.innerText = fileName;
     });
+
+    document.getElementById("setup2FA").addEventListener("click", async function () {
+        try {
+          const data = await setup2FA();
+          const base64Image = data.qr_code_img.trim();
+          if (base64Image) {
+            document.getElementById(
+              "qrCode"
+            ).src = `data:image/png;base64,${base64Image}`;
+            document.getElementById("2faSetupContainer").style.display = "block";
+          } else {
+            console.error("QR code image data is missing or invalid.");
+          }
+        } catch (error) {
+          console.error("Error setting up 2FA:", error);
+        };
+      })
+      
+      document.getElementById("verify2FA").addEventListener("click", async function () {
+        const otpToken = document.getElementById("otpToken").value;
+        try {
+          const data = await verify2FA(otpToken);
+          if (data) {
+            alert("2FA setup successful");
+            document.getElementById("2faSetupContainer").style.display = "none";
+          } else {
+            alert("2FA setup failed: " + data.message);
+          }
+        } catch (error) {
+            console.error("Error verifying 2FA:", error);
+          }
+      })
 }
 
 export const renderProfile = () => {

@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'django_otp',
     'django_otp.plugins.otp_totp',
+    'django_otp.plugins.otp_email',
     'two_factor',
     'two_factor.plugins.phonenumber',
     'two_factor.plugins.email',

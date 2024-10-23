@@ -14,9 +14,7 @@ export const setup2FA = async () => {
 		return data;
 	} catch (error) {
 		console.error(error.message);
-		return "";
 	}
-
 }
 
 export const verify2FA = async (otpToken) => {
@@ -35,44 +33,37 @@ export const verify2FA = async (otpToken) => {
 		return data;
 	} catch (error) {
 		console.error(error.message);
-		return "";
 	}
 }
 
-export const deleteUser = async (userId) => {
+export const deleteUser = async () => {
 	const accessToken = await securelyGetAccessToken();
 	try {
-		//path might need to be changed
-		let response = await fetch("http://localhost:8000/api/delete_user/" + userId + "/", {
+		let response = await fetch("http://localhost:8000/api/delete_account/", {
 			method: "DELETE",
 			headers: {
 				Authorization: `Bearer ${accessToken}`,
 			},
 		});
 		if (!response.ok) throw new Error("Failed to delete user");
-		const data = await response.json();
-		return data;
+		return ;
 	} catch (error) {
 		console.error(error.message);
-		return "";
 	}
 }
 
-export const anonymiseUser = async (userId) => {
+export const anonymizeUser = async () => {
 	const accessToken = await securelyGetAccessToken();
 	try {
-		//path might need to be changed
-		let response = await fetch("http://localhost:8000/api/anonymise_user/" + userId + "/", {
+		let response = await fetch("http://localhost:8000/api/anonymize_user/", {
 			method: "PUT",
 			headers: {
 				Authorization: `Bearer ${accessToken}`,
 			},
 		});
 		if (!response.ok) throw new Error("Failed to anonymise user");
-		const data = await response.json();
-		return data;
+		return await response.json(); 
 	} catch (error) {
 		console.error(error.message);
-		return "";
 	}
 }

@@ -7,7 +7,7 @@ from rest_framework.decorators import api_view, permission_classes, parser_class
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
-from ..models import User
+from ..models import User, Match_Record, FriendInvitation
 from ..serializer import UserSerializer
 
 @api_view(['GET'])
@@ -267,7 +267,7 @@ def update_tic_tac_toe_background(request, tic_tac_toe_background):
     user.save()
     return Response(status=status.HTTP_204_NO_CONTENT)
 
-@api_view(['POST'])
+@api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def anonymize_user(request):
     user = request.user
@@ -284,7 +284,10 @@ def anonymize_user(request):
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_account(request):
-    user = request.user
+    try:
+        user = request.user
+    except User.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
     Match_Record.objects.filter(player1=user).update(player1=None)
     Match_Record.objects.filter(player2=user).update(player2=None)
