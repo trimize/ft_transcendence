@@ -130,7 +130,6 @@ const attachEventListeners = () => {
             profilePicture.src = `${BACKEND_URL}${profileData.profile_pic}`;
         else
             profilePicture.src = DEFAULT_PROFILE_PIC;
-        console.log(profilePicture.src);
         let friendsNum = 0;
         if (profileData.friends != null)
             friendsNum = profileData.friends.length;
