@@ -7,7 +7,7 @@ import { DEFAULT_PROFILE_PIC, BACKEND_URL } from "./appconfig.js";
 const renderProfilePage = () => {
     return `<div class="container-fluid">
         <div class="container mt-5" id="profileArea">
-            <button type="button" class="btn btn-secondary btn-block" id="goBackBtn" href="/home">Go back</button>
+            <div id="backButtonGameMenu"></div>
             <div class="row justify-content-center">
                 <div class="col-md-8">
                     <div class="card" style="border: none;">
@@ -43,7 +43,7 @@ const renderProfilePage = () => {
 const renderEditProfileForm = () => {
     return `
     <div class="container-fluid">
-    <button type="button" class="btn btn-secondary btn-block" id="goBackBtn">Go back</button>
+    <div id="backButtonGameMenu"></div>
         <div class="container mt-5" id="profileArea">
             <div class="row justify-content-center">
                 <div class="col-md-8">
@@ -98,7 +98,7 @@ const renderEditProfileForm = () => {
 
 const renderMatchHistory = () => {
     return `<div class="container-fluid">
-     <button type="button" class="btn btn-secondary btn-block" id="goBackBtn">Go back</button>
+     <div id="backButtonGameMenu"></div>
 				<h1 class="text-center mt-5">Match History</h1>
 				<div class="container mt-5">
 					<table class="table table-dark table-striped">
@@ -145,7 +145,7 @@ const attachEventListeners = () => {
         // window.location.href = '/login';
     });
 
-    document.getElementById('goBackBtn').addEventListener('click', function() {
+    document.getElementById('backButtonGameMenu').addEventListener('click', function() {
         window.location.href = '/home';
     });
 
@@ -196,7 +196,7 @@ const attachEventListeners = () => {
 }
 
 const attachMatchHistoryEventListeners = () => {
-    document.getElementById('goBackBtn').addEventListener('click', function() {
+    document.getElementById('backButtonGameMenu').addEventListener('click', function() {
         document.getElementById('profileArea').innerHTML = renderProfilePage();
         attachEventListeners(); 
     });
@@ -227,7 +227,7 @@ const attachEditFormEventListeners = () => {
         }      
     });
 
-    document.getElementById('goBackBtn').addEventListener('click', function() {
+    document.getElementById('backButtonGameMenu').addEventListener('click', function() {
         document.getElementById('profileArea').innerHTML = renderProfilePage();
         attachEventListeners(); 
     });
