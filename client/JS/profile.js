@@ -7,6 +7,7 @@ import { DEFAULT_PROFILE_PIC, BACKEND_URL } from "./appconfig.js";
 const renderProfilePage = () => {
     return `<div class="container-fluid">
         <div class="container mt-5" id="profileArea">
+            <button type="button" class="btn btn-secondary btn-block" id="goBackBtn" href="/home">Go back</button>
             <div class="row justify-content-center">
                 <div class="col-md-8">
                     <div class="card" style="border: none;">
@@ -144,6 +145,10 @@ const attachEventListeners = () => {
         // window.location.href = '/login';
     });
 
+    document.getElementById('goBackBtn').addEventListener('click', function() {
+        window.location.href = '/home';
+    });
+
     editButton.addEventListener('click', function() {
         // Replace profile info with the edit form
         document.getElementById('profileArea').innerHTML = renderEditProfileForm();
@@ -152,13 +157,13 @@ const attachEventListeners = () => {
 
     logoutButton.addEventListener('click', function() {
         localStorage.clear();
-        window.location.href = '/';
+        window.location.href = '/home';
     });
 
     deleteButton.addEventListener('click', async function () {
         try {
             await deleteUser();
-            window.location.href = '/'; 
+            window.location.href = '/home'; 
         } catch (error) {
             console.error('Error deleting user:', error);
         }
