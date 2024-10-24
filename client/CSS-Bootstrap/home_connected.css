@@ -41,6 +41,10 @@
     height: calc(100% - 300px);
     max-height: calc(100% - 300px);
     transition: right ease 0.3s;
+    /*display: flex;*/
+    text-align: center;
+    /*justify-content: center;
+    align-items: center;*/
 }
 
 #friendsList
@@ -59,14 +63,10 @@
     right: -250px;
     width: 250px;
     height: 100%;
+    top: 0px;
     background-color: rgba(34, 34, 34, 0.651);
     filter: blur(3px);
     transition: right ease 0.3s;
-}
-
-.firstItem
-{
-    border-top: 1px solid rgba(255, 255, 255, 0.527);
 }
 
 .friendItem
@@ -97,22 +97,62 @@
     position: absolute;
     width: 40px;
     height: 40px;
-    top: calc(100% - 300px - 40px);
+    top: calc(100% - 300px - 60px);
     right: 0px;
     background-color: rgba(34, 34, 34, 0.651);
     border-top-left-radius: 10px;
     border-bottom-left-radius: 10px;
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
     background-image: url('../Assets/arrow.svg');
     background-size: contain;
-    transition: right ease 0.3s;
+    transition: right 0.3s ease, transform 0.5s ease;
+    cursor: pointer;
 }
 
-#showFriends:hover
+#showFriends.flipped
 {
-    cursor: pointer;
+    transform: scaleX(-1);
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+
+#friendsTitle
+{
+    z-index: 1;
+    width: 250px;
+    height: 60px;
+    background-image: url('../Assets/contact.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position-x: center;
+    position: relative;
+    border: 5px solid rgb(211, 210, 209);
 }
 
 #chatRoom
 {
-    
+    z-index: 10;
+    position: absolute;
+    width: calc(100% - 250px);
+    height: calc(100% - 300px);
+    background-color: rgba(34, 34, 34, 0.377);
+    left: 0;
+    bottom: 0;
+    display: none;
+}
+
+#showChatRoom
+{
+    position: absolute;
+    height: 20px;
+    width: 20px;
+    z-index: 11;
+    top: 300px;
+    left: calc((100% - 250px) / 2);
+    background-image: url('../Assets/arrowUp.svg');
+    background-size: contain;
 }

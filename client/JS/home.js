@@ -132,6 +132,7 @@ function showChat()
     const showFriends = document.getElementById('showFriends');
     showFriends.addEventListener('click', function()
     {
+        showFriends.classList.toggle('flipped');
         if (showFriendBool == false)
         {
             document.getElementById('friendsListBg').style.right = "0px";
