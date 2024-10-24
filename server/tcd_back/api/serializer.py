@@ -1,3 +1,4 @@
+import re
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
 from .models import User, Match_Record, FriendInvitation, Tournament
@@ -48,6 +49,16 @@ class UserSerializer(serializers.ModelSerializer):
         
         instance.save()
         return instance
+
+    def validate_username(self, value):
+        if len(value) < 3:
+            raise serializers.ValidationError("Username must be at least 3 characters long")
+        return value
+
+    def validate_email(self, value):
+        if not re.match(r"[^@]+@[^@]+\.[^@]+", value):
+            raise serializers.ValidationError("Invalid email format. Please enter a valid email address")
+        return value
     
 class MatchSerializer(serializers.ModelSerializer):
 	class Meta:

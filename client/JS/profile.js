@@ -66,7 +66,7 @@ const renderEditProfileForm = () => {
                                         <label class="custom-file-label" for="formFile">Choose file</label>
                                     </div>
                                 </div>
-
+                                <div id="registerStatus" style="display: none;" class="mt-3 text-center">Please enter a valid username and/or email</div>
                                 <button type="submit" class="btn btn-primary btn-block">Save Changes</button>
                                 <button type="button" class="btn btn-secondary btn-block" id="setup2FA">Setup 2-Factor
                                     Authentication</button>
@@ -204,14 +204,21 @@ const attachEditFormEventListeners = () => {
         const username = document.getElementById('username').value;
         const email = document.getElementById('email').value;
         const profilePicture = document.getElementById("formFile").files[0];
-        console.log(profilePicture);
-
+        
+        const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (username.length < 3 || !emailPattern.test(email)) {
+            const errorContainer = document.getElementById("registerStatus");
+            errorContainer.style.display = "block";
+            errorContainer.style.color= "red";
+            return;
+    }
         try {
             await updateUserData(username, email, profilePicture);
             window.location.href = '/profile';
         } catch (error) {
-            console.error('Error updating profile:', error);
-            alert('Failed to update profile. Please try again.');
+            const errorContainer = document.getElementById("registerStatus");
+            errorContainer.style.display = "block";
+            errorContainer.style.color= "red";
         }      
     });
 
