@@ -121,8 +121,9 @@ const addEventListeners = () => {
 function renderBaseHomeBlock()
 {
     return `
+            <div id="content" class="vh-100">
             <div class="half left">
-                <span id="backButtonGameMenu">&lt;</span>
+                <div id="backButtonGameMenu"></div>
                 <div id="gameTitle">
                     <span class="text" id="gameTitletext"></span>
                 </div>
@@ -185,7 +186,7 @@ export const renderBaseHomePage = () =>
 function renderBaseHomeConnected()
 {
     return `<div class="half left">
-                <span id="backButtonGameMenu"></span>
+                <div id="backButtonGameMenu"></div>
                 <div id="gameTitle">
                     <span class="text" id="gameTitletext"></span>
                 </div>
