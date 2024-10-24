@@ -217,10 +217,10 @@ function renderBaseHomeConnected()
                 </div>
                 <button class="button-85" role="button" id="buttonPlay">Play</button>
             </div>
-            <div id="profileDiv">
+            <a id="profileDiv" href="/profile">
                 <div id="profilePicture"></div>
                 <text>to</text>
-            </div>
+            </a>
             <div id="showFriends"></div>
             <div id="friendsListDiv">
                 <div id="friendsTitle"></div>
@@ -248,7 +248,6 @@ function renderBaseHomeConnected()
                 <a class="Face pongFace" bottom>PONG</a>
             </div>`
 }
-
 
 function showChat()
 {

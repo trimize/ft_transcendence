@@ -20,11 +20,11 @@
 {
     background-color: rgba(119, 117, 117, 0.363);
     cursor: pointer;
+    text-decoration: none;
 }
 
 #profilePicture
 {
-    background-image: url('../Assets/bg7.jpg');
     background-size: cover;
     height: 70%;
     width: 40%;
