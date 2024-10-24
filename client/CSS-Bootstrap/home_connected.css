@@ -126,9 +126,9 @@
     width: 250px;
     height: 60px;
     background-image: url('../Assets/contact.svg');
-    background-size: contain;
+    background-size: 35px;
     background-repeat: no-repeat;
-    background-position-x: center;
+    background-position: center;
     position: relative;
     border: 5px solid rgb(211, 210, 209);
 }
@@ -141,8 +141,9 @@
     height: calc(100% - 300px);
     background-color: rgba(34, 34, 34, 0.377);
     left: 0;
-    bottom: 0;
-    display: none;
+    bottom: calc(-1 * (100% - 300px));
+    transition: bottom ease 0.3s;
+    /*display: none;*/
 }
 
 #showChatRoom
@@ -151,8 +152,74 @@
     height: 20px;
     width: 20px;
     z-index: 11;
-    top: 300px;
+    bottom: -20px;
     left: calc((100% - 250px) / 2);
+    transition: bottom ease 0.3s;
     background-image: url('../Assets/arrowUp.svg');
     background-size: contain;
+    cursor: pointer;
+    transform: scaleY(-1);
+}
+
+#chatInput
+{
+    z-index: 20;
+    position: absolute;
+    bottom: 25px;
+    width: 400px;
+    color: aliceblue;
+    background-color: rgba(182, 185, 187, 0.205);
+    left: calc((100% - 350px) / 2);
+    border-color: aliceblue;
+    border-width: 1px;
+    overflow: hidden;
+    resize: none;
+}
+
+#sendButton
+{
+    height: 54px;
+    width: 54px;
+    background-image: url('../Assets/send.svg');
+    background-size: 40px;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: absolute;
+    left: calc(((100% - 350px) / 2) + 400px);
+    background-color: rgba(121, 121, 121, 0.342);
+    border-top-right-radius: 40%;
+    border-bottom-right-radius: 40%;
+    bottom: 25px;
+    transition: background-color ease 0.2s;
+}
+
+#sendButton:hover
+{
+    cursor: pointer;
+    background-color: rgba(173, 173, 173, 0.342);
+}
+
+#conversation
+{
+    z-index: 1;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 100vw;
+    height: 550px;
+    max-height: 550px;
+    background-color: rgba(134, 134, 134, 0.082);
+}
+
+.blurryTopDiv::before {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 100vw;
+    height: 550px; /* Adjust this height to control the size of the blurry area */
+    background: inherit; /* Inherit the background color from the parent */
+    filter: blur(10px); /* Adjust the blur intensity as needed */
+    z-index: 1;
+    pointer-events: none; /* Make sure it doesn't interfere with clicks */
 }

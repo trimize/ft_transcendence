@@ -19,12 +19,15 @@ const addEventListeners = () => {
             buttonPlay.classList.add('hide-after');
             buttonPlay.classList.add('hide-hover');
             buttonPlay.style.color = "rgb(94, 93, 93)";
+            const multiplayerMenu = document.getElementById('multiplayer')
             singleplayerMenu.addEventListener('click', function()
             {
-                if (singleClicked == false && multiClicked == false)
+                if (singleClicked == false)
                 {
                     singleplayerMenu.style.textShadow = "0 0 15px rgb(255, 255, 255)";
                     singleClicked = true;
+                    multiplayerMenu.style.textShadow = "0 0 0px rgb(255, 255, 255)";
+                    multiClicked = false;
                     buttonPlay.classList.remove('hide-before');
                     buttonPlay.classList.remove('hide-after');
                     buttonPlay.classList.remove('hide-hover');
@@ -37,13 +40,14 @@ const addEventListeners = () => {
                 }
             });
 
-            const multiplayerMenu = document.getElementById('multiplayer')
             multiplayerMenu.addEventListener('click', function()
             {
-                if (multiClicked == false && singleClicked == false)
+                if (multiClicked == false)
                 {
                     multiplayerMenu.style.textShadow = "0 0 15px rgb(255, 255, 255)";
                     multiClicked = true;
+                    singleplayerMenu.style.textShadow = "0 0 0px rgb(255, 255, 255)";
+                    singleClicked = false;
                     buttonPlay.classList.remove('hide-before');
                     buttonPlay.classList.remove('hide-after');
                     buttonPlay.classList.remove('hide-hover');
@@ -121,13 +125,43 @@ showChat();
 function showChat()
 {
     let showFriendBool = false;
-    const friendItems = document.querySelectorAll('friendItem');
+    const chatRoom = document.getElementById('chatRoom');
+    const showChatRoom = document.getElementById('showChatRoom')
+    const friendItems = document.querySelectorAll('.friendItem');
+    const cube = document.getElementsByClassName('Cube');
+    //console.log(friendItems);
+    const chatInput = document.getElementById('chatInput');
+    const faces = document.querySelectorAll('.Face');
+    chatInput.addEventListener('input', () => {
+        chatInput.style.height = 'auto'; // Reset the height
+        chatInput.style.height = chatInput.scrollHeight + 'px'; // Set the new height based on content
+    });
     friendItems.forEach((friendItem) => 
     {
         friendItem.addEventListener('click', function()
         {
-            
+            document.documentElement.style.setProperty('--cube-size', '10vmax');
+            cube[0].style.top = "50px";
+            cube[0].style.left = "90px";
+            faces.forEach((face) =>
+            {
+                face.style.fontSize = "50px";
+            });
+            showChatRoom.style.bottom = "calc(100% - 300px - 40px)";
+            chatRoom.style.bottom = "0";
         });
+    });
+    showChatRoom.addEventListener('click', function()
+    {
+        document.documentElement.style.setProperty('--cube-size', '20vmax');
+        cube[0].style.top = "40vh";
+        cube[0].style.left = "40vw";
+        faces.forEach((face) =>
+        {
+            face.style.fontSize = "100px";
+        });
+        chatRoom.style.bottom = "calc(-1 * (100% - 300px))";
+        showChatRoom.style.bottom = "-20px";
     });
     const showFriends = document.getElementById('showFriends');
     showFriends.addEventListener('click', function()

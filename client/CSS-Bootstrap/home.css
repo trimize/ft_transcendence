@@ -74,12 +74,14 @@ html, body
     --cube-z: calc(var(--cube-half) * -1);
     --light: var(--light-hue) var(--light-saturation) calc(var(--light-power) + 20%);
     --surface: var(--light-hue) var(--light-saturation) var(--light-power);
-    top: 100px;
+    top: 40vh;
+    left: 40vw;
     width: var(--cube-size);
     height: var(--cube-size);
-    position: relative;
+    position: absolute;
     transform-style: preserve-3d;
     transform: translateZ(var(--cube-z));
+    transition: top 0.3s ease, left 0.3s ease, width 0.3s ease, height 0.3s ease;
     animation: rotation 60s infinite linear;
     animation-fill-mode: forwards;
     
