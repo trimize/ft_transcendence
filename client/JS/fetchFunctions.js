@@ -78,19 +78,9 @@ export async function updateUserData(username, email, profilePicture) {
       },
       body: formData,
     });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error("Failed to update user data:", errorData);
-      throw new Error("Failed to update user data");
-    }
-
-    const data = await response.json();
-    console.log("User data updated successfully:", data);
-    alert("User data updated");
+    // const data = await response.json();
   } catch (error) {
     console.error("Error updating user data:", error);
-    alert("Failed to update user data. Please try again.");
   }
 }
 
