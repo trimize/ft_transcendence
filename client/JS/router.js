@@ -1,11 +1,11 @@
-import { renderHome } from "./home.js"
+import { renderBaseHomePage } from "./home.js"
 import { renderLogin } from "./login.js"
 import { renderRegister } from "./register.js"
 import { renderProfile } from "./profile.js"
 import { getWebSocket } from "./singletonSocket.js";
 
 const router = () => {
-    const path = window.location.pathname.replace('/', '') || 'home';
+    const path = window.location.pathname.replace('/', '');
 
     switch (path) {
         case 'register':
@@ -18,8 +18,10 @@ const router = () => {
             renderProfile();
             break;
         case '/':
+            renderBaseHomePage();
+            break;
         default:
-            renderHome();
+            renderBaseHomePage();
             break;
     }
 };

@@ -357,3 +357,89 @@ html, body
     text-shadow: 0 0 3px rgb(255, 255, 255);
     cursor: pointer;
 }
+
+#singleplayer
+{
+	margin-top: 100px;
+}
+
+#CustomizeGameText
+{
+	margin-top: 100px;
+}
+
+#CustomizeGameText:hover
+{
+	cursor: auto;
+	text-shadow: none;
+}
+
+#inputRangeDiv
+{
+	width: 500px;
+    display: none;
+}
+
+.customizeGameTitles
+{
+	font-family: "Roboto", sans-serif;
+	font-weight: 300;
+	font-size: 20px;
+	letter-spacing: 1px;
+	margin-top: 100px;
+}
+
+#ballSpeed
+{
+	margin-top: 95px;
+}
+
+input[type=range]
+{
+	-webkit-appearance: none;
+	appearance: none;
+	width: 150%;
+	background: rgba(255, 255, 255, 0);
+	height: 20%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+
+input[type=range]::-webkit-slider-thumb
+{
+	-webkit-appearance: none;
+	appearance: none;
+	height: 20px;
+	width: 20px;
+	background: #ffffff;
+	cursor: pointer;
+	border-radius: 50%;
+	margin-top: 0px; /* You need to specify a margin in Chrome, but in Firefox and IE it is automatic */
+}
+
+input[type=range]:focus
+{
+	background-color: transparent; /* Removes the blue border. You should probably do some kind of focus styling for accessibility reasons though. */
+}
+
+#inputRangeText
+{
+	margin-left: 258px;
+}
+
+#backButtonGameMenu
+{
+    position: absolute;
+    top: 0px;
+    left: 20px;
+    font-size: 50px;
+    font-weight: 100;
+    font-family: "Roboto", sans-serif;
+}
+
+#backButtonGameMenu:hover
+{
+    cursor: pointer;
+}
