@@ -1,6 +1,5 @@
 import { fetchUserData, updateUserData, fetchMatches } from "./fetchFunctions.js";
 import { deleteUser, anonymizeUser, setup2FA, verify2FA } from "./fetchFunctionsUsers.js";
-import { hideNavButtons } from "./utlis.js";
 import { populateMatchesHistory } from "./matchHistory.js";
 import { DEFAULT_PROFILE_PIC, BACKEND_URL } from "./appconfig.js";
 
@@ -261,6 +260,5 @@ const attachEditFormEventListeners = () => {
 
 export const renderProfile = () => {
     document.getElementById('content').innerHTML = renderProfilePage();
-    hideNavButtons();
     attachEventListeners();
 }

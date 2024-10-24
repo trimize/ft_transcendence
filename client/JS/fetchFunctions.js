@@ -35,7 +35,7 @@ export const securelyGetAccessToken = async () => {
     } catch (error) {
       localStorage.clear();
       console.error("Error refreshing token:", error);
-      throw new Error("Error refreshing token:" + error);
+      return "";
     }
   }
   // Accesss token is still valid
