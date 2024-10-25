@@ -1,6 +1,6 @@
-import { securelyGetAccessToken } from "./fetchFunctions.js";
+import { fetchUserData } from "./fetchFunctions.js";
+import { BACKEND_URL, DEFAULT_PROFILE_PIC } from "./appconfig.js";
 
-// };
 const addEventListeners = () => {
     let singleClicked = false;
     let multiClicked = false;
@@ -166,23 +166,6 @@ function renderBaseHomeBlock()
             </div>`;
 }
 
-export const renderBaseHomePage = () =>
-{
-    let token = localStorage.getItem('access');
-    if (token)
-    {
-        document.getElementById('content').innerHTML = renderBaseHomeConnected();
-        addEventListeners();
-        showChat();
-    }
-    else
-    {
-        document.getElementById('content').innerHTML = renderBaseHomeBlock();
-        addEventListeners();
-    }
-    
-}
-
 function renderBaseHomeConnected()
 {
     return `<div class="half left">
@@ -219,7 +202,7 @@ function renderBaseHomeConnected()
             </div>
             <a id="profileDiv" href="/profile">
                 <div id="profilePicture"></div>
-                <text>to</text>
+                <span id="username"></span>
             </a>
             <div id="showFriends"></div>
             <div id="friendsListDiv">
@@ -320,3 +303,42 @@ function showChat()
         }
     });
 }
+
+const getProfileInfo = async () => {
+    try {
+        const profilePic = document.getElementById('profilePicture');
+        const usernameElement = document.getElementById('username');
+        
+        const profileData = await fetchUserData();
+        
+        if (profileData.profile_pic) {
+            profilePic.style.backgroundImage = `url(${BACKEND_URL}${profileData.profile_pic})`;
+        } else {
+            profilePic.style.backgroundImage = `url(${DEFAULT_PROFILE_PIC})`;
+        }
+        if (profileData.username) {
+            usernameElement.textContent = profileData.username;
+        }
+    } catch (error) {
+        console.error('Failed to fetch user data:', error);
+    }
+
+}
+
+export const renderBaseHomePage = () =>
+    {
+        let token = localStorage.getItem('access');
+        if (token)
+        {
+            document.getElementById('content').innerHTML = renderBaseHomeConnected();
+            addEventListeners();
+            getProfileInfo();
+            showChat();
+        }
+        else
+        {
+            document.getElementById('content').innerHTML = renderBaseHomeBlock();
+            addEventListeners();
+        }
+        
+    }
