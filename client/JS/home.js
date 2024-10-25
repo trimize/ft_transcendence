@@ -8,6 +8,10 @@ const addEventListeners = () => {
     const ballSlider = document.getElementById('ballSpeed');
     const ballSpeedComment = document.getElementById('inputRangeText');
     const ballSpeedDiv = document.getElementById('inputRangeDiv');
+    const AITitle = document.getElementById('ballSpeedText');
+    const ballAccDiv = document.getElementById('ballAccDiv');
+    AITitle.style.display = "none";
+    ballSlider.style.display = "none";
     // Iterate over the NodeList and add an event listener to each element
     faces.forEach((face) =>
     {
@@ -32,6 +36,8 @@ const addEventListeners = () => {
                     buttonPlay.classList.remove('hide-after');
                     buttonPlay.classList.remove('hide-hover');
                     buttonPlay.style.color = "rgb(0, 0, 0)";
+                    ballSlider.style.display = "block";
+                    AITitle.style.display = "block";
                 }
                 else if (singleClicked == true)
                 {
@@ -52,6 +58,12 @@ const addEventListeners = () => {
                     buttonPlay.classList.remove('hide-after');
                     buttonPlay.classList.remove('hide-hover');
                     buttonPlay.style.color = "rgb(0, 0, 0)";
+                    if (AITitle.textContent == "AI Difficulty")
+                    {
+                        AITitle.style.display = "none";
+                        ballSlider.style.display = "none";
+                        ballSpeedComment.textContent = " ";
+                    }
                 }
                 else if (multiClicked == true)
                 {
@@ -70,6 +82,8 @@ const addEventListeners = () => {
             }, 10);
             if (face.classList.contains('pongFace'))
             {
+                ballAccDiv.style.display = "block";
+                ballSpeedComment.textContent = " ";
                 const gameTitle = document.getElementById('gameTitletext');
                 gameTitle.textContent = "PONG";
                 const gamePicture = document.getElementById('gamePicture');
@@ -77,6 +91,9 @@ const addEventListeners = () => {
                 const gameText = document.getElementById('gameText');
                 gameText.textContent = 'Pong game is cool';
                 ballSpeedDiv.style.display = "flex";
+                AITitle.textContent = "Ball speed";
+                ballSlider.style.display = "block";
+                AITitle.style.display = "block";
                 ballSlider.addEventListener('input', function()
                 {
                     if (ballSlider.value < 10)
@@ -93,6 +110,8 @@ const addEventListeners = () => {
             }
             else if (face.classList.contains('tttFace')) 
             {
+                ballAccDiv.style.display = "none";
+                ballSpeedComment.textContent = " ";
                 const gameTitle = document.getElementById('gameTitletext');
                 gameTitle.textContent = "Tic-Tac-Toe";
                 gameTitle.style.background = 'none';
@@ -101,6 +120,20 @@ const addEventListeners = () => {
                 gamePicture.style.backgroundImage = 'url(../Assets/tic-tac-toe.gif)';
                 const gameText = document.getElementById('gameText');
                 gameText.textContent = 'Tic-tac-toe game is cool';
+                AITitle.textContent = "AI Difficulty";
+                if (multiClicked == true)
+                {
+                    ballSlider.style.display = "none";
+                    AITitle.style.display = "none";
+                }
+            
+                ballSlider.addEventListener('input', function()
+                {
+                    if (ballSlider.value < 19)
+                        ballSpeedComment.textContent = "Easy AI";
+                    else if (ballSlider.value >= 19)
+                        ballSpeedComment.textContent = "Hard AI!";
+                });
             }
             backButtonGameMenu.addEventListener('click', function()
             {
