@@ -126,6 +126,11 @@ const addEventListeners = () => {
                     ballSlider.style.display = "none";
                     AITitle.style.display = "none";
                 }
+                else
+                {
+                    ballSlider.style.display = "block";
+                    AITitle.style.display = "block";
+                }
             
                 ballSlider.addEventListener('input', function()
                 {
@@ -199,7 +204,7 @@ function renderBaseHomeBlock()
             </div>`;
 }
 
-//addEventListeners();
+// addEventListeners();
 //        showChat();
 
 function renderBaseHomeConnected()

@@ -2,7 +2,7 @@ const cells = document.querySelectorAll('.cell');
 const resetButton = document.getElementById('reset');
 const player1 = document.getElementById('player1');
 const player2 = document.getElementById('player2');
-const ai = true;
+const ai = false;
 let firstMove = true;
 
 let currentPlayer = 'X';
@@ -40,7 +40,7 @@ function handleCellClick(event) {
     }
     
     placeCell(index, currentPlayer);
-    checkers();
+    checkers(true);
 
     if (currentPlayer === 'O' && ai) {
         setTimeout(makeAIMove_hard, 500);
@@ -70,7 +70,7 @@ function placeCell(index, value) {
     gameState[index] = value;
 }
 
-function checkers() {
+function checkers(change) {
     const gameMessageElement = document.getElementById('game-message');
 
     if (checkWinner()) {
@@ -83,7 +83,9 @@ function checkers() {
         if (firstMove) {
             firstMove = false;
         }
-        changeTurn();
+        if (change) {
+            changeTurn();
+        }
     }
 }
 
@@ -98,7 +100,7 @@ function makeAIMove_easy() {
     const randomIndex = Math.floor(Math.random() * availableCells.length);
     index = availableCells[randomIndex];
     placeCell(index, currentPlayer);
-    checkers();
+    checkers(true);
 }
 
 function makeAIMove_hard() {
@@ -123,7 +125,7 @@ function makeAIMove_hard() {
         let targetIndex = combination.find(index => gameState[index] === null);
         if (targetIndex !== undefined) {
             placeCell(targetIndex, currentPlayer);
-            checkers();
+            checkers(true);
             return;
         }
         if (player2hasSwitch) {
@@ -174,7 +176,7 @@ function makeAIMove_hard() {
         const targetIndex = combination.find(index => gameState[index] === null);
         if (targetIndex !== undefined) {
             placeCell(targetIndex, currentPlayer);
-            checkers();
+            checkers(true);
             return;
         }
     }
@@ -215,7 +217,11 @@ function switchCells(currentCellIndex, targetCellIndex) {
 		} else {
             player2hasSwitch = false;
 		}
-        checkers();
+        if (currentPlayer === 'O') {
+            checkers(false);
+        } else {
+            checkers(true);
+        }
     }
 }
 

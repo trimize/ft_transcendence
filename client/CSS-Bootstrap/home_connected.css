@@ -223,3 +223,47 @@
     z-index: 1;
     pointer-events: none; /* Make sure it doesn't interfere with clicks */
 }
+
+#searchContact
+{
+    width: 200px;
+    height: 35px;
+    background-color: rgba(34, 34, 34, 0.651);
+    padding: 6px 0;
+    font-family: "Roboto", sans-serif;
+    font-size: 15px;
+    border-style: none;
+    color: rgb(174, 174, 174);
+    z-index: 2;
+    border-bottom: 2px solid rgb(211, 210, 209);
+    resize: none;
+    white-space: nowrap;
+}
+
+#searchContact:focus
+{
+    outline: none;
+}
+
+#plusButton
+{
+    position: absolute;
+    right: 0;
+    z-index: 2;
+    top: 60px;
+    background-color: rgb(193, 193, 194);
+    width: 49px;
+    height: 35px;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color ease 0.2s, color ease 0.2s;
+}
+
+#plusButton:hover
+{
+    background-color: rgb(72, 72, 72);
+    color: white;
+}
