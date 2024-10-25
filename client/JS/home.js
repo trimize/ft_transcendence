@@ -208,10 +208,8 @@ function renderBaseHomeConnected()
             <div id="friendsListDiv">
                 <div id="friendsTitle"></div>
                 <div id="friendsListBg"></div>
-                <ul id="friendsList">
-                    <li class="friendItem">to</li>
-                    <li class="friendItem">toto</li>
-                </ul>
+                <ul id="friendsList"></ul>
+                <div id="noFriendsMessage" style="display: none; color: white;">No friends yet</div>
             </div>
             <div id="showChatRoom"></div>
             <div id="chatRoom">
@@ -308,7 +306,9 @@ const getProfileInfo = async () => {
     try {
         const profilePic = document.getElementById('profilePicture');
         const usernameElement = document.getElementById('username');
-        
+        const friendsListElement = document.getElementById('friendsList');
+        friendsListElement.innerHTML = '';
+        const noFriendsMessageElement = document.getElementById('noFriendsMessage');
         const profileData = await fetchUserData();
         
         if (profileData.profile_pic) {
@@ -318,6 +318,17 @@ const getProfileInfo = async () => {
         }
         if (profileData.username) {
             usernameElement.textContent = profileData.username;
+        }
+        if (profileData.friends && profileData.friends.length > 0) {
+            profileData.friends.forEach(friend => {
+                const li = document.createElement('li');
+                li.className = 'friendItem';
+                li.textContent = friend;
+                friendsListElement.appendChild(li);
+            });
+            noFriendsMessageElement.style.display = 'none';
+        } else {
+            noFriendsMessageElement.style.display = 'block';
         }
     } catch (error) {
         console.error('Failed to fetch user data:', error);
