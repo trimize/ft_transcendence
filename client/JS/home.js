@@ -183,8 +183,8 @@ export const renderBaseHomePage = () =>
     
 }
 
-addEventListeners();
-        showChat();
+//addEventListeners();
+//        showChat();
 
 function renderBaseHomeConnected()
 {
