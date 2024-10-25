@@ -1,4 +1,3 @@
-import { hideNavButtons } from "./utlis.js";
 import { BACKEND_URL } from "./appconfig.js";
 
 const renderRegisterForm = () => {
@@ -119,6 +118,5 @@ document.getElementById('registerForm').addEventListener('submit', function(even
 export const renderRegister = () => 
 {
 	document.getElementById('content').innerHTML = renderRegisterForm();
-	hideNavButtons();
 	attachEventListeners();
 }

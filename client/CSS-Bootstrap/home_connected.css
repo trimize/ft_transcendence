@@ -1,0 +1,225 @@
+#profileDiv
+{
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    width: 140px;
+    height: 80px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-family: "Roboto", sans-serif;
+    font-size: 25px;
+    color: white;
+    border-radius: 45px;
+    transition: background-color ease 0.4s;
+}
+
+#profileDiv:hover
+{
+    background-color: rgba(119, 117, 117, 0.363);
+    cursor: pointer;
+    text-decoration: none;
+}
+
+#profilePicture
+{
+    background-size: cover;
+    height: 70%;
+    width: 40%;
+    border-radius: 50%;
+    margin-right: 30px;
+}
+
+#friendsListDiv
+{
+    position: absolute;
+    right: -250px;
+    top: 300px;
+    width: 250px;
+    height: calc(100% - 300px);
+    max-height: calc(100% - 300px);
+    transition: right ease 0.3s;
+    /*display: flex;*/
+    text-align: center;
+    /*justify-content: center;
+    align-items: center;*/
+}
+
+#friendsList
+{
+    display: flex;
+    width: 250px;
+    flex-direction: column;
+    padding-left: 0;
+    margin-bottom: 0;
+}
+
+#friendsListBg
+{
+    position: absolute;
+    z-index: 0;
+    right: -250px;
+    width: 250px;
+    height: 100%;
+    top: 0px;
+    background-color: rgba(34, 34, 34, 0.651);
+    filter: blur(3px);
+    transition: right ease 0.3s;
+}
+
+.friendItem
+{
+    z-index: 1;
+    height: 70px;
+    width: 100%;
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    font-family: "Roboto", sans-serif;
+    font-size: 20px;
+    color: aliceblue;
+    /*background-color: rgba(119, 119, 115, 0.521);*/
+    border-bottom: 1px solid rgba(255, 255, 255, 0.527);
+    transition: background-color ease 0.3s;
+}
+
+.friendItem:hover
+{
+    background-color: rgba(130, 132, 134, 0.356);
+    cursor: pointer;
+}
+
+#showFriends
+{
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    top: calc(100% - 300px - 60px);
+    right: 0px;
+    background-color: rgba(34, 34, 34, 0.651);
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+    background-image: url('../Assets/arrow.svg');
+    background-size: contain;
+    transition: right 0.3s ease, transform 0.5s ease;
+    cursor: pointer;
+}
+
+#showFriends.flipped
+{
+    transform: scaleX(-1);
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+
+#friendsTitle
+{
+    z-index: 1;
+    width: 250px;
+    height: 60px;
+    background-image: url('../Assets/contact.svg');
+    background-size: 35px;
+    background-repeat: no-repeat;
+    background-position: center;
+    position: relative;
+    border: 5px solid rgb(211, 210, 209);
+}
+
+#chatRoom
+{
+    z-index: 10;
+    position: absolute;
+    width: calc(100% - 250px);
+    height: calc(100% - 300px);
+    background-color: rgba(34, 34, 34, 0.377);
+    left: 0;
+    bottom: calc(-1 * (100% - 300px));
+    transition: bottom ease 0.3s;
+    /*display: none;*/
+}
+
+#showChatRoom
+{
+    position: absolute;
+    height: 20px;
+    width: 20px;
+    z-index: 11;
+    bottom: -20px;
+    left: calc((100% - 250px) / 2);
+    transition: bottom ease 0.3s;
+    background-image: url('../Assets/arrowUp.svg');
+    background-size: contain;
+    cursor: pointer;
+    transform: scaleY(-1);
+}
+
+#chatInput
+{
+    z-index: 20;
+    position: absolute;
+    bottom: 25px;
+    width: 400px;
+    color: aliceblue;
+    background-color: rgba(182, 185, 187, 0.205);
+    left: calc((100% - 350px) / 2);
+    border-color: aliceblue;
+    border-width: 1px;
+    overflow: hidden;
+    resize: none;
+}
+
+#sendButton
+{
+    height: 54px;
+    width: 54px;
+    background-image: url('../Assets/send.svg');
+    background-size: 40px;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: absolute;
+    left: calc(((100% - 350px) / 2) + 400px);
+    background-color: rgba(121, 121, 121, 0.342);
+    border-top-right-radius: 40%;
+    border-bottom-right-radius: 40%;
+    bottom: 25px;
+    transition: background-color ease 0.2s;
+}
+
+#sendButton:hover
+{
+    cursor: pointer;
+    background-color: rgba(173, 173, 173, 0.342);
+}
+
+#conversation
+{
+    z-index: 1;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 100vw;
+    height: 550px;
+    max-height: 550px;
+    background-color: rgba(134, 134, 134, 0.082);
+}
+
+.blurryTopDiv::before {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 100vw;
+    height: 550px; /* Adjust this height to control the size of the blurry area */
+    background: inherit; /* Inherit the background color from the parent */
+    filter: blur(10px); /* Adjust the blur intensity as needed */
+    z-index: 1;
+    pointer-events: none; /* Make sure it doesn't interfere with clicks */
+}

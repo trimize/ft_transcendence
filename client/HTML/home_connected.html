@@ -5,6 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>SPA Example</title>
         <link rel="stylesheet" href="../CSS-Bootstrap/home.css">
+        <link rel="stylesheet" href="../CSS-Bootstrap/home_connected.css">
         <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,7 +16,7 @@
     <body>
         <div id="content" class="vh-100">
             <div class="half left">
-                <div id="backButtonGameMenu"></div>
+                <span id="backButtonGameMenu"></span>
                 <div id="gameTitle">
                     <span class="text" id="gameTitletext"></span>
                 </div>
@@ -46,7 +47,27 @@
                 </div>
                 <button class="button-85" role="button" id="buttonPlay">Play</button>
             </div>
-            <a id="loginBtn" href="/login">Login</a>
+            <div id="profileDiv">
+                <div id="profilePicture"></div>
+                <text>to</text>
+            </div>
+            <div id="showFriends"></div>
+            <div id="friendsListDiv">
+                <div id="friendsTitle"></div>
+                <div id="friendsListBg"></div>
+                <ul id="friendsList">
+                    <li class="friendItem">to</li>
+                    <li class="friendItem">toto</li>
+                </ul>
+            </div>
+            <div id="showChatRoom"></div>
+            <div id="chatRoom">
+                <div id="conversation">
+                    
+                </div>
+                <textarea type="text" id="chatInput" placeholder="Type away .."></textarea>
+                <div id="sendButton"></div>
+            </div>
             <div id="bg"></div>
             <div class="Cube">
                 <a class="Face pongFace" front>PONG</a>

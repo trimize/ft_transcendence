@@ -21,8 +21,3 @@ export function getCurrentTime()
 	return currentTime;
 }
 
-export const hideNavButtons = () => {
-    document.getElementById('loginBtn').style.display = 'none';
-    document.getElementById('profileBtn').style.display = 'none';
-    document.getElementById('homeBtn').style.display = 'none';
-}

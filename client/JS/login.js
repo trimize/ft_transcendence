@@ -1,4 +1,3 @@
-import { hideNavButtons } from "./utlis.js";
 import { getWebSocket } from "./singletonSocket.js";
 import { BACKEND_URL } from "./appconfig.js";
 
@@ -137,6 +136,5 @@ const attachEventListeners = () => {
 
 export const renderLogin = () => {
     document.getElementById('content').innerHTML = renderLoginForm();
-    hideNavButtons();
     attachEventListeners();
 };
