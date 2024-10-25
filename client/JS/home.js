@@ -183,6 +183,9 @@ export const renderBaseHomePage = () =>
     
 }
 
+addEventListeners();
+        showChat();
+
 function renderBaseHomeConnected()
 {
     return `<div class="half left">

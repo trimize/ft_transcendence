@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Transcendance</title>
+        <link rel="stylesheet" href="../CSS-Bootstrap/profile.css">
+        <link rel="stylesheet" href="../CSS-Bootstrap/home.css">
+        <link rel="stylesheet" href="../CSS-Bootstrap/home_connected.css">
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    </head>
+    <body>
+
+        <div id="content" class="vh-100">
+            <div id="pfpDiv">
+                <div id="pfp"></div>
+            </div>
+            <div id="pfDiv">
+                <div id="pfBackground"></div>
+                <div id="notificationAnonym" class="alert alert-success d-none" role="alert">
+                    Profile anonymized successfully!
+                </div>
+                <div>
+                    <h2 id="username" class="text-pf">George</h2>
+                    <p id="email" class="text-pf text-info">cool</p>
+                    <div id="wins" class="text-pf text-info"></div>
+                    <p id="losses" class="text-pf text-info">Losses: </p>
+                    <p id="friends" class="text-pf text-info">Friends: </p>
+                    <button type="button" id="matchBtn">View Match History</button>
+                    <button type="button" id="editBtn">Edit Profile</button>
+                    <button type="button" id="anonymizeBtn">Anonymize</button>
+                    <button type="button" id="deleteBtn">Delete Account</button>
+                    <button type="button" id="logoutBtn">Log out</button>
+                </div>
+            </div>
+            <div id="bg"></div>
+        </div>
+        <script type="module" src="./js/router.js"></script>
+    </body>
+</html>

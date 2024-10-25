@@ -1,0 +1,69 @@
+#pfpDiv
+{
+    height: 500px;
+    width: 500px;
+    top: 250px;
+    left: 100px;
+    position: absolute;
+}
+
+#pfp
+{
+    height: 500px;
+    width: 500px;
+    background-image: url('../Assets/default_user.jpg');
+    background-size: contain;
+    border-radius: 40%;
+}
+
+#pfDiv
+{
+    z-index: 1;
+    position: absolute;
+    right: 360px;
+    top: calc((100% - (70vh)) / 2);
+    height: 70vh;
+    width: 600px;
+    border: rgba(240, 248, 255, 0.445) solid 2px;
+    display: flex;
+    /*align-items: center;*/
+    justify-content: center;
+    text-align: center;
+}
+
+#pfBackground
+{
+    position: absolute;
+    top: calc((100% - (70vh)) / 2);
+    height: 70vh;
+    width: 600px;
+    z-index: -1;
+    filter: blur(5px);
+    background-color: rgba(168, 158, 158, 0.096);
+}
+
+.text-pf
+{
+    margin-top: 50px;
+    font-family: "Roboto", sans-serif;
+    font-weight: 300;
+    color: white;
+}
+
+#email
+{
+    font-size: 30px;
+}
+
+#username
+{
+    font-size: 50px;
+}
+
+#wins
+{
+    background-image: url('../Assets/victory.svg');
+    background-size: contain;
+    width: 50px;
+    height: 50px;
+}
