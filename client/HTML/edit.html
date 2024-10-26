@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Transcendance</title>
+        <link rel="stylesheet" href="../CSS-Bootstrap/profile.css">
+        <link rel="stylesheet" href="../CSS-Bootstrap/home.css">
+        <link rel="stylesheet" href="../CSS-Bootstrap/home_connected.css">
+        <link rel="stylesheet" href="../CSS-Bootstrap/edit.css">
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    </head>
+    <body>
+
+        <div id="content" class="vh-100">
+            
+            
+            
+            
+            
+            <!--<div id="pfpDiv">
+                <div id="pfp"></div>
+            </div>-->
+            <div id="pfDiv">
+                <div id="pfBackground"></div>
+                <!--<div id="notificationAnonym" class="alert alert-success d-none" role="alert">
+                    Profile anonymized successfully!
+                </div>-->
+                <div>
+                    <div id="editUsername" class="text-editpf">Username</div>
+                    <textarea type="text" class="inputEditProfile" id="usernameEditInput" placeholder="John Doe"></textarea>
+                    <div id="email" class="text-editpf">Email</div>
+                    <!--<div class="profileLogos" id="wins">
+                        <text class="profileNumbers">8</text>
+                    </div>
+                    <div class="profileLogos" id="losses">
+                        <text class="profileNumbers">8</text>
+                    </div>-->
+                    <!--<button type="button" class="profileButtons" id="matchBtn">Match History</button>-->
+                    <div id="matchDivProfile"></div>
+                    <!--<div class="profileLogos" id="friends"></div>-->
+                    <!--<button type="button" class="profileButtons" id="editBtn">Edit</button>-->
+                    <!--<button type="button" class="profileButtons" id="anonymizeBtn">Anonymize</button>-->
+                    <!--<button type="button" class="profileButtons" id="deleteBtn">Delete Account</button>-->
+                    <!--<button type="button" class="profileButtons" id="logoutBtn">Log out</button>-->
+                </div>
+            </div>
+            
+            
+            
+            
+            
+            
+            
+            <!--<div class="card-body">
+                <h2 class="card-title text-center">Edit Profile</h2>
+                <form id="editProfileForm" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" class="form-control" id="username" value="" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" class="form-control" id="email" value="" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="formFile" class="form-label">Profile picture</label>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="formFile" accept="image/*">
+                            <label class="custom-file-label" for="formFile">Choose file</label>
+                        </div>
+                    </div>
+                    <div id="registerStatus" style="display: none;" class="mt-3 text-center">Please enter a valid username and/or email</div>
+                    <button type="submit" class="btn btn-primary btn-block">Save Changes</button>
+                    <button type="button" class="btn btn-secondary btn-block" id="setup2FA">Setup 2-Factor
+                        Authentication</button>
+                </form>
+            </div>-->
+                                    <!--<div class="col-md-6" id="2faSetupContainer" style="display: none;">
+                                            <div class="card">
+                                                <div class="card-body">
+                                                    <h3 class="card-title text-center">Setup 2-Factor Authentication</h3>
+                                                    <div id="2faSetup">
+                                                        <img id="qrCode" src="" alt="QR Code" class="img-fluid mb-3">
+                                                        <div class="form-group">
+                                                            <label for="otpToken">Enter OTP Token</label>
+                                                            <input type="text" class="form-control" id="otpToken">
+                                                        </div>
+                                                        <button type="button" class="btn btn-primary btn-block" id="verify2FA">Verify
+                                                            2FA</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>    
+                                    </div>-->
+            <div id="bg"></div>
+        </div>
+        <script type="module" src="./js/router.js"></script>
+    </body>
+</html>

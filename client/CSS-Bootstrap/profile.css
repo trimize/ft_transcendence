@@ -60,10 +60,116 @@
     font-size: 50px;
 }
 
+.profileLogos
+{
+    position: absolute;
+    background-size: contain;
+    width: 60px;
+    height: 60px;
+    color: aliceblue;
+    /*padding-left: 100px;*/
+}
+
+.profileNumbers
+{
+    position: absolute;
+    font-size: 30px;
+    left: 90px;
+    top: 12px;
+}
+
 #wins
 {
     background-image: url('../Assets/victory.svg');
-    background-size: contain;
-    width: 50px;
-    height: 50px;
+    left: 110px;
+    bottom: 350px;
+}
+
+#losses
+{
+    background-image: url('../Assets/loss.png');
+    left: 390px;
+    bottom: 350px;
+}
+
+#friends
+{
+    background-image: url('../Assets/contact.svg');
+}
+
+.profileButtons
+{
+    outline: none;
+    color: white;
+    background-color: rgba(129, 130, 131, 0.171);
+    border: 1px solid white;
+    font-family: "Roboto", sans-serif;
+    font-size: 17px;
+    transition: background-color ease 0.2s;
+}
+
+.profileButtons:hover
+{
+    background-color: rgba(178, 179, 180, 0.514);
+}
+
+#matchBtn
+{
+    position: absolute;
+    left: calc(100% - 300px - (150px / 2));
+    bottom: 200px;
+    height: 40px;
+    width: 150px;
+}
+
+#editBtn
+{
+    position: absolute;
+    left: 150px;
+    bottom: 50px;
+    width: 80px;
+    height: 40px;
+}
+
+#anonymizeBtn
+{
+    position: absolute;
+    bottom: 150px;
+    left: 390px;
+    height: 40px;
+}
+
+#deleteBtn
+{
+    position: absolute;
+    bottom: 50px;
+    left: 80px;
+    height: 40px;
+    width: 150px;
+    background-color: rgba(170, 86, 86, 0.589);
+}
+
+#deleteBtn:hover
+{
+    background-color: rgba(255, 0, 0, 0.555);
+}
+
+#logoutBtn
+{
+    position: absolute;
+    bottom: 50px;
+    left: 350px;
+    width: 100px;
+    height: 40px;
+}
+
+#matchDivProfile
+{
+    position: absolute;
+    left: 0;
+    top: 230px;
+    width: 100%;
+    height: 300px;
+    background-color: rgba(173, 173, 173, 0.226);
+    z-index: -1;
 }

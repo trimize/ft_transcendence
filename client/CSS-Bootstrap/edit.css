@@ -1,0 +1,38 @@
+.text-editpf
+{
+    margin-top: 50px;
+    font-family: "Roboto", sans-serif;
+    font-weight: 300;
+    position: absolute;
+    font-size: 30px;
+    left: 30px;
+    width: 100px;
+    color: white;
+}
+
+#editUsername
+{
+
+}
+
+.inputEditProfile
+{
+    position: absolute;
+    resize: none;
+    width: 300px;
+    height: 30px;
+    background-color: rgba(194, 190, 190, 0.411);
+    color: aliceblue;
+    border: none;
+}
+
+.inputEditProfile:focus
+{
+
+}
+
+#usernameEditInput
+{
+    left: 30px;
+    top: 130px;
+}
