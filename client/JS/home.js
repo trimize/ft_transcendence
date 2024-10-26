@@ -1,6 +1,6 @@
-import { securelyGetAccessToken } from "./fetchFunctions.js";
+import { fetchUserData } from "./fetchFunctions.js";
+import { BACKEND_URL, DEFAULT_PROFILE_PIC } from "./appconfig.js";
 
-// };
 const addEventListeners = () => {
     let singleClicked = false;
     let multiClicked = false;
@@ -8,6 +8,10 @@ const addEventListeners = () => {
     const ballSlider = document.getElementById('ballSpeed');
     const ballSpeedComment = document.getElementById('inputRangeText');
     const ballSpeedDiv = document.getElementById('inputRangeDiv');
+    const AITitle = document.getElementById('ballSpeedText');
+    const ballAccDiv = document.getElementById('ballAccDiv');
+    AITitle.style.display = "none";
+    ballSlider.style.display = "none";
     // Iterate over the NodeList and add an event listener to each element
     faces.forEach((face) =>
     {
@@ -32,6 +36,8 @@ const addEventListeners = () => {
                     buttonPlay.classList.remove('hide-after');
                     buttonPlay.classList.remove('hide-hover');
                     buttonPlay.style.color = "rgb(0, 0, 0)";
+                    ballSlider.style.display = "block";
+                    AITitle.style.display = "block";
                 }
                 else if (singleClicked == true)
                 {
@@ -52,6 +58,12 @@ const addEventListeners = () => {
                     buttonPlay.classList.remove('hide-after');
                     buttonPlay.classList.remove('hide-hover');
                     buttonPlay.style.color = "rgb(0, 0, 0)";
+                    if (AITitle.textContent == "AI Difficulty")
+                    {
+                        AITitle.style.display = "none";
+                        ballSlider.style.display = "none";
+                        ballSpeedComment.textContent = " ";
+                    }
                 }
                 else if (multiClicked == true)
                 {
@@ -70,6 +82,8 @@ const addEventListeners = () => {
             }, 10);
             if (face.classList.contains('pongFace'))
             {
+                ballAccDiv.style.display = "block";
+                ballSpeedComment.textContent = " ";
                 const gameTitle = document.getElementById('gameTitletext');
                 gameTitle.textContent = "PONG";
                 const gamePicture = document.getElementById('gamePicture');
@@ -77,6 +91,9 @@ const addEventListeners = () => {
                 const gameText = document.getElementById('gameText');
                 gameText.textContent = 'Pong game is cool';
                 ballSpeedDiv.style.display = "flex";
+                AITitle.textContent = "Ball speed";
+                ballSlider.style.display = "block";
+                AITitle.style.display = "block";
                 ballSlider.addEventListener('input', function()
                 {
                     if (ballSlider.value < 10)
@@ -93,6 +110,8 @@ const addEventListeners = () => {
             }
             else if (face.classList.contains('tttFace')) 
             {
+                ballAccDiv.style.display = "none";
+                ballSpeedComment.textContent = " ";
                 const gameTitle = document.getElementById('gameTitletext');
                 gameTitle.textContent = "Tic-Tac-Toe";
                 gameTitle.style.background = 'none';
@@ -101,6 +120,25 @@ const addEventListeners = () => {
                 gamePicture.style.backgroundImage = 'url(../Assets/tic-tac-toe.gif)';
                 const gameText = document.getElementById('gameText');
                 gameText.textContent = 'Tic-tac-toe game is cool';
+                AITitle.textContent = "AI Difficulty";
+                if (multiClicked == true)
+                {
+                    ballSlider.style.display = "none";
+                    AITitle.style.display = "none";
+                }
+                else
+                {
+                    ballSlider.style.display = "block";
+                    AITitle.style.display = "block";
+                }
+            
+                ballSlider.addEventListener('input', function()
+                {
+                    if (ballSlider.value < 19)
+                        ballSpeedComment.textContent = "Easy AI";
+                    else if (ballSlider.value >= 19)
+                        ballSpeedComment.textContent = "Hard AI!";
+                });
             }
             backButtonGameMenu.addEventListener('click', function()
             {
@@ -166,24 +204,7 @@ function renderBaseHomeBlock()
             </div>`;
 }
 
-export const renderBaseHomePage = () =>
-{
-    let token = localStorage.getItem('access');
-    if (token)
-    {
-        document.getElementById('content').innerHTML = renderBaseHomeConnected();
-        addEventListeners();
-        showChat();
-    }
-    else
-    {
-        document.getElementById('content').innerHTML = renderBaseHomeBlock();
-        addEventListeners();
-    }
-    
-}
-
-//addEventListeners();
+// addEventListeners();
 //        showChat();
 
 function renderBaseHomeConnected()
@@ -222,16 +243,14 @@ function renderBaseHomeConnected()
             </div>
             <a id="profileDiv" href="/profile">
                 <div id="profilePicture"></div>
-                <text>to</text>
+                <span id="username"></span>
             </a>
             <div id="showFriends"></div>
             <div id="friendsListDiv">
                 <div id="friendsTitle"></div>
                 <div id="friendsListBg"></div>
-                <ul id="friendsList">
-                    <li class="friendItem">to</li>
-                    <li class="friendItem">toto</li>
-                </ul>
+                <ul id="friendsList"></ul>
+                <div id="noFriendsMessage" style="display: none; color: white;">No friends yet</div>
             </div>
             <div id="showChatRoom"></div>
             <div id="chatRoom">
@@ -323,3 +342,55 @@ function showChat()
         }
     });
 }
+
+const getProfileInfo = async () => {
+    try {
+        const profilePic = document.getElementById('profilePicture');
+        const usernameElement = document.getElementById('username');
+        const friendsListElement = document.getElementById('friendsList');
+        friendsListElement.innerHTML = '';
+        const noFriendsMessageElement = document.getElementById('noFriendsMessage');
+        const profileData = await fetchUserData();
+        
+        if (profileData.profile_pic) {
+            profilePic.style.backgroundImage = `url(${BACKEND_URL}${profileData.profile_pic})`;
+        } else {
+            profilePic.style.backgroundImage = `url(${DEFAULT_PROFILE_PIC})`;
+        }
+        if (profileData.username) {
+            usernameElement.textContent = profileData.username;
+        }
+        if (profileData.friends && profileData.friends.length > 0) {
+            profileData.friends.forEach(friend => {
+                const li = document.createElement('li');
+                li.className = 'friendItem';
+                li.textContent = friend;
+                friendsListElement.appendChild(li);
+            });
+            noFriendsMessageElement.style.display = 'none';
+        } else {
+            noFriendsMessageElement.style.display = 'block';
+        }
+    } catch (error) {
+        console.error('Failed to fetch user data:', error);
+    }
+
+}
+
+export const renderBaseHomePage = () =>
+    {
+        let token = localStorage.getItem('access');
+        if (token)
+        {
+            document.getElementById('content').innerHTML = renderBaseHomeConnected();
+            addEventListeners();
+            getProfileInfo();
+            showChat();
+        }
+        else
+        {
+            document.getElementById('content').innerHTML = renderBaseHomeBlock();
+            addEventListeners();
+        }
+        
+    }

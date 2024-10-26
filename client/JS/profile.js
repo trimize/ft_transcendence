@@ -65,6 +65,7 @@ const renderEditProfileForm = () => {
                                         <input type="file" class="custom-file-input" id="formFile" accept="image/*">
                                         <label class="custom-file-label" for="formFile">Choose file</label>
                                     </div>
+                                    <div id="fileError" class="text-danger mt-2" style="display: none;">Please select a JPEG or PNG image.</div>
                                 </div>
                                 <div id="registerStatus" style="display: none;" class="mt-3 text-center">Please enter a valid username and/or email</div>
                                 <button type="submit" class="btn btn-primary btn-block">Save Changes</button>
@@ -208,14 +209,24 @@ const attachEditFormEventListeners = () => {
         const username = document.getElementById('username').value;
         const email = document.getElementById('email').value;
         const profilePicture = document.getElementById("formFile").files[0];
-        
         const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         if (username.length < 3 || !emailPattern.test(email)) {
             const errorContainer = document.getElementById("registerStatus");
             errorContainer.style.display = "block";
             errorContainer.style.color= "red";
             return;
-    }
+        }
+        if (profilePicture) {
+            const fileType = profilePicture.type;
+            const fileError = document.getElementById('fileError');
+
+            if (fileType !== 'image/jpeg' && fileType !== 'image/png') {
+                fileError.style.display = 'block';
+                return;
+            } else {
+                fileError.style.display = 'none';
+            }
+        }
         try {
             await updateUserData(username, email, profilePicture);
             window.location.href = '/profile';
