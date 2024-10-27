@@ -3,6 +3,7 @@ import { renderLogin } from "./login.js"
 import { renderRegister } from "./register.js"
 import { renderProfile } from "./profile.js"
 import { getWebSocket } from "./singletonSocket.js";
+import { renderTournament } from "./tournament.js";
 
 const router = () => {
     const path = window.location.pathname.replace('/', '');
@@ -20,6 +21,9 @@ const router = () => {
         case '/':
             renderBaseHomePage();
             break;
+        case 'tournament':
+            renderTournament();
+            break;
         default:
             renderBaseHomePage();
             break;
@@ -29,17 +33,14 @@ const router = () => {
 // Function to handle button clicks and update history
 const navigate = (page) => {
     history.pushState(null, '', `/${page}`); // Update the URL without a hash
-    console.log('Going here');
     router();                                // Call the router to render the page
 };
 
 // Event listeners for button clicks
-document.getElementById('homeBtn').addEventListener('click', () => navigate(''));
-document.getElementById('loginBtn').addEventListener('click', () => navigate('login'));
-document.getElementById('profileBtn').addEventListener('click', () => navigate('profile'));
+// document.getElementById('homeBtn').addEventListener('click', () => navigate(''));
+// document.getElementById('loginBtn').addEventListener('click', () => navigate('login'));
+// document.getElementById('profileBtn').addEventListener('click', () => navigate('profile'));
 
-export const socket = getWebSocket();
-console.log(socket);
 // Event listener for popstate to handle back/forward navigation
 window.addEventListener('popstate', router);
 
@@ -52,9 +53,3 @@ window.addEventListener('load', () => {
         router();
     }
 });
-
-// document.addEventListener("DOMContentLoaded", function()
-// {
-//     console.log("yes");
-//     navigate('');
-// });
