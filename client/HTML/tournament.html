@@ -1,98 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>Tournament Setup</title>
-		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-		<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-		<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
-		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-		<script type="module" src="/js/tournament.js"></script>
-	</head>
-	<body>
-		<div class="container mt-5">
-			<h2 class="text-center">Tournament Setup</h2>
-			<div class="row mb-4">
-				<div class="col-md-3">
-					<label>You</label>
-					<div class="input-group-append">
-						<span id="player1" class="align-middle"></span>
-					</div>
-				</div>
-				<div class="col-md-3">
-					<label for="player2">Player 2</label>
-					<div class="input-group">
-						<input type="text" id="player2" class="form-control" placeholder="Enter username">
-						<div class="input-group-append">
-							<span id="player2Spand" class="align-middle d-none"></span>
-							<button class="btn btn-primary" type="button" id="button2">+</button>
-						</div>
-					</div>
-				</div>
-				<div class="col-md-3">
-					<label for="player3">Player 3</label>
-					<div class="input-group">
-						<input type="text" id="player3" class="form-control" placeholder="Enter username">
-						<div class="input-group-append">
-							<span id="player3Spand" class="align-middle d-none"></span>
-							<button class="btn btn-primary" type="button" id="button3">+</button>
-						</div>
-					</div>
-				</div>
-				<div class="col-md-3">
-					<label for="player4">Player 4</label>
-					<div class="input-group">
-						<input type="text" id="player4" class="form-control" placeholder="Enter username">
-						<div class="input-group-append">
-							<span id="player4Spand" class="align-middle d-none"></span>
-							<button class="btn btn-primary" type="button" id="button4">+</button>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-md-12">
-					<h3 class="text-center">Tournament Matches</h3>
-					<table class="table table-bordered">
-						<thead>
-							<tr>
-								<th>Match</th>
-								<th>Player 1</th>
-								<th>Player 2</th>
-								<th>Winner</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td>Match 1</td>
-								<td id="match-player1">Player 1</td>
-								<td id="match-player2">Player 2</td>
-								<td id="match1-winner">-</td>
-							</tr>
-							<tr>
-								<td>Match 2</td>
-								<td id="match-player3">Player 3</td>
-								<td id="match-player4">Player 4</td>
-								<td id="match2-winner">-</td>
-							</tr>
-							<tr>
-								<td>Final Match</td>
-								<td id="final-player1">Winner Match 1</td>
-								<td id="final-player2">Winner Match 2</td>
-								<td id="final-winner">-</td>
-							</tr>
-							<tr>
-								<td>Third Place Match</td>
-								<td id="third-place-player1">Loser Match 1</td>
-								<td id="third-place-player2">Loser Match 2</td>
-								<td id="third-place-winner">-</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-				<button class="btn btn-primary d-none" type="button" id="startTournamentButton">Start Tournament</button>
-			</div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transcendance</title>
+    <link rel="stylesheet" href="../CSS-Bootstrap/home.css">
+    <link rel="stylesheet" href="../CSS-Bootstrap/home_connected.css">
+	<link rel="stylesheet" href="../CSS-Bootstrap/tournament.css">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+    <div id="content" class="vh-100">
+        <div id="friendsListDivTournament">
+			<div id="friendsTitle"></div>
+			<ul id="friendsList">
+				<li class="friendItemTournament">to
+					<div class="friendItemInvite">Invite</div>
+				</li>
+			</ul>
 		</div>
-	</body>
+		<div id="tournamentTitle">TOURNAMENT</div>
+		<div class="matchup" id="match1">
+			<button id="playButtonMatch1">Play</button>
+			<div class="player-name" id="player1">Player 1</div>
+			<div class="player-name" id="player2">Player 2</div>
+		</div>
+		<div class="matchup" id="match2">
+			<button id="playButtonMatch2">Play</button>
+			<div class="player-name" id="player3">Player 3</div>
+			<div class="player-name" id="player4">Player 4</div>
+		</div>
+
+		<div id="firstRoundTree">
+			<div class="playerBranch" id="player1Branch"></div>
+			<div class="playerBranch" id="player2Branch"></div>
+			<div class="inBetweenBranch" id="inBetweenBranch1"></div>
+			<div class="playerBranch" id="player3Branch"></div>
+			<div class="playerBranch" id="player4Branch"></div>
+			<div class="inBetweenBranch" id="inBetweenBranch2"></div>
+			<div class="winnerText" id="winnerText1">Winner</div>
+			<div class="winnerText" id="winnerText2">Winner</div>
+			<div class="finalBranch" id="finalBranch1"></div>
+			<div class="finalBranch" id="finalBranch2"></div>
+			<div id="finalInBetween"></div>
+			<div id="championDiv"></div>
+			<div id="Champion">Champion</div>
+		</div>
+		<div id="bg"></div>
+    </div>
+    <script type="module" src="./js/router.js"></script>
+</body>
 </html>
