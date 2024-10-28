@@ -36,59 +36,40 @@ const renderProfilePage = (userData) => {
 
 const renderEditProfileForm = () => {
     return `
-    <div class="container-fluid">
-    <div id="backButtonGameMenu"></div>
-        <div class="container mt-5" id="profileArea">
-            <div class="row justify-content-center">
-                <div class="col-md-8">
-                    <div class="card" style="border: none;">
-                        <div class="card-body">
-                            <h2 class="card-title text-center">Edit Profile</h2>
-                            <form id="editProfileForm" enctype="multipart/form-data">
-                                <div class="form-group">
-                                    <label for="username">Username</label>
-                                    <input type="text" class="form-control" id="username" value="" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="email">Email</label>
-                                    <input type="email" class="form-control" id="email" value="" required>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="formFile" class="form-label">Profile picture</label>
-                                    <div class="custom-file">
-                                        <input type="file" class="custom-file-input" id="formFile" accept="image/*">
-                                        <label class="custom-file-label" for="formFile">Choose file</label>
-                                    </div>
-                                    <div id="fileError" class="text-danger mt-2" style="display: none;">Please select a JPEG or PNG image.</div>
-                                </div>
-                                <div id="registerStatus" style="display: none;" class="mt-3 text-center">Please enter a valid username and/or email</div>
-                                <button type="submit" class="btn btn-primary btn-block">Save Changes</button>
-                                <button type="button" class="btn btn-secondary btn-block" id="setup2FA">Setup 2-Factor
-                                    Authentication</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            <div class="col-md-6" id="2faSetupContainer" style="display: none;">
-                    <div class="card">
-                        <div class="card-body">
-                            <h3 class="card-title text-center">Setup 2-Factor Authentication</h3>
-                            <div id="2faSetup">
-                                <img id="qrCode" src="" alt="QR Code" class="img-fluid mb-3">
-                                <div class="form-group">
-                                    <label for="otpToken">Enter OTP Token</label>
-                                    <input type="text" class="form-control" id="otpToken">
-                                </div>
-                                <button type="button" class="btn btn-primary btn-block" id="verify2FA">Verify
-                                    2FA</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>    
+    <a id="backButtonEdit" href="/profile"></a>
+            <div id="pfpDiv">
+                <div id="pfp"></div>
             </div>
-        </div>
-    </div>`;
+            <div id="pfDiv">
+                <div id="pfBackground"></div>
+                <form id="editProfileForm" enctype="multipart/form-data" class="needs-validation" novalidate>
+                <div id="editUsername" class="text-editpf">Username</div>
+                <textarea type="text" class="inputEditProfile" id="usernameEditInput" placeholder="John Doe"></textarea>
+                <div id="editEmail" class="text-editpf">Email</div>
+                <textarea type="text" class="inputEditProfile" id="emailEditInput" placeholder="JohnDoe@gmail.com"></textarea>
+                <div id="editProfilePicture" class="text-editpf">Profile picture</div>
+                <div class="custom-file" id="inputEditProfilePicture">
+                    <input type="file" class="custom-file-input opacity-0 cursor-pointer zindex-2" id="formFile" accept="image/*">
+                    <label class="custom-file-label" for="formFile" id="uploadLabel"></label>
+                </div>
+              
+                <text id="uploadErrorMessage">File too small</text>
+                <button type="button" id="anonymizeBtn">Anonymize</button>
+                <button type="button" id="deleteBtn">Delete Account</button>
+                <button type="submit" id="saveButton">Save Changes</button>
+                <button type="button" id="setup2FA">Setup 2-Factor Authentication</button>
+              </form>
+                </div>
+            <text id="editProfileErrorMessage">Username too small</text>
+            <div id="twofaSetupContainer">
+                <h3 class="text-center" id="twoFaTitle">Setup 2-Factor Authentication</h3>
+                <img id="qrCode" src="" alt="QR Code" class="img-fluid mb-3">
+                <div class="form-group" id="verify2fA">
+                    <input type="text" class="inputEditProfile" id="otpToken">
+                    <button type="button" id="verify2FA">Verify 2FA</button>
+                </div>
+            </div>
+            <div id="bg"></div>`;
 }
 
 const renderMatchHistory = () => {
@@ -128,8 +109,6 @@ const attachEventListeners = () => {
     const profilePicture = document.getElementById('pfp');
     const logoutButton = document.getElementById('logoutBtn');
     const editButton = document.getElementById('editBtn');
-    const anonymiseButton = document.getElementById('anonymizeBtn');
-    const deleteButton = document.getElementById('deleteBtn');
     const matchButton = document.getElementById('matchBtn');
     fetchUserData().then(profileData => {
         if (profileData.profile_pic !== null)
@@ -142,8 +121,7 @@ const attachEventListeners = () => {
         document.getElementById('losses').textContent = profileData.losses;
     })
     .catch(error => {
-        console.error('Failed to fetch user data:', error);
-        // window.location.href = '/login';
+        window.location.href = '/login';
     });
 
     // document.getElementById('backButtonGameMenu').addEventListener('click', function() {
@@ -151,37 +129,14 @@ const attachEventListeners = () => {
     // });
 
     editButton.addEventListener('click', function() {
-        // Replace profile info with the edit form
         document.getElementById('content').innerHTML = renderEditProfileForm();
         attachEditFormEventListeners();
     });
 
     logoutButton.addEventListener('click', function() {
         localStorage.clear();
-        window.location.href = '/home';
+        window.location.href = '/';
     });
-
-    // deleteButton.addEventListener('click', async function () {
-    //     try {
-    //         await deleteUser();
-    //         window.location.href = '/home'; 
-    //     } catch (error) {
-    //         console.error('Error deleting user:', error);
-    //     }
-    // });
-    // const notificationAnonym = document.getElementById('notificationAnonym');
-    // anonymiseButton.addEventListener('click', async function () {
-    //     try {
-    //         await anonymizeUser();
-    //         notificationAnonym.classList.remove('d-none');
-    //         setTimeout(() => {
-    //             notificationAnonym.classList.add('d-none');
-    //         }, 3000);
-    //     } catch (error) {
-    //         console.error('Error anonymising user:', error);
-    //     }
-        
-    // });
 
     matchButton.addEventListener('click', async function() {
         document.getElementById('content').innerHTML = renderMatchHistory();
@@ -197,13 +152,16 @@ const attachEventListeners = () => {
 }
 
 const attachMatchHistoryEventListeners = () => {
-    document.getElementById('backButtonGameMenu').addEventListener('click', function() {
+    document.getElementById('backButtonEdit').addEventListener('click', function() {
         document.getElementById('content').innerHTML = renderProfilePage();
         attachEventListeners(); 
     });
 }
 
 const attachEditFormEventListeners = () => {
+    const anonymiseButton = document.getElementById('anonymizeBtn');
+    const deleteButton = document.getElementById('deleteBtn');
+    const notificationAnonym = document.getElementById('notificationAnonym');
     document.getElementById('editProfileForm').addEventListener('submit', async function(event) {
         event.preventDefault();
 
@@ -214,7 +172,6 @@ const attachEditFormEventListeners = () => {
         if (username.length < 3 || !emailPattern.test(email)) {
             const errorContainer = document.getElementById("registerStatus");
             errorContainer.style.display = "block";
-            errorContainer.style.color= "red";
             return;
         }
         if (profilePicture) {
@@ -238,7 +195,28 @@ const attachEditFormEventListeners = () => {
         }      
     });
 
-    document.getElementById('backButtonGameMenu').addEventListener('click', function() {
+    deleteButton.addEventListener('click', async function () {
+        try {
+            await deleteUser();
+            window.location.href = '/home'; 
+        } catch (error) {
+            console.error('Error deleting user:', error);
+        }
+    });
+
+    anonymiseButton.addEventListener('click', async function () {
+        try {
+            await anonymizeUser();
+            notificationAnonym.classList.remove('d-none');
+            setTimeout(() => {
+                notificationAnonym.classList.add('d-none');
+            }, 3000);
+        } catch (error) {
+            console.error('Error anonymising user:', error);
+        }
+    });
+
+    document.getElementById('backButtonEdit').addEventListener('click', function() {
         document.getElementById('content').innerHTML = renderProfilePage();
         attachEventListeners(); 
     });
