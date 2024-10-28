@@ -616,7 +616,7 @@ input:checked + .slider:before
     position: relative;
 }
 
-.player {
+.player-name {
     background-color: #007bff;
     color: white;
     padding: 10px 20px;

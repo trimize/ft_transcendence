@@ -197,51 +197,63 @@ import { getSocket } from './socketHandler.js';
 // });
 
 const addEventListeners = async () => {
-	const socket = getSocket();
-	try {
-		const usersListElement = document.getElementById('usersList');
-		const noFriendsMessageElement = document.getElementById('noFriendsMessage');
-		const profileData = await fetchUsers();
+    const socket = getSocket();
+    try {
+        const usersListElement = document.getElementById('usersList');
+        const noFriendsMessageElement = document.getElementById('noFriendsMessage');
+        const profileData = await fetchUsers();
 
-		if (profileData && profileData.length > 0) {
+        if (profileData && profileData.length > 0) {
             profileData.forEach(friend => {
                 const listItem = document.createElement('li');
                 listItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
                 const friendName = document.createElement('span');
-            	friendName.textContent = friend.username;
-				const inviteButton = document.createElement('button');
-            inviteButton.classList.add('btn', 'btn-primary');
-            inviteButton.textContent = 'Invite';
-            listItem.appendChild(friendName);
-            listItem.appendChild(inviteButton);
-            usersListElement.appendChild(listItem);
-                
+                friendName.textContent = friend.username;
+                const inviteButton = document.createElement('button');
+                inviteButton.classList.add('btn', 'btn-primary');
+                inviteButton.textContent = 'Invite';
+                listItem.appendChild(friendName);
+                listItem.appendChild(inviteButton);
+                usersListElement.appendChild(listItem);
             });
             noFriendsMessageElement.style.display = 'none';
         } else {
             noFriendsMessageElement.style.display = 'block';
         }
-	} catch (error) {
+    } catch (error) {
         console.error('Failed to fetch user data:', error);
     }
-	const inviteButtons = document.querySelectorAll('.btn-primary');
-	inviteButtons.forEach(inviteButton => {
-		inviteButton.addEventListener('click', async (event) => {
-			const friendName = event.target.parentElement.querySelector('span').textContent;
-			console.log(`Inviting ${friendName}`);
-			// Send invite to friend
-			socket.onopen = () => {
-				sendMessage(socket, {
-					type: "send_invite",
-					tournamentId: tournamentData.id,
-					inviteeId: invitedUser.id,
-					hostId: userData.id,
-					game: "pong",
-					tournament: true,
-					player_number: playerNumber
-			})};
-		});
-	});
+
+    const updatePlayerNames = (playerName) => {
+        const playerElements = document.querySelectorAll('.player-name');
+        for (let playerElement of playerElements) {
+            if (playerElement.textContent.startsWith('Player')) {
+                playerElement.textContent = playerName;
+                break;
+            }
+        }
+    };
+
+    const inviteButtons = document.querySelectorAll('.btn-primary');
+    inviteButtons.forEach(inviteButton => {
+        inviteButton.addEventListener('click', async (event) => {
+            const friendName = event.target.parentElement.querySelector('span').textContent;
+            console.log(`Inviting ${friendName}`);
+            updatePlayerNames(friendName);
+            // Send invite to friend
+            socket.onopen = () => {
+                sendMessage(socket, {
+                    type: "send_invite",
+                    tournamentId: tournamentData.id,
+                    inviteeId: invitedUser.id,
+                    hostId: userData.id,
+                    game: "pong",
+                    tournament: true,
+                    player_number: playerNumber
+                });
+            };
+        });
+    });
 }
 
 const renderTournamentPage = () => {
@@ -258,14 +270,14 @@ const renderTournamentPage = () => {
     <!-- Round 1 -->
     <div class="round">
         <div class="matchup">
-            <div class="player" id="player1">Player 1</div>
+            <div class="player-name" id="player1">Player 1</div>
             <button class="play-button">Play</button>
-            <div class="player" id="player2">Player 2</div>
+            <div class="player-name" id="player2">Player 2</div>
         </div>
         <div class="matchup">
-            <div class="player" id="player3">Player 3</div>
+            <div class="player-name" id="player3">Player 3</div>
             <button class="play-button">Play</button>
-            <div class="player" id="player4">Player 4</div>
+            <div class="player-name" id="player4">Player 4</div>
         </div>
     </div>
 
