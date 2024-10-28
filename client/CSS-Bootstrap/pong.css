@@ -1,0 +1,102 @@
+.content-area
+{
+	flex-grow: 1;
+	min-height: 100vh;
+	background-color: #000000;
+	border: 20px solid #ced4da;
+	position: relative;
+}
+
+.rectangle
+{
+	width: 20px;
+	background-color: #ff0000;
+	height: 90px;
+	position: absolute;
+	top: 10px;
+}
+
+#score
+{
+	color: rgb(204, 209, 207);
+	font-size: 24px;
+	font-family: 'Press Start 2P', cursive;
+	text-align: center;
+
+}
+
+.moving-square
+{
+	width: 30px;
+	height: 30px;
+	background-color: rgb(252, 248, 15);
+	position: absolute;
+	display: none; 
+	border-radius: 50%;
+}
+
+#page.blur
+{
+	filter: blur(5px);
+	transition: filter 0.8s ease-in-out;
+}
+
+.modal-content
+{
+	background-color: #fff;
+	border-radius: 10px;
+	text-align: center;
+	padding: 2rem;
+}
+
+.modal-content h2
+{
+	font-family: 'Press Start 2P', sans-serif;
+	margin-bottom: 2rem;
+}
+
+.modal-content .btn
+{
+	margin: 10px;
+	font-family: 'Press Start 2P', sans-serif;
+}
+
+.bottom-left-container,
+.bottom-right-container {
+    position: absolute;
+    bottom: 10px; /* Adjust as needed */
+    display: flex; /* Use flexbox to align items next to each other */
+}
+
+.bottom-left-container {
+    left: 10px; /* Position for the bottom-left container */
+}
+
+.bottom-right-container {
+    right: 10px; /* Position for the bottom-right container */
+}
+
+.bottom-left,
+.bottom-right {
+    background-color: rgba(128, 128, 128, 0.3); /* Example styling */
+    color: rgba(255, 255, 255, 0.3); /* Example styling */
+    padding: 10px; /* Example styling */
+    margin-right: 10px; /* Space between the items */
+}
+
+.bottom-left:last-child,
+.bottom-right:last-child {
+    margin-right: 0; /* Remove margin for the last item in each container */
+}
+
+@keyframes gradient-animation {
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
+}
