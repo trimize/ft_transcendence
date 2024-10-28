@@ -57,7 +57,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     def validate_email(self, value):
         if not re.match(r"[^@]+@[^@]+\.[^@]+", value):
-            raise serializers.ValidationError("Invalid email format. Please enter a valid email address")
+            raise serializers.ValidationError("Invalid email format")
         return value
     
 class MatchSerializer(serializers.ModelSerializer):

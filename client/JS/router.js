@@ -38,8 +38,8 @@ document.getElementById('homeBtn').addEventListener('click', () => navigate(''))
 document.getElementById('loginBtn').addEventListener('click', () => navigate('login'));
 document.getElementById('profileBtn').addEventListener('click', () => navigate('profile'));
 
-export const socket = getWebSocket();
-console.log(socket);
+// export const socket = getWebSocket();
+// console.log(socket);
 // Event listener for popstate to handle back/forward navigation
 window.addEventListener('popstate', router);
 
