@@ -1,7 +1,8 @@
 import { getWebSocket, sendMessage } from './singletonSocket.js';
-import { fetchUserData, getUser, createTournament , getTournaments, fetchUserById, updateTournament } from './fetchFunctions.js';
+import { fetchUserData, getUser, createTournament , getTournaments, fetchUserById, updateTournament, fetchUsers } from './fetchFunctions.js';
 import { getCurrentTime } from './utlis.js'
 import { getSocket } from './socketHandler.js';
+
 
 // let userData;
 // let tournamentData;
@@ -198,22 +199,22 @@ import { getSocket } from './socketHandler.js';
 const addEventListeners = async () => {
 	const socket = getSocket();
 	try {
-		const friendsListElement = document.getElementById('friendsList');
+		const usersListElement = document.getElementById('usersList');
 		const noFriendsMessageElement = document.getElementById('noFriendsMessage');
-		const profileData = await fetchUserData();
+		const profileData = await fetchUsers();
 
-		if (profileData.friends && profileData.friends.length > 0) {
-            profileData.friends.forEach(friend => {
+		if (profileData && profileData.length > 0) {
+            profileData.forEach(friend => {
                 const listItem = document.createElement('li');
                 listItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
                 const friendName = document.createElement('span');
-            	friendName.textContent = friend;
+            	friendName.textContent = friend.username;
 				const inviteButton = document.createElement('button');
             inviteButton.classList.add('btn', 'btn-primary');
             inviteButton.textContent = 'Invite';
             listItem.appendChild(friendName);
             listItem.appendChild(inviteButton);
-            friendsListElement.appendChild(listItem);
+            usersListElement.appendChild(listItem);
                 
             });
             noFriendsMessageElement.style.display = 'none';
@@ -245,53 +246,54 @@ const addEventListeners = async () => {
 
 const renderTournamentPage = () => {
 	return `
-	<div class="container mt-5">
-    	<h2 class="text-center mb-4">Friends List</h2>
-    		<ul id="friendsList" class="list-group">
-       			 <!-- Friends will be dynamically inserted here -->
-    		</ul>
-		<div id="noFriendsMessage" style="display: none; color: black;">No friends yet</div>
-	</div>
-                
-	<h1>4 Player Tournament Bracket</h1>
-    
-    <div class="bracket">
-        <!-- Round 1 -->
-        <div class="round">
-            <div class="matchup">
-                <div class="player">Player 1</div>
-                <div class="player">Player 2</div>
-            </div>
-            <div class="matchup">
-                <div class="player">Player 3</div>
-                <div class="player">Player 4</div>
-            </div>
+	<div>
+    <h2>All players</h2>
+    <ul id="usersList" class="list-group">
+        <!-- Users will be dynamically inserted here -->
+    </ul>
+    <div id="noFriendsMessage" style="display: none; color: black;">No players yet</div>
+</div>
+<div class="bracket">
+    <h1>4 Player Tournament Bracket</h1>
+    <!-- Round 1 -->
+    <div class="round">
+        <div class="matchup">
+            <div class="player" id="player1">Player 1</div>
+            <button class="play-button">Play</button>
+            <div class="player" id="player2">Player 2</div>
         </div>
+        <div class="matchup">
+            <div class="player" id="player3">Player 3</div>
+            <button class="play-button">Play</button>
+            <div class="player" id="player4">Player 4</div>
+        </div>
+    </div>
 
-        <!-- Connectors for round 1 -->
-        <div class="round">
-            <div class="connector"></div>
-            <div class="connector"></div>
-        </div>
+    <!-- Connectors for round 1 -->
+    <div class="round">
+        <div class="connector"></div>
+        <div class="connector"></div>
+    </div>
 
-        <!-- Finals -->
-        <div class="round">
-            <div class="matchup">
-                <div class="player">Winner 1</div>
-                <div class="player">Winner 2</div>
-            </div>
+    <!-- Finals -->
+    <div class="round">
+        <div class="matchup">
+            <div class="player">Winner 1</div>
+            <button class="play-button">Play</button>
+            <div class="player">Winner 2</div>
         </div>
+    </div>
 
-        <!-- Connector for final -->
-        <div class="round">
-            <div class="connector"></div>
-        </div>
+    <!-- Connector for final -->
+    <div class="round">
+        <div class="connector"></div>
+    </div>
 
-        <!-- Champion -->
-        <div class="round">
-            <div class="player winner">Champion</div>
-        </div>
-    </div>`
+    <!-- Champion -->
+    <div class="round">
+        <div class="player winner">Champion</div>
+    </div>
+</div>`
 
 }
 

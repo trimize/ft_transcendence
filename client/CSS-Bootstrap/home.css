@@ -592,3 +592,72 @@ input:checked + .slider:before
 {
     cursor: auto;
 }
+
+/* temp styling for tournaments */
+
+.bracket {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px;
+}
+
+.round {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+    position: relative;
+}
+
+.matchup {
+    display: flex;
+    flex-direction: column;
+    margin: 0 20px;
+    position: relative;
+}
+
+.player {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-align: center;
+    width: 150px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.connector {
+    width: 2px;
+    height: 50px;
+    background-color: #007bff;
+    position: absolute;
+    top: -50px; /* Adjust as needed */
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.winner {
+    background-color: #28a745;
+}
+
+@media (max-width: 600px) {
+    .player {
+        width: 100px;
+        padding: 8px;
+    }
+}
+
+.play-button {
+    margin: 10px 0; /* Adds space around the button */
+    padding: 10px 15px;
+    background-color: #ffc107; /* Button color */
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.play-button:hover {
+    background-color: #e0a800; /* Darker on hover */
+}
