@@ -1,0 +1,92 @@
+#registerTitle
+{
+    position: absolute;
+    top: 190px;
+    width: 150px;
+    color: aliceblue;
+    left: calc(100% - (150px / 2) - 50vw);
+}
+
+#registerUsername
+{
+    position: absolute;
+    left: calc(100% - 190px - 50vw);
+    top: 310px;
+}
+
+#registerEmail
+{
+    position: absolute;
+    left: calc(100% - 190px - 50vw);
+    top: 360px;
+}
+
+#registerPassword
+{
+    position: absolute;
+    left: calc(100% - 190px - 50vw);
+    top: 410px;
+}
+
+
+#registerButton
+{
+    position: absolute;
+    width: 80px;
+    top: 470px;
+    left: calc(100% - 50px - 50vw);
+    border: none;
+    background-color: rgba(114, 116, 117, 0.384);
+    transition: background-color ease 0.3s;
+    color: aliceblue;
+}
+
+#registerButton:hover
+{
+    background-color: rgba(183, 182, 185, 0.555);
+}
+
+#registerBg
+{
+    top: 170px;
+    height: 400px;
+    width: 450px;
+    background-color: rgba(172, 173, 173, 0.137);
+    z-index: -1;
+    position: absolute;
+}
+
+#connectionStatusRegister
+{
+    color: red;
+    position: absolute;
+    bottom: 680px;
+    width: 150px;
+    left: calc(100% - (150px / 2) - 50vw);
+    display: none;
+}
+
+#registerRegister
+{
+    position: absolute;
+    width: 300px;
+    left: calc(100% - (300px / 2) - 50vw);
+    top: 510px;
+}
+
+#backButtonRegister
+{
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background-size: 30px;
+    width: 30px;
+    height: 30px;
+    background-image: url('../Assets/arrowUp.svg');
+    transform: rotate(-90deg);
+}
+
+#backButtonRegister:hover
+{
+    cursor: pointer;
+}

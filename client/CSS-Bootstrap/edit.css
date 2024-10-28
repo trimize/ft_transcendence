@@ -1,18 +1,19 @@
 .text-editpf
 {
-    margin-top: 50px;
     font-family: "Roboto", sans-serif;
     font-weight: 300;
     position: absolute;
     font-size: 30px;
-    left: 30px;
     width: 100px;
     color: white;
+    text-align: left;
+    left: 40px;
 }
 
 #editUsername
 {
-
+    top: 50px;
+    width: 200px;
 }
 
 .inputEditProfile
@@ -24,15 +25,216 @@
     background-color: rgba(194, 190, 190, 0.411);
     color: aliceblue;
     border: none;
-}
-
-.inputEditProfile:focus
-{
-
+    left: 40px;
 }
 
 #usernameEditInput
 {
-    left: 30px;
     top: 130px;
+}
+
+#editEmail
+{
+    top: 200px;
+}
+
+#emailEditInput
+{
+    top: 280px;
+}
+
+#editProfilePicture
+{
+    top: 350px;
+    width: 300px;
+}
+
+#inputEditProfilePicture
+{
+    position: absolute;
+    top: 430px;
+    width: 80px;
+    height: 30px;
+    left: 40px;
+    background-color: rgba(90, 91, 92, 0.322);
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: aliceblue;
+    cursor: pointer;
+}
+
+#uploadLabel
+{
+    background-color: rgba(141, 142, 143, 0.199);
+}
+
+#uploadErrorMessage
+{
+    color: red;
+    position: absolute;
+    top: 438px;
+    left: 150px;
+    display: none;
+}
+
+#saveButton
+{
+    background-color: rgba(133, 134, 134, 0.425);
+    color: aliceblue;
+    width: 120px;
+    height: 30px;
+    position: absolute;
+    left: 320px;
+    bottom: 50px;
+    border: none;
+    transition: background-color ease 0.2s;
+}
+
+#saveButton:hover
+{
+    background-color: rgba(176, 179, 179, 0.425);
+}
+
+#setup2FA
+{
+    background-color: rgba(133, 134, 134, 0.425);
+    color: aliceblue;
+    width: 250px;
+    height: 30px;
+    position: absolute;
+    left: 270px;
+    top: 520px;
+    border: none;
+    transition: background-color ease 0.2s;
+}
+
+#setup2FA:hover
+{
+    background-color: rgba(176, 179, 179, 0.425);
+}
+
+#twofaSetupContainer
+{
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    z-index: 2;
+    right: 0;
+    transition: backdrop-filter ease 0.4s;
+    backdrop-filter: blur(10px);
+    display: none;
+}
+
+#twoFaTitle
+{
+    position: absolute;
+    top: 100px;
+    left: calc(100% - 50vw - 200px);
+    width: 400px;
+    color: aliceblue;
+}
+
+#verify2fA
+{
+    position: absolute;
+    top: 700px;
+    width: 30vw;
+    left: calc(100% - 50vw - 15vw);
+}
+
+#otpToken
+{
+    left: 200px;
+    width: 150px;
+}
+
+#verify2FA
+{
+    position: absolute;
+    right: 146px;
+    background-color: rgba(139, 140, 141, 0.247);
+    transition: background-color ease 0.3s;
+    color: white;
+    border: none;
+    height: 30px;
+}
+
+#verify2FA:hover
+{
+    background-color: rgba(174, 175, 177, 0.425);
+}
+
+#qrCode
+{
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    left: calc(100% - 50vw - 150px);
+    text-align: center;
+    top: 20vh;
+}
+
+#editProfileErrorMessage
+{
+    color: red;
+    position: absolute;
+    bottom: 100px;
+    right: 580px;
+    display: none;
+}
+
+#anonymizeBtn
+{
+    background-color: rgba(133, 134, 134, 0.425);
+    color: aliceblue;
+    width: 120px;
+    height: 30px;
+    position: absolute;
+    left: 80px;
+    top: 520px;
+    border: none;
+    transition: background-color ease 0.2s;
+}
+
+#anonymizeBtn:hover
+{
+    background-color: rgba(176, 179, 179, 0.425);
+}
+
+#deleteBtn
+{
+    background-color: rgba(190, 104, 82, 0.425);
+    color: aliceblue;
+    width: 120px;
+    height: 30px;
+    position: absolute;
+    left: 80px;
+    bottom: 50px;
+    border: none;
+    transition: background-color ease 0.2s;
+}
+
+#deleteBtn:hover
+{
+    background-color: rgba(221, 38, 5, 0.767);
+}
+
+#backButtonEdit
+{
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background-size: 30px;
+    width: 30px;
+    height: 30px;
+    background-image: url('../Assets/arrowUp.svg');
+    transform: rotate(-90deg);
+}
+
+#backButtonEdit:hover
+{
+    cursor: pointer;
 }

@@ -18,89 +18,37 @@
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     </head>
     <body>
-
         <div id="content" class="vh-100">
-            
-            
-            
-            
-            
-            <!--<div id="pfpDiv">
+            <a id="backButtonEdit" href="/profile"></a>
+            <div id="pfpDiv">
                 <div id="pfp"></div>
-            </div>-->
+            </div>
             <div id="pfDiv">
                 <div id="pfBackground"></div>
-                <!--<div id="notificationAnonym" class="alert alert-success d-none" role="alert">
-                    Profile anonymized successfully!
-                </div>-->
-                <div>
-                    <div id="editUsername" class="text-editpf">Username</div>
-                    <textarea type="text" class="inputEditProfile" id="usernameEditInput" placeholder="John Doe"></textarea>
-                    <div id="email" class="text-editpf">Email</div>
-                    <!--<div class="profileLogos" id="wins">
-                        <text class="profileNumbers">8</text>
-                    </div>
-                    <div class="profileLogos" id="losses">
-                        <text class="profileNumbers">8</text>
-                    </div>-->
-                    <!--<button type="button" class="profileButtons" id="matchBtn">Match History</button>-->
-                    <div id="matchDivProfile"></div>
-                    <!--<div class="profileLogos" id="friends"></div>-->
-                    <!--<button type="button" class="profileButtons" id="editBtn">Edit</button>-->
-                    <!--<button type="button" class="profileButtons" id="anonymizeBtn">Anonymize</button>-->
-                    <!--<button type="button" class="profileButtons" id="deleteBtn">Delete Account</button>-->
-                    <!--<button type="button" class="profileButtons" id="logoutBtn">Log out</button>-->
+                <div id="editUsername" class="text-editpf">Username</div>
+                <textarea type="text" class="inputEditProfile" id="usernameEditInput" placeholder="John Doe"></textarea>
+                <div id="editEmail" class="text-editpf">Email</div>
+                <textarea type="text" class="inputEditProfile" id="emailEditInput" placeholder="JohnDoe@gmail.com"></textarea>
+                <div id="editProfilePicture" class="text-editpf">Profile picture</div>
+                <div class="custom-file" id="inputEditProfilePicture">
+                    <input type="file" class="custom-file-input opacity-0 cursor-pointer zindex-2" id="formFile" accept="image/*">
+                    <label class="custom-file-label" for="formFile" id="uploadLabel"></label>
+                </div>
+                <text id="uploadErrorMessage">File too small</text>
+                <button type="button" id="anonymizeBtn">Anonymize</button>
+                <button type="button" id="deleteBtn">Delete Account</button>
+                <button type="submit" id="saveButton">Save Changes</button>
+                <button type="button" id="setup2FA">Setup 2-Factor Authentication</button>
+            </div>
+            <text id="editProfileErrorMessage">Username too small</text>
+            <div id="twofaSetupContainer">
+                <h3 class="text-center" id="twoFaTitle">Setup 2-Factor Authentication</h3>
+                <img id="qrCode" src="" alt="QR Code" class="img-fluid mb-3">
+                <div class="form-group" id="verify2fA">
+                    <input type="text" class="inputEditProfile" id="otpToken">
+                    <button type="button" id="verify2FA">Verify 2FA</button>
                 </div>
             </div>
-            
-            
-            
-            
-            
-            
-            
-            <!--<div class="card-body">
-                <h2 class="card-title text-center">Edit Profile</h2>
-                <form id="editProfileForm" enctype="multipart/form-data">
-                    <div class="form-group">
-                        <label for="username">Username</label>
-                        <input type="text" class="form-control" id="username" value="" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" class="form-control" id="email" value="" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="formFile" class="form-label">Profile picture</label>
-                        <div class="custom-file">
-                            <input type="file" class="custom-file-input" id="formFile" accept="image/*">
-                            <label class="custom-file-label" for="formFile">Choose file</label>
-                        </div>
-                    </div>
-                    <div id="registerStatus" style="display: none;" class="mt-3 text-center">Please enter a valid username and/or email</div>
-                    <button type="submit" class="btn btn-primary btn-block">Save Changes</button>
-                    <button type="button" class="btn btn-secondary btn-block" id="setup2FA">Setup 2-Factor
-                        Authentication</button>
-                </form>
-            </div>-->
-                                    <!--<div class="col-md-6" id="2faSetupContainer" style="display: none;">
-                                            <div class="card">
-                                                <div class="card-body">
-                                                    <h3 class="card-title text-center">Setup 2-Factor Authentication</h3>
-                                                    <div id="2faSetup">
-                                                        <img id="qrCode" src="" alt="QR Code" class="img-fluid mb-3">
-                                                        <div class="form-group">
-                                                            <label for="otpToken">Enter OTP Token</label>
-                                                            <input type="text" class="form-control" id="otpToken">
-                                                        </div>
-                                                        <button type="button" class="btn btn-primary btn-block" id="verify2FA">Verify
-                                                            2FA</button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>    
-                                    </div>-->
             <div id="bg"></div>
         </div>
         <script type="module" src="./js/router.js"></script>
