@@ -1,5 +1,5 @@
 import { getWebSocket } from "./singletonSocket.js";
-import { BACKEND_URL } from "./appconfig.js";
+import { BACKEND_URL, /*updateUserDataGlobal*/ } from "./appconfig.js";
 
 const renderLoginForm = () => {
     return `<div class="container-fluid">
@@ -86,6 +86,7 @@ const attachEventListeners = () => {
                 localStorage.setItem('websocket_url', data.websocket_url);
                 console.log(data.websocket_url);
                 // await getWebSocket();
+                // updateUserDataGlobal();
                 window.location.href = '/profile';
             } else if (data.message === '2FA required') {
                 document.getElementById('loginForm').style.display = 'none';

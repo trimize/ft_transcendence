@@ -1,4 +1,5 @@
 import { BACKEND_URL } from "./appconfig.js";
+// import { user } from "./appconfig.js";
 
 export const securelyGetAccessToken = async () => {
   let token = localStorage.getItem("access");
@@ -9,7 +10,7 @@ export const securelyGetAccessToken = async () => {
   const base64Url = token.split(".")[1];
   const base64 = base64Url.replace("-", "+").replace("_", "/");
   const decodedData = JSON.parse(atob(base64));
-  console.log("Decoded token data:", decodedData);
+//   console.log("Decoded token data:", decodedData);
 
   // Check if the token is expired
   if (Date.now() > decodedData.exp * 1000) {
@@ -162,11 +163,11 @@ export async function fetchUsers() {
   }
 }
 
-export async function addFriend(user) {
+export async function addFriend(userId) {
   const accessToken = await securelyGetAccessToken();
   try {
     const response = await fetch(
-      `${BACKEND_URL}/api/add_friend/${user}/`,
+      `${BACKEND_URL}/api/add_friend/${userId}/`,
       {
         method: "PUT",
         headers: {
@@ -176,7 +177,7 @@ export async function addFriend(user) {
       }
     );
     if (response.ok) {
-      alert("Friend added successfully");
+      console.log("Friend added successfully");
       location.reload();
     } else {
       alert("Failed to add friend");
@@ -245,8 +246,8 @@ export async function fetchUserById(userId) {
 	    }
 	  );
 	  if (!response.ok) throw new Error("Failed to fetch user data");
-	  const user = await response.json();
-	  return user;
+	  const userData = await response.json();
+	  return userData;
 	} catch (error) {
 	  console.error(error.message);
 	  return "";
@@ -261,17 +262,15 @@ export async function sendFriendRequest(username) {
 	    {
 	      method: "POST",
 	      headers: {
-		Authorization: `Bearer ${accessToken}`,
-		"Content-Type": "application/json",
+			Authorization: `Bearer ${accessToken}`,
+			"Content-Type": "application/json",
 	      },
 	    }
 	  );
 	  if (!response.ok) throw new Error("Failed to fetch user data");
-	  const user = await response.json();
-	  return user;
 	} catch (error) {
 	  console.error(error.message);
-	  return "";
+	  return;
 	}
 }
 
@@ -289,8 +288,8 @@ export async function getFriendNotifications() {
 	    }
 	  );
 	  if (!response.ok) throw new Error("Failed to fetch user data");
-	  const user = await response.json();
-	  return user;
+	  const userData = await response.json();
+	  return userData;
 	} catch (error) {
 	  console.error(error.message);
 	  return "";
@@ -311,8 +310,8 @@ export async function refuseFriendRequest(friend_id) {
 	    }
 	  );
 	  if (!response.ok) throw new Error("Failed to fetch user data");
-	  const user = await response.json();
-	  return user;
+	  const userData = await response.json();
+	  return userData;
 	} catch (error) {
 	  console.error(error.message);
 	}
@@ -332,8 +331,8 @@ export async function getPendingRequest() {
 	    }
 	  );
 	  if (!response.ok) throw new Error("Failed to fetch user data");
-	  const user = await response.json();
-	  return user;
+	  const userData = await response.json();
+	  return userData;
 	} catch (error) {
 	  console.error(error.message);
 	}
@@ -347,14 +346,14 @@ export async function getFriends() {
 	    {
 	      method: "GET",
 	      headers: {
-		Authorization: `Bearer ${accessToken}`,
-		"Content-Type": "application/json",
+			Authorization: `Bearer ${accessToken}`,
+			"Content-Type": "application/json",
 	      },
 	    }
 	  );
 	  if (!response.ok) throw new Error("Failed to fetch user data");
-	  const user = await response.json();
-	  return user;
+	  const userData = await response.json();
+	  return userData;
 	} catch (error) {
 	  console.error(error.message);
 	}
@@ -375,8 +374,8 @@ export async function createTournament(body) {
 	    }
 	  );
 	  if (!response.ok) throw new Error("Failed to fetch user data");
-	  const user = await response.json();
-	  return user;
+	  const userData = await response.json();
+	  return userData;
 	} catch (error) {
 	  console.error(error.message);
 	}
@@ -396,8 +395,8 @@ export async function getTournaments() {
 	    }
 	  );
 	  if (!response.ok) throw new Error("Failed to fetch user data");
-	  const user = await response.json();
-	  return user;
+	  const userData = await response.json();
+	  return userData;
 	} catch (error) {
 	  console.error(error.message);
 	}
@@ -418,8 +417,8 @@ export async function updateTournament(body) {
 	    }
 	  );
 	  if (!response.ok) throw new Error("Failed to fetch user data");
-	  const user = await response.json();
-	  return user;
+	  const userData = await response.json();
+	  return userData;
 	} catch (error) {
 	  console.error(error.message);
 	}
