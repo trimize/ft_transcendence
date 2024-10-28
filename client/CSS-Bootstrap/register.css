@@ -56,13 +56,14 @@
     position: absolute;
 }
 
-#connectionStatusRegister
+#connectionStatusRegister, #registerStatus
 {
     color: red;
     position: absolute;
     bottom: 680px;
-    width: 150px;
-    left: calc(100% - (150px / 2) - 50vw);
+    /* width: 150px; */
+    /* left: calc(100% - (150px / 2) - 50vw); */
+    left: 470px;
     display: none;
 }
 
