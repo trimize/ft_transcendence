@@ -55,6 +55,7 @@ export async function fetchUserData() {
     });
     if (!response.ok) throw new Error("Failed to fetch user data");
     const userData = await response.json();
+	console.log(userData);
     return userData;
   } catch (error) {
     console.error(error.message);

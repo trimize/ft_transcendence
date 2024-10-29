@@ -357,7 +357,9 @@ function renderBaseHomeConnected()
                 <div id="notFriendMessage">This user is not your friend</div>
                 <div id="invitationDiv">
                     <ul id="invitationList">
-                        <!--<il class="invitationElement">Tic-Tac-Toe
+                    <!--<il class="invitationElement">Tic-Tac-Toe
+                            <div class="requestPfp"></div>
+                            <div class="requestUsername"></div>
                             <div class="correctDiv"></div>
                             <div class="crossDiv"></div>
                         </il>-->
@@ -499,10 +501,6 @@ async function showChat() {
             // Check if the friend is in the list of friend notifications
             const friendUsername = friendItem.textContent.trim();
             currentChatUser = await getUser(friendUsername); //May cause issues with async
-            const friendNotification = friendNotifications.find(notification => notification.sender.username === friendUsername);
-            if (friendNotification) {
-                renderFriendRequestNotification(friendNotification.sender.id, false, null);
-            }
             if (messages[friendUsername]) {
                 messages[friendUsername].forEach(msg => {
                     renderConversationBalloon(msg.message, msg.sender === actualUser.username);
@@ -540,55 +538,55 @@ async function showChat() {
     });
 }
 
-async function renderFriendRequestNotification(friendId, isGameInvite, gameInfo) {
-    const friendData = await getUser(friendId);
-    const friendUsername = friendData.username;
-    const conversationDiv = document.getElementById('conversation');
-    const notificationDiv = document.createElement('div');
-    notificationDiv.classList.add('friend-request-notification');
+//async function renderFriendRequestNotification(friendId, isGameInvite, gameInfo) {
+//    const friendData = await getUser(friendId);
+//    const friendUsername = friendData.username;
+//    const conversationDiv = document.getElementById('conversation');
+//    const notificationDiv = document.createElement('div');
+//    notificationDiv.classList.add('friend-request-notification');
 
-    const message = document.createElement('p');
+//    const message = document.createElement('p');
 
-    if (isGameInvite) {
-        message.textContent = `${friendUsername} invited you to play ${gameInfo.game}.`;
-    } else {
-        message.textContent = `${friendUsername} sent you a friend request.`;
-    }
+//    if (isGameInvite) {
+//        message.textContent = `${friendUsername} invited you to play ${gameInfo.game}.`;
+//    } else {
+//        message.textContent = `${friendUsername} sent you a friend request.`;
+//    }
 
-    const acceptButton = document.createElement('button');
-    acceptButton.textContent = 'Accept';
-    acceptButton.style.backgroundColor = 'green';
+//    const acceptButton = document.createElement('button');
+//    acceptButton.textContent = 'Accept';
+//    acceptButton.style.backgroundColor = 'green';
 
-    acceptButton.addEventListener('click', () => {
-        // Handle accept friend request
-        console.log(`Accepted request from ${friendUsername}`);
-        if (isGameInvite) {
+//    acceptButton.addEventListener('click', () => {
+//        // Handle accept friend request
+//        console.log(`Accepted request from ${friendUsername}`);
+//        if (isGameInvite) {
 
-        } else {
-            addFriend(friendId);
-        }
-        notificationDiv.remove();
-    });
+//        } else {
+//            addFriend(friendId);
+//        }
+//        notificationDiv.remove();
+//    });
     
-    const declineButton = document.createElement('button');
-    declineButton.textContent = 'Decline';
-    declineButton.style.backgroundColor = 'red';
-    declineButton.addEventListener('click', () => {
-        // Handle decline friend request
-        console.log(`Declined request from ${friendUsername}`);
-        if (isGameInvite) {
+//    const declineButton = document.createElement('button');
+//    declineButton.textContent = 'Decline';
+//    declineButton.style.backgroundColor = 'red';
+//    declineButton.addEventListener('click', () => {
+//        // Handle decline friend request
+//        console.log(`Declined request from ${friendUsername}`);
+//        if (isGameInvite) {
 
-        } else {
-            refuseFriendRequest(friendId);
-        }
-        notificationDiv.remove();
-    });
+//        } else {
+//            refuseFriendRequest(friendId);
+//        }
+//        notificationDiv.remove();
+//    });
 
-    notificationDiv.appendChild(message);
-    notificationDiv.appendChild(acceptButton);
-    notificationDiv.appendChild(declineButton);
-    conversationDiv.appendChild(notificationDiv);
-}
+//    notificationDiv.appendChild(message);
+//    notificationDiv.appendChild(acceptButton);
+//    notificationDiv.appendChild(declineButton);
+//    conversationDiv.appendChild(notificationDiv);
+//}
 
 async function addFriendButton()
 {
@@ -659,12 +657,13 @@ async function renderFriendRequest(friendNotifications)
 async function renderFriendRequestNotif(friendNotifications)
 {
     const invitationList = document.getElementById('invitationList');
-    // console.log(friendNotifications);
+    invitationList.innerHTML = "";
     for(let i = 0; i < friendNotifications.length; i++)
     {
+        console.log(friendNotifications[i]);
         const friendRequest = document.createElement('li');
         friendRequest.classList.add('friendItem');
-        friendRequest.textContent = friendNotifications[i].sender.username;
+        friendRequest.textContent = "New friend request!"
         friendRequest.style.color = "aliceblue";
         friendRequest.classList.add('invitationElement');
         const correct = document.createElement('div');
@@ -673,6 +672,14 @@ async function renderFriendRequestNotif(friendNotifications)
         const cross = document.createElement('div');
         cross.classList.add('crossDiv');
         friendRequest.appendChild(cross);
+        const requestUsername = document.createElement('div');
+        requestUsername.classList.add('requestUsername');
+        requestUsername.textContent = friendNotifications[i].sender.username;
+        friendRequest.appendChild(requestUsername);
+        const requestPfp = document.createElement('div');
+        requestPfp.classList.add('requestPfp');
+        requestPfp.style.backgroundImage = `url('${BACKEND_URL}${friendNotifications[i].sender.profile_pic}')`;
+        friendRequest.appendChild(requestPfp);
         invitationList.appendChild(friendRequest);
     };
     // showChat();
@@ -706,11 +713,9 @@ const getProfileInfo = async () => {
         // const noFriendsMessageElement = document.getElementById('noFriendsMessage');
         const profileData = await fetchUserData();
         
-        if (profileData.profile_pic !== null) {
-            profilePic.style.backgroundImage = `url(${BACKEND_URL}${profileData.profile_pic})`;
-        } else {
-            profilePic.style.backgroundImage = `url(${DEFAULT_PROFILE_PIC})`;
-        }
+        profilePic.style.backgroundImage = `url(${BACKEND_URL}${profileData.profile_pic})`;
+        console.log(`url(${BACKEND_URL}${profileData.profile_pic})`);
+        console.log(profileData.profile_pic);
         if (profileData.username) {
             usernameElement.textContent = profileData.username;
         }
