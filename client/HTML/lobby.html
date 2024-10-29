@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Transcendance</title>
-    <link rel="stylesheet" href="./css/home.css">
-    <link rel="stylesheet" href="./css/home_connected.css">
+    <link rel="stylesheet" href="../CSS-Bootstrap/home.css">
+    <link rel="stylesheet" href="../CSS-Bootstrap/home_connected.css">
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,19 +14,25 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <link rel="stylesheet" href="./css/profile.css">
-    <link rel="stylesheet" href="./css/edit.css">
-    <link rel="stylesheet" href="./css/login.css">
-    <link rel="stylesheet" href="./css/register.css">
-    <link rel="stylesheet" href="./css/lobby.css">
+    <link rel="stylesheet" href="../CSS-Bootstrap/profile.css">
+    <link rel="stylesheet" href="../CSS-Bootstrap/edit.css">
+    <link rel="stylesheet" href="../CSS-Bootstrap/login.css">
+    <link rel="stylesheet" href="../CSS-Bootstrap/register.css">
+    <link rel="stylesheet" href="../CSS-Bootstrap/lobby.css">
 </head>
 <body>
 
     <div id="content" class="vh-100">
-        <div class="d-none">
-            <button id="homeBtn">Home</button>
-            <button id="loginBtn">Login</button>
-            <button id="profileBtn">Profile</button>
+        <div id="lobbyDiv">
+            <div id="lobbyPlayer1">
+                <div class="lobbyPlayerPfp" id="lobbyPlayer1Pfp"></div>
+                <div class="lobbyPlayerUsername" id="lobbyPlayer1Username">toto</div>
+            </div>
+            <div id="lobbyPlayer2">
+                <div class="lobbyPlayerPfp" id="lobbyPlayer2Pfp"></div>
+                <div class="lobbyPlayerUsername" id="lobbyPlayer2Username">to</div>
+            </div>
+            <div id="lobbyStatusText">Game Starting ..</div>
         </div>
         <div id="bg"></div>
     </div>

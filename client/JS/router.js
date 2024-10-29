@@ -7,11 +7,7 @@ import { getWebSocket } from "./singletonSocket.js";
 
 const router = () => {
     const path = window.location.pathname.replace('/', '');
-    // if (window.location.pathname.includes("lobby"))
-    // {
-    //     renderLobby();
-    //     return ;
-    // }
+    console.log(path);
     switch (path) {
         case 'register':
             renderRegister();
