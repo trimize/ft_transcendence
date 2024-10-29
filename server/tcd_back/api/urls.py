@@ -51,4 +51,4 @@ urlpatterns = [
 	# path('create_tournament/', tournament_views.create_tournament, name='create_tournament'),
 	# path('update_tournament/', tournament_views.update_tournament, name='update_tournament'),
 	# path('get_tournament/<int:pk>/', tournament_views.get_tournament, name='get_tournament')
-] #+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
