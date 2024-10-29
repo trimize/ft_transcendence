@@ -43,6 +43,8 @@
     transition: right ease 0.3s;
     /*display: flex;*/
     text-align: center;
+    border-left: 1px solid rgba(182, 183, 184, 0.315);
+    background-color: #81818138;
     /*justify-content: center;
     align-items: center;*/
 }
@@ -55,19 +57,6 @@
     padding-left: 0;
     margin-bottom: 0;
     margin-top: 80px;
-}
-
-#friendsListBg
-{
-    position: absolute;
-    z-index: 0;
-    right: -250px;
-    width: 250px;
-    height: 100%;
-    top: 0px;
-    background-color: rgba(34, 34, 34, 0.651);
-    filter: blur(3px);
-    transition: right ease 0.3s;
 }
 
 .friendItem
@@ -147,51 +136,48 @@
     /*display: none;*/
 }
 
-#showChatRoom
-{
-    position: absolute;
-    height: 20px;
-    width: 20px;
-    z-index: 11;
-    bottom: -20px;
-    left: calc((100% - 250px) / 2);
-    transition: bottom ease 0.3s;
-    background-image: url('../Assets/arrowUp.svg');
-    background-size: contain;
-    cursor: pointer;
-    transform: scaleY(-1);
+#showChatRoom {
+	position: absolute;
+	height: 20px;
+	width: 20px;
+	z-index: 11;
+	bottom: -20px;
+	left: calc((100% - 250px) / 2 + (300px) / 2);
+	transition: bottom ease 0.3s;
+	background-image: url('../Assets/arrowUp.svg');
+	background-size: contain;
+	cursor: pointer;
+	transform: scaleY(-1);
 }
 
-#chatInput
-{
-    z-index: 20;
-    position: absolute;
-    bottom: 25px;
-    width: 400px;
-    color: aliceblue;
-    background-color: rgba(182, 185, 187, 0.205);
-    left: calc((100% - 350px) / 2);
-    border-color: aliceblue;
-    border-width: 1px;
-    overflow: hidden;
-    resize: none;
+#chatInput {
+	z-index: 20;
+	position: absolute;
+	bottom: 25px;
+	width: 400px;
+	color: aliceblue;
+	background-color: rgba(182, 185, 187, 0.205);
+	left: calc(((100% - 350px) / 2) + (300px) / 2);
+	border-color: aliceblue;
+	border-width: 1px;
+	overflow: hidden;
+	resize: none;
 }
 
-#sendButton
-{
-    height: 54px;
-    width: 54px;
-    background-image: url('../Assets/send.svg');
-    background-size: 40px;
-    background-position: center;
-    background-repeat: no-repeat;
-    position: absolute;
-    left: calc(((100% - 350px) / 2) + 400px);
-    background-color: rgba(121, 121, 121, 0.342);
-    border-top-right-radius: 40%;
-    border-bottom-right-radius: 40%;
-    bottom: 25px;
-    transition: background-color ease 0.2s;
+#sendButton {
+	height: 54px;
+	width: 54px;
+	background-image: url('../Assets/send.svg');
+	background-size: 40px;
+	background-position: center;
+	background-repeat: no-repeat;
+	position: absolute;
+	left: calc(((100% - 350px) / 2) + 550px);
+	background-color: rgba(121, 121, 121, 0.342);
+	border-top-right-radius: 40%;
+	border-bottom-right-radius: 40%;
+	bottom: 25px;
+	transition: background-color ease 0.2s;
 }
 
 #sendButton:hover
@@ -322,4 +308,140 @@
 
 .friend-request-notification button:hover {
     background-color: #ddd;
+}
+
+#notFriendMessage {
+	color: rgb(138, 138, 138);
+	width: 240px;
+	height: 25px;
+	font-family: 'Roboto';
+	font-size: 20px;
+	font-weight: 300;
+	position: absolute;
+	top: 40px;
+	z-index: 2;
+	left: calc((100% - 250px) / 2 + 175px);
+	display: none;
+}
+
+#inviteContainer
+{
+    z-index: 5;
+    width: 100vw;
+    height: 100vh;
+    backdrop-filter: blur(10px);
+    position: absolute;
+    display: none;
+    background-color: #5555555b;
+    right: 0;
+}
+
+#inviteInput {
+	background-color: #d7c1c140;
+	color: white;
+	border: none;
+	position: absolute;
+	width: 150px;
+	height: 30px;
+	top: 60vh;
+	left: calc(100% - 50vw - (150px / 2));
+}
+
+#inviteButton {
+	font-family: 'Roboto';
+	font-weight: 300;
+	font-size: 20px;
+	width: 150px;
+	height: 40px;
+	border-radius: 10px;
+	position: absolute;
+	top: 75vh;
+	background-color: #a1a3a466;
+	border: none;
+	color: white;
+	left: calc(100% - 50vw - (150px / 2) + 120px);
+	transition: background-color ease 0.3s;
+}
+
+#inviteButton:hover{
+    background-color: #c4c7c97a;
+}
+
+#cancelInviteButton {
+	font-family: 'Roboto';
+	font-weight: 300;
+	font-size: 20px;
+	width: 150px;
+	height: 40px;
+	border-radius: 10px;
+	position: absolute;
+	top: 75vh;
+	background-color: #d6765966;
+	border: none;
+	color: white;
+	left: calc(100% - 50vw - (150px / 2) - 120px);
+	transition: background-color ease 0.3s;
+}
+
+#cancelInviteButton:hover
+{
+    background-color: #f03e0766;
+}
+
+#invitationDiv {
+	position: absolute;
+	left: 0;
+	height: 100%;
+	width: 300px;
+	border-right: 1px rgba(151, 151, 151, 0.377) solid;
+	z-index: 3;
+	background-color: #b1b1b11a;
+}
+
+#invitationList
+{
+    display: flex;
+    flex-direction: column;
+    padding-left: 0;
+}
+
+.invitationElement {
+	height: 80px;
+	width: 100%;
+	align-items: center;
+	display: flex;
+	padding-left: 60px;
+	color: aliceblue;
+	border-bottom: #8d97979e solid 1px;
+}
+
+.correctDiv {
+	cursor: pointer;
+	background-image: url('../Assets/correct.svg');
+	background-color: rgba(138, 136, 136, 0.411);
+	transition: background-color ease 0.3s;
+	width: 30px;
+	height: 30px;
+	background-size: cover;
+	margin-left: 55px;
+}
+
+.correctDiv:hover
+{
+    background-color: rgba(177, 175, 175, 0.411);
+}
+
+.crossDiv {
+	cursor: pointer;
+	background-image: url('../Assets/cross.svg');
+	background-color: rgba(179, 87, 87, 0.534);
+	transition: background-color ease 0.3s;
+	width: 30px;
+	height: 30px;
+	background-size: cover;
+}
+
+.crossDiv:hover
+{
+    background-color: rgba(207, 18, 18, 0.603);
 }

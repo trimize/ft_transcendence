@@ -62,7 +62,7 @@ const attachEventListeners = () => {
                 console.log(data.websocket_url);
                 // await getWebSocket();
                 // updateUserDataGlobal();
-                window.location.href = '/profile';
+                window.location.href = '/';
             } else if (data.message === '2FA required') {
                 document.getElementById('loginForm').style.display = 'none';
                 document.getElementById('2faForm').style.display = 'block';

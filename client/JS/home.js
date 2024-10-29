@@ -1,4 +1,4 @@
-import { fetchUserData, getUser, sendFriendRequest, getFriendNotifications, refuseFriendRequest, addFriend, getFriends } from "./fetchFunctions.js";
+import { fetchUserData, getUser, sendFriendRequest, getFriendNotifications, refuseFriendRequest, addFriend, getFriends, getPendingRequest } from "./fetchFunctions.js";
 import { BACKEND_URL, DEFAULT_PROFILE_PIC /* getUserInfo */ } from "./appconfig.js";
 import { getWebSocket } from "./singletonSocket.js";
 
@@ -6,6 +6,19 @@ let currentChatUser;
 let socket;
 let actualUser;
 let messages = {};
+let gameChosen;
+let isPowerEnabled;
+let offline = true;
+
+function closeInviteListener(inviteDiv, inviteInput)
+{
+    const cancelInviteButton = document.getElementById('cancelInviteButton');
+    cancelInviteButton.addEventListener('click', function()
+    {
+        inviteDiv.style.display = 'none';
+        inviteInput.value = '';
+    });
+}
 
 const addEventListeners = () => {
     let singleClicked = false;
@@ -17,34 +30,9 @@ const addEventListeners = () => {
     const ballSpeedDiv = document.getElementById('inputRangeDiv');
     const AITitle = document.getElementById('ballSpeedText');
     const ballAccDiv = document.getElementById('ballAccDiv');
-    const inviteInput = document.getElementById('inviteInput');
-    const inviteButton = document.getElementById('inviteButton');
-    let isPowerEnabled = document.getElementById('powers').checked ? true : false;
-    inviteButton.style.display = "none";
-    inviteInput.style.display = "none";
     AITitle.style.display = "none";
     ballSlider.style.display = "none";
     let invitee;
-    
-    if (inviteButton) {
-        console.log('Invite button exists');
-        inviteButton.addEventListener('click', async () => {
-            console.log('Invite button clicked');
-            const username = inviteInput.value.trim();
-            invitee = await getUser(username);
-            if (invitee) {
-                console.log('Invitee already set:', invitee);
-                inviteInput.disabled = true;
-                inviteInput.style.backgroundColor = 'rgba(200, 200, 200, 0.5)'; // Change appearance to indicate it's locked
-                inviteButton.disabled = true; // Optionally disable the button as well
-                inviteButton.style.backgroundColor = 'rgba(200, 200, 200, 0.5)';
-                buttonPlay.classList.remove('hide-before');
-                buttonPlay.classList.remove('hide-after');
-                buttonPlay.classList.remove('hide-hover');
-                buttonPlay.style.color = "rgb(0, 0, 0)";
-            }
-        });
-    }
 
     document.getElementById('powers').addEventListener('change', function() {
         isPowerEnabled = this.checked;
@@ -70,13 +58,8 @@ const addEventListeners = () => {
                 if (singleClicked == false)
                 {
                     if (onlineClicked == true) {
-                        inviteInput.disabled = false;
-                        inviteInput.style.backgroundColor = 'white';
-                        inviteButton.disabled = false;
-                        inviteButton.style.backgroundColor = 'green';
                         inviteInput.value = '';
-                        inviteButton.style.display = "none";
-                        inviteInput.style.display = "none";
+                        inviteContainer.style.display = 'none';
                     }
                     singleplayerMenu.style.textShadow = "0 0 15px rgb(255, 255, 255)";
                     singleClicked = true;
@@ -102,13 +85,8 @@ const addEventListeners = () => {
                 if (multiClicked == false)
                 {
                     if (onlineClicked == true) {
-                        inviteInput.disabled = false;
-                        inviteInput.style.backgroundColor = 'white';
-                        inviteButton.disabled = false;
-                        inviteButton.style.backgroundColor = 'green';
                         inviteInput.value = '';
-                        inviteButton.style.display = "none";
-                        inviteInput.style.display = "none";
+                        inviteContainer.style.display = 'none';
                     }
                     multiplayerMenu.style.textShadow = "0 0 15px rgb(255, 255, 255)";
                     multiClicked = true;
@@ -132,31 +110,34 @@ const addEventListeners = () => {
                     multiClicked = false;
                 }
             });
-
-            onlineMultiplayerMenu.addEventListener('click', function()
+            console.log(offline);
+            if (!offline)
             {
-                if (onlineClicked == false)
+                onlineMultiplayerMenu.addEventListener('click', function()
                 {
-                    inviteButton.style.display = "block";
-                    inviteInput.style.display = "block";
-                    onlineMultiplayerMenu.style.textShadow = "0 0 15px rgb(255, 255, 255)";
-                    onlineClicked = true;
-                    multiClicked = false;
-                    singleplayerMenu.style.textShadow = "0 0 0px rgb(255, 255, 255)";
-                    singleClicked = false;
-                    if (AITitle.textContent == "AI Difficulty")
+                    if (onlineClicked == false)
                     {
-                        AITitle.style.display = "none";
-                        ballSlider.style.display = "none";
-                        ballSpeedComment.textContent = " ";
+                        inviteContainer.style.display = 'block';
+                        onlineMultiplayerMenu.style.textShadow = "0 0 15px rgb(255, 255, 255)";
+                        onlineClicked = true;
+                        multiClicked = false;
+                        singleplayerMenu.style.textShadow = "0 0 0px rgb(255, 255, 255)";
+                        singleClicked = false;
+                        if (AITitle.textContent == "AI Difficulty")
+                        {
+                            AITitle.style.display = "none";
+                            ballSlider.style.display = "none";
+                            ballSpeedComment.textContent = " ";
+                        }
                     }
-                }
-                else if (onlineClicked == true)
-                {
-                    onlineMultiplayerMenu.style.textShadow = "0 0 0px rgb(255, 255, 255)";
-                    onlineClicked = false;
-                }
-            });
+                    else if (onlineClicked == true)
+                    {
+                        onlineMultiplayerMenu.style.textShadow = "0 0 0px rgb(255, 255, 255)";
+                        onlineClicked = false;
+                    }
+                });
+            }
+
 
             const backButtonGameMenu = document.getElementById('backButtonGameMenu');
             const leftDiv = document.getElementsByClassName('left')[0];
@@ -181,6 +162,7 @@ const addEventListeners = () => {
                 AITitle.textContent = "Ball speed";
                 ballSlider.style.display = "block";
                 AITitle.style.display = "block";
+                gameChosen = "pong";
                 ballSlider.addEventListener('input', function()
                 {
                     if (ballSlider.value < 10)
@@ -208,6 +190,7 @@ const addEventListeners = () => {
                 const gameText = document.getElementById('gameText');
                 gameText.textContent = 'Tic-tac-toe game is cool';
                 AITitle.textContent = "AI Difficulty";
+                gameChosen = "ttt";
                 if (multiClicked == true)
                 {
                     ballSlider.style.display = "none";
@@ -254,7 +237,7 @@ const addEventListeners = () => {
             });
         });
     });
-    addFriendButton();
+    return ;
 };
 
 function renderBaseHomeBlock()
@@ -324,7 +307,8 @@ function renderBaseHomeConnected()
                 <span class= "gameMenuText" id="online_multiplayer">Online Multiplayer</span>
                 <div id="inviteContainer">
                     <input type="text" id="inviteInput" placeholder="Enter username" />
-                    <button id="inviteButton">+</button>
+                    <button id="inviteButton">Go to lobby</button>
+                    <button id="cancelInviteButton">Cancel</button>
                 </div>
                 <div class="align-items-center justify-content-between" id="inputRangeDiv">
                     <label for="ballSpeed" id="ballSpeedText" class="customizeGameTitles">Ball Speed</label>
@@ -354,7 +338,7 @@ function renderBaseHomeConnected()
             <div id="showFriends"></div>
             <div id="friendsListDiv">
                 <div id="friendsTitle"></div>
-                <div id="friendsListBg"></div>
+
                 <textarea type="text" id="searchContact" placeholder="John Doe"></textarea>
                 <div id="plusButton">+</div>
                 <ul id="friendsList">
@@ -362,6 +346,15 @@ function renderBaseHomeConnected()
             </div>
             <div id="showChatRoom"></div>
             <div id="chatRoom">
+                <div id="notFriendMessage">This user is not your friend</div>
+                <div id="invitationDiv">
+                    <ul id="invitationList">
+                        <!--<il class="invitationElement">Tic-Tac-Toe
+                            <div class="correctDiv"></div>
+                            <div class="crossDiv"></div>
+                        </il>-->
+                    </ul>
+                </div>
                 <div id="conversation">
                     
                 </div>
@@ -400,6 +393,33 @@ async function showChat() {
     const cube = document.getElementsByClassName('Cube');
     const chatInput = document.getElementById('chatInput');
     const faces = document.querySelectorAll('.Face');
+    const showFriends = document.getElementById('showFriends');
+    const notFriendMessage = document.getElementById('notFriendMessage');
+    const inviteInput = document.getElementById('inviteInput');
+    const inviteButton = document.getElementById('inviteButton');
+    const inviteContainer = document.getElementById('inviteContainer');
+
+    inviteButton.addEventListener('click', async () => {
+        console.log('Invite button clicked');
+        const username = inviteInput.value.trim();
+        let invitee = await getUser(username);
+        if (invitee) {
+            console.log('Invitee already set:', invitee);
+            const params = new URLSearchParams();
+            if (gameChosen == "ttt")
+                params.append('game', 'ttt');
+            else
+                params.append('game', 'pong');
+            params.append('powers', isPowerEnabled);
+            params.append('host', actualUser.id);
+            params.append('invitee', invitee.id);
+            window.location.href = `/lobby?${params.toString()}`;
+        }
+    });
+
+    addFriendButton();
+
+    closeInviteListener(inviteContainer, inviteInput);
 
     chatInput.addEventListener('input', () => {
         chatInput.style.height = 'auto'; // Reset the height
@@ -437,8 +457,19 @@ async function showChat() {
 
     friendItems.forEach((friendItem) => {
         friendItem.addEventListener('click', async function() {
+            if (friendItem.classList.contains('friend'))
+                notFriendMessage.style.display = 'none';
+            else
+            {
+                chatInput.disabled = true;
+                chatInput.placeholder = "You need to be friends";
+                notFriendMessage.style.display = 'block';
+            }
+            const friendrequests = await getFriendNotifications();
+            renderFriendRequestNotif(friendrequests);
             console.log('Clicked!');
             document.documentElement.style.setProperty('--cube-size', '10vmax');
+            showFriends.style.display = 'none';
             cube[0].style.top = "50px";
             cube[0].style.left = "90px";
             faces.forEach((face) => {
@@ -467,6 +498,7 @@ async function showChat() {
     });
 
     showChatRoom.addEventListener('click', function() {
+        showFriends.style.display = 'block';
         document.documentElement.style.setProperty('--cube-size', '20vmax');
         cube[0].style.top = "40vh";
         cube[0].style.left = "40vw";
@@ -480,16 +512,13 @@ async function showChat() {
         });
     });
 
-    const showFriends = document.getElementById('showFriends');
     showFriends.addEventListener('click', function() {
         showFriends.classList.toggle('flipped');
         if (showFriendBool == false) {
-            document.getElementById('friendsListBg').style.right = "0px";
             document.getElementById('friendsListDiv').style.right = "0px";
             showFriends.style.right = "248px";
             showFriendBool = true;
         } else {
-            document.getElementById('friendsListBg').style.right = "-250px";
             document.getElementById('friendsListDiv').style.right = "-250px";
             showFriends.style.right = "0px";
             showFriendBool = false;
@@ -575,10 +604,30 @@ async function addFriendButton()
     });
 }
 
-async function renderFriendRequest()
+async function addFriendNotif()
+{
+
+}
+
+async function renderPendingRequest(pendingRequests)
 {
     const friendsList = document.getElementById('friendsList');
-    const friendNotifications = await getFriendNotifications();
+    for(let i = 0; i < pendingRequests.length; i++)
+    {
+        console.log(pendingRequests[i]);
+        const pendingRequest = document.createElement('li');
+        pendingRequest.classList.add('friendItem');
+        pendingRequest.textContent = pendingRequests[i].receiver.username;
+        pendingRequest.style.color = "blue";
+        pendingRequest.classList.add('pending');
+        friendsList.appendChild(pendingRequest);
+    };
+    // showChat();
+}
+
+async function renderFriendRequest(friendNotifications)
+{
+    const friendsList = document.getElementById('friendsList');
     // console.log(friendNotifications);
     for(let i = 0; i < friendNotifications.length; i++)
     {
@@ -586,17 +635,40 @@ async function renderFriendRequest()
         const friendRequest = document.createElement('li');
         friendRequest.classList.add('friendItem');
         friendRequest.textContent = friendNotifications[i].sender.username;
-        friendRequest.style.color = "yellow";
+        friendRequest.style.color = "grey";
+        friendRequest.classList.add('friendRequest')
         friendsList.appendChild(friendRequest);
     };
     // showChat();
 }
 
-async function renderFriendsList()
+async function renderFriendRequestNotif(friendNotifications)
 {
-    renderFriendRequest();
+    const invitationList = document.getElementById('invitationList');
+    invitationList.innerHTML = "";
+    for(let i = 0; i < friendNotifications.length; i++)
+    {
+        const friendRequest = document.createElement('li');
+        friendRequest.classList.add('friendItem');
+        friendRequest.textContent = friendNotifications[i].sender.username;
+        friendRequest.style.color = "aliceblue";
+        friendRequest.classList.add('invitationElement');
+        const correct = document.createElement('div');
+        correct.classList.add('correctDiv');
+        friendRequest.appendChild(correct);
+        const cross = document.createElement('div');
+        cross.classList.add('crossDiv');
+        friendRequest.appendChild(cross);
+        invitationList.appendChild(friendRequest);
+    };
+    // showChat();
+}
+
+async function renderFriendsList(friends, friendNotifications, pendingRequests)
+{
+    renderFriendRequest(friendNotifications);
+    renderPendingRequest(pendingRequests)
     const friendsList = document.getElementById('friendsList');
-    const friends = await getFriends();
     // console.log(friendNotifications);
     for(let i = 0; i < friends.length; i++)
     {
@@ -605,6 +677,7 @@ async function renderFriendsList()
         friendElement.classList.add('friendItem');
         friendElement.textContent = friends[i].username;
         friendElement.style.color = "cyan";
+        friendElement.classList.add('friend');
         friendsList.appendChild(friendElement);
     };
     showChat();
@@ -649,13 +722,17 @@ export const renderBaseHomePage = async () =>
     let token = localStorage.getItem('access');
     if (token)
     {
+        offline = false;
         document.getElementById('content').innerHTML = renderBaseHomeConnected();
         socket = await getWebSocket();
         actualUser = await fetchUserData();
+        const friends = await getFriends();
+        const friendNotifications = await getFriendNotifications();
+        const pendingRequests = await getPendingRequest();
         getProfileInfo();
         // renderFriendRequest();
-        renderFriendsList();
         addEventListeners();
+        renderFriendsList(friends, friendNotifications, pendingRequests);
 
         // showChat();
         socket.addEventListener('message', function(event)
@@ -687,6 +764,7 @@ export const renderBaseHomePage = async () =>
     }
     else
     {
+        offline = true;
         document.getElementById('content').innerHTML = renderBaseHomeBlock();
         addEventListeners();
     }
