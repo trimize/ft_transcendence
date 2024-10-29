@@ -645,7 +645,7 @@ async function renderFriendRequest(friendNotifications)
 async function renderFriendRequestNotif(friendNotifications)
 {
     const invitationList = document.getElementById('invitationList');
-    // console.log(friendNotifications);
+    invitationList.innerHTML = "";
     for(let i = 0; i < friendNotifications.length; i++)
     {
         const friendRequest = document.createElement('li');
