@@ -21,6 +21,9 @@ const router = () => {
         case 'lobby':
             renderLobby();
             break;
+        case 'tic-tac-toe':
+            renderTTT();
+            break;
         case '/':
             renderBaseHomePage();
             break;

@@ -1,4 +1,4 @@
-import { fetchUserData, getUser, sendFriendRequest, getFriendNotifications, refuseFriendRequest, addFriend, getFriends, getPendingRequest } from "./fetchFunctions.js";
+import { fetchUserData, getUser, sendFriendRequest, getFriendNotifications, refuseFriendRequest, addFriend, getFriends, getPendingRequest, createGame } from "./fetchFunctions.js";
 import { BACKEND_URL, DEFAULT_PROFILE_PIC /* getUserInfo */ } from "./appconfig.js";
 import { getWebSocket } from "./singletonSocket.js";
 
@@ -211,15 +211,23 @@ const addEventListeners = () => {
                 });
             }
 
-            document.getElementById('buttonPlay').addEventListener('click', () => {
+            document.getElementById('buttonPlay').addEventListener('click', async () => {
                 console.log('Button clicked');
-                if (face.classList.contains('tttFace') && onlineClicked == true) {
+                if (face.classList.contains('tttFace') && (multiClicked == true || singleClicked == true)) {
                     const params = new URLSearchParams();
-                    params.append('game', 'ttt');
+                    params.append('offline', offline);
+                    let matchId = null;
+                    if (!offline) {
+                        matchId = await createGame(actualUser.id, null, 'tic-tac-toe', isPowerEnabled);
+                        params.append('matchId', matchId);
+                    }
                     params.append('powers', isPowerEnabled);
                     params.append('host', actualUser.id);
-                    params.append('invitee', invitee.id);
-                    window.location.href = `/lobby?${params.toString()}`;
+                    params.append('type', (multiClicked == true ? 'multi' : 'single'));
+                    if (singleClicked == true) {
+                        params.append('ai', (ballSlider.value < 19 ? 'easy' : 'hard'));
+                    }
+                    window.location.href = `/tic-tac-toe?${params.toString()}`;
                 }
             });
 
@@ -400,10 +408,11 @@ async function showChat() {
     const inviteContainer = document.getElementById('inviteContainer');
 
     inviteButton.addEventListener('click', async () => {
+
         console.log('Invite button clicked');
         const username = inviteInput.value.trim();
         let invitee = await getUser(username);
-        if (invitee) {
+        if (invitee && invitee.id !== actualUser.id) {
             console.log('Invitee already set:', invitee);
             const params = new URLSearchParams();
             if (gameChosen == "ttt")
@@ -414,6 +423,11 @@ async function showChat() {
             params.append('host', actualUser.id);
             params.append('invitee', invitee.id);
             window.location.href = `/lobby?${params.toString()}`;
+        } else {
+            console.log('User not found');
+            const alert = document.createElement('p').textContent = 'User not found';
+            alert.style.color = 'red';
+            inviteContainer.appendChild(alert);
         }
     });
 

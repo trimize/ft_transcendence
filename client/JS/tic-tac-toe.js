@@ -276,3 +276,30 @@ function changeTurn() {
 
 // Initialize flame effect for Player 1
 changeTurn();
+
+
+function tttHtml()
+{
+	return `
+		<div id="lobbyDiv">
+			<div id="lobbyPlayer1">
+				<div class="lobbyPlayerPfp" id="lobbyPlayer1Pfp"></div>
+				<div class="lobbyPlayerUsername" id="lobbyPlayer1Username">toto</div>
+			</div>
+			<div id="lobbyPlayer2">
+				<div class="lobbyPlayerPfp" id="lobbyPlayer2Pfp"></div>
+				<div class="lobbyPlayerUsername" id="lobbyPlayer2Username">to</div>
+			</div>
+			<div id="lobbyStatusText">Game Starting ..</div>
+		</div>
+		<div id="bg"></div>
+	`;
+}
+
+export function renderTTT()
+{
+    const urlParams = new URLSearchParams(window.location.search);
+    const host = urlParams.get('host');
+    const invitee = urlParams.get('invitee');
+	document.getElementById('content').innerHTML = tttHtml();
+}
