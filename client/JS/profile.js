@@ -5,6 +5,7 @@ import { DEFAULT_PROFILE_PIC, BACKEND_URL } from "./appconfig.js";
 
 const renderProfilePage = (userData) => {
     return `
+    <a id="backButtonEdit"></a>
         <div id="pfpDiv">
                 <img alt="Profile picture" id="pfp" src="${DEFAULT_PROFILE_PIC}">
             </div>
@@ -34,7 +35,7 @@ const renderProfilePage = (userData) => {
             <div id="bg"></div>`;
 }
 
-const renderEditProfileForm = () => {
+const renderEditProfileForm = (userData) => {
     return `
     <a id="backButtonEdit" href="/profile"></a>
             <div id="pfpDiv">
@@ -44,23 +45,24 @@ const renderEditProfileForm = () => {
                 <div id="pfBackground"></div>
                 <form id="editProfileForm" enctype="multipart/form-data" class="needs-validation" novalidate>
                 <div id="editUsername" class="text-editpf">Username</div>
-                <textarea type="text" class="inputEditProfile" id="usernameEditInput" placeholder="John Doe"></textarea>
+                <textarea type="text" class="inputEditProfile" id="usernameEditInput" placeholder=${userData.username || ""}></textarea>
                 <div id="editEmail" class="text-editpf">Email</div>
-                <textarea type="text" class="inputEditProfile" id="emailEditInput" placeholder="JohnDoe@gmail.com"></textarea>
+                <textarea type="text" class="inputEditProfile" id="emailEditInput" placeholder=${userData.email || ""}></textarea>
                 <div id="editProfilePicture" class="text-editpf">Profile picture</div>
                 <div class="custom-file" id="inputEditProfilePicture">
                     <input type="file" class="custom-file-input opacity-0 cursor-pointer zindex-2" id="formFile" accept="image/*">
                     <label class="custom-file-label" for="formFile" id="uploadLabel"></label>
                 </div>
-              
-                <text id="uploadErrorMessage">File too small</text>
+                 <div id="notificationAnonym" class="alert alert-success d-none" role="alert">
+                                Profile anonymized successfully!
+                            </div>
                 <button type="button" id="anonymizeBtn">Anonymize</button>
                 <button type="button" id="deleteBtn">Delete Account</button>
                 <button type="submit" id="saveButton">Save Changes</button>
                 <button type="button" id="setup2FA">Setup 2-Factor Authentication</button>
               </form>
                 </div>
-            <text id="editProfileErrorMessage">Username too small</text>
+            <text id="editProfileErrorMessage"></text>
             <div id="twofaSetupContainer">
                 <h3 class="text-center" id="twoFaTitle">Setup 2-Factor Authentication</h3>
                 <img id="qrCode" src="" alt="QR Code" class="img-fluid mb-3">
@@ -124,12 +126,13 @@ const attachEventListeners = () => {
         window.location.href = '/login';
     });
 
-    // document.getElementById('backButtonGameMenu').addEventListener('click', function() {
-    //     window.location.href = '/home';
-    // });
+    document.getElementById('backButtonEdit').addEventListener('click', function() {
+        window.location.href = '/home';
+    });
 
-    editButton.addEventListener('click', function() {
-        document.getElementById('content').innerHTML = renderEditProfileForm();
+    editButton.addEventListener('click', async function() {
+        const userData = await fetchUserData();
+        document.getElementById('content').innerHTML = renderEditProfileForm(userData);
         attachEditFormEventListeners();
     });
 
@@ -165,33 +168,35 @@ const attachEditFormEventListeners = () => {
     document.getElementById('editProfileForm').addEventListener('submit', async function(event) {
         event.preventDefault();
 
-        const username = document.getElementById('username').value;
-        const email = document.getElementById('email').value;
+        const username = document.getElementById('usernameEditInput').value;
+        const email = document.getElementById('emailEditInput').value;
         const profilePicture = document.getElementById("formFile").files[0];
+        const errorContainer = document.getElementById("editProfileErrorMessage");
         const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-        if (username.length < 3 || !emailPattern.test(email)) {
-            const errorContainer = document.getElementById("registerStatus");
+        if (username.length < 3) {
+            errorContainer.textContent = "Invalid username";
+            errorContainer.style.display = "block";
+            return;
+        }
+        if (!emailPattern.test(email)) {
+            errorContainer.textContent = "Invalid email";
             errorContainer.style.display = "block";
             return;
         }
         if (profilePicture) {
             const fileType = profilePicture.type;
-            const fileError = document.getElementById('fileError');
-
             if (fileType !== 'image/jpeg' && fileType !== 'image/png') {
-                fileError.style.display = 'block';
+                errorContainer.textContent = "Profile picture must be a JPEG or PNG image";
+                errorContainer.style.display = "block";
                 return;
-            } else {
-                fileError.style.display = 'none';
             }
         }
         try {
             await updateUserData(username, email, profilePicture);
             window.location.href = '/profile';
         } catch (error) {
-            const errorContainer = document.getElementById("registerStatus");
+            errorContainer.textContent = "Error updating user data";
             errorContainer.style.display = "block";
-            errorContainer.style.color= "red";
         }      
     });
 
@@ -235,7 +240,7 @@ const attachEditFormEventListeners = () => {
             document.getElementById(
               "qrCode"
             ).src = `data:image/png;base64,${base64Image}`;
-            document.getElementById("2faSetupContainer").style.display = "block";
+            document.getElementById("twofaSetupContainer").style.display = "block";
           } else {
             console.error("QR code image data is missing or invalid.");
           }
@@ -250,7 +255,7 @@ const attachEditFormEventListeners = () => {
           const data = await verify2FA(otpToken);
           if (data) {
             alert("2FA setup successful");
-            document.getElementById("2faSetupContainer").style.display = "none";
+            document.getElementById("twofaSetupContainer").style.display = "none";
           } else {
             alert("2FA setup failed: " + data.message);
           }
