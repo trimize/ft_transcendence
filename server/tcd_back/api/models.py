@@ -22,7 +22,7 @@ class User(AbstractBaseUser):
     username = models.CharField(max_length=255, unique=True)
     email = models.EmailField(unique=True)
     # profile_pic = models.CharField(blank=True, null=True)
-    profile_pic = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
+    profile_pic = models.ImageField(upload_to='profile_pics/', default="/profile_pics/default_user.jpg")
     friends = models.ManyToManyField('self', blank=True)
     invitations_received = models.ManyToManyField('self', blank=True)
     invitations_sent = models.ManyToManyField('self', blank=True)
