@@ -22,6 +22,6 @@ fclean: compose-down clean
 	@if [ ! -z "$(shell docker volume ls -q)" ]; then docker volume rm -f $(shell docker volume ls -q); else echo "No volumes to remove"; fi
 	@$(shell rm -rf $(SERVER_DIR)/api/migrations)
 
-re: fclean compose-up
+re: fclean all
 
-front: clean compose-up
+front: clean all
