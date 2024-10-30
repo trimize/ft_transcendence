@@ -5,6 +5,7 @@ const renderRegisterForm = () => {
             <div class="container-fluid">
                 <div class="connect-form">
                     <h2 class="text-center" id="registerTitle">Register</h2>
+                    <div id="registerStatus" style="display: none;""></div>
                     <form id="registerForm" class="needs-validation" novalidate>
                         <div id="registerUsername">
                             <input type="text" name="username" class="inputEditProfile" placeholder="Username" required>
@@ -26,9 +27,9 @@ const renderRegisterForm = () => {
                         </div>
                         <button type="submit" id="registerButton">register</button>
                         <div class="text-center" id="registerRegister">
-                            <a href="/register" class="btn btn-link">Already have an account ? Login</a>
+                            <a href="/login" class="btn btn-link">Already have an account ? Login</a>
                         </div>
-                        <div id="registerStatus" style="display: none;" class="mt-3 text-center"></div>
+                        
                     </form>
                 </div>
             </div>

@@ -24,16 +24,14 @@ const renderProfilePage = (userData) => {
                     Profile anonymized successfully!
                 </div>
                 <div>
-                    <div class="profileLogos" id="wins">
-                        <text class="profileNumbers">${
-                          userData.wins || 0
-                        }</text>
-                    </div>
-                    <div class="profileLogos" id="losses">
-                        <text class="profileNumbers">${
-                          userData.losses || 0
-                        }</text>
-                    </div>
+                    <div class="profileLogos" id="wins"></div>
+                    <p id="winsText" class="profileNumbers">${
+                          userData.wins || ""
+                        }</p>
+                    <div class="profileLogos" id="losses"></div>
+                    <p id="lossesText" class="profileNumbers">${
+                          userData.losses || ""
+                        }</p>
                     <button type="button" class="profileButtons" id="matchBtn">Match History</button>
                     <div id="matchDivProfile"></div>
                     <h2 id="username" class="text-pf">${
@@ -140,8 +138,8 @@ const attachEventListeners = () => {
       else profilePicture.src = DEFAULT_PROFILE_PIC;
       document.getElementById("username").textContent = profileData.username;
       document.getElementById("email").textContent = profileData.email;
-      document.getElementById("wins").textContent = profileData.wins;
-      document.getElementById("losses").textContent = profileData.losses;
+      document.getElementById("winsText").textContent = profileData.wins;
+      document.getElementById("lossesText").textContent = profileData.losses;
     })
     .catch((error) => {
       window.location.href = "/login";

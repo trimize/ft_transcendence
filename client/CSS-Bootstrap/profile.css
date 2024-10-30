@@ -70,25 +70,29 @@
     /*padding-left: 100px;*/
 }
 
-.profileNumbers
-{
+.profileNumbers {
     position: absolute;
     font-size: 30px;
-    left: 90px;
-    top: 12px;
+    left: 120px;
+    bottom: 290px;
+    width: 80px;
+    color: aliceblue;
 }
 
-#wins
+#lossesText
 {
+    left: 370px;
+}
+
+#wins {
     background-image: url('../Assets/victory.svg');
-    left: 110px;
+    left: 130px;
     bottom: 350px;
 }
 
-#losses
-{
+#losses {
     background-image: url('../Assets/loss.png');
-    left: 390px;
+    left: 380px;
     bottom: 350px;
 }
 

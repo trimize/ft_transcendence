@@ -28,6 +28,11 @@
     left: 40px;
 }
 
+.inputEditProfile::placeholder
+{
+    color: aliceblue;
+}
+
 #usernameEditInput
 {
     top: 130px;
@@ -204,8 +209,7 @@
     background-color: rgba(176, 179, 179, 0.425);
 }
 
-#deleteBtn
-{
+#deleteBtn {
     background-color: rgba(190, 104, 82, 0.425);
     color: aliceblue;
     width: 120px;
@@ -215,6 +219,7 @@
     bottom: 50px;
     border: none;
     transition: background-color ease 0.2s;
+    font-size: 15px;
 }
 
 #deleteBtn:hover
@@ -237,4 +242,9 @@
 #backButtonEdit:hover
 {
     cursor: pointer;
+}
+
+.custom-file-label
+{
+    color: rgba(240, 248, 255, 0);
 }

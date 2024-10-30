@@ -56,15 +56,14 @@
     position: absolute;
 }
 
-#connectionStatusRegister, #registerStatus
-{
-    color: red;
-    position: absolute;
-    bottom: 680px;
-    /* width: 150px; */
-    /* left: calc(100% - (150px / 2) - 50vw); */
-    left: 470px;
-    display: none;
+#connectionStatusRegister, #registerStatus {
+	color: red;
+	position: absolute;
+	bottom: 680px;
+	width: 400px;
+	left: calc(100% - (400px / 2) - 50vw);
+	display: none;
+	text-align: center;
 }
 
 #registerRegister
