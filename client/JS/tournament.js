@@ -66,6 +66,7 @@ const renderTournamentPage = () => {
 		</div>
 
 		<div id="firstRoundTree">
+			<button id="playButtonMatchV1">Play</button>
 			<div class="playerBranch" id="player1Branch"></div>
 			<div class="playerBranch" id="player2Branch"></div>
 			<div class="inBetweenBranch" id="inBetweenBranch1"></div>
@@ -79,6 +80,18 @@ const renderTournamentPage = () => {
 			<div id="finalInBetween"></div>
 			<div id="championDiv"></div>
 			<div id="Champion">Champion</div>
+		</div>
+
+		<div class="matchup" id="loosersRound">
+			<button id="playButtonLooserMatch">Play</button>
+			<div class="player-name" id="looser1">Looser 1</div>
+			<div class="player-name" id="looser2">Looser 2</div>
+		</div>
+		<div id="looserRoundTree">
+			<div class="playerBranch" id="player1BranchLooser"></div>
+			<div class="playerBranch" id="player2BranchLooser"></div>
+			<div class="inBetweenBranch" id="inBetweenBranchLooser"></div>
+			<div class="winnerText" id="winnerTextLooser">Winner</div>
 		</div>
 		<div id="bg"></div>`
 

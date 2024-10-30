@@ -329,3 +329,70 @@
     left: calc(290px + 300px + 220px);
     top: calc((130px / 2) + (344px + (120px / 2) - (130px / 2)) / 2);
 }
+
+#playButtonMatchV1
+{
+    position: absolute;
+    top: 550px;
+    left: 210px;
+    border: none;
+    background-color: rgba(148, 150, 151, 0.281);
+    transition: background-color ease 0.3s;
+    color: aliceblue;
+    width: 60px;
+}
+
+#playButtonMatchV1:hover
+{
+    background-color: rgba(189, 191, 192, 0.452);
+}
+
+#playButtonLooserMatch {
+    position: absolute;
+    top: 430px;
+    left: 400px;
+    border: none;
+    background-color: rgba(148, 150, 151, 0.281);
+    transition: background-color ease 0.3s;
+    color: aliceblue;
+    width: 60px;
+}
+#playButtonLooserMatch:hover
+{
+    background-color: rgba(189, 191, 192, 0.452);
+}
+
+#looser1
+{
+    position: absolute;
+    top: 220px;
+    left: 350px;
+}
+
+#looser2
+{
+    position: absolute;
+    top: 360px;
+    left: 350px;
+}
+
+#player1BranchLooser {
+    right: 260px;
+    top: 712px;
+}
+
+#player2BranchLooser {
+    right: 260px;
+    top: 852px;
+}
+
+#inBetweenBranchLooser {
+    right: 259px;
+    top: 712px;
+    height: 141px;
+}
+
+#winnerTextLooser {
+    left: 1700px;
+    top: 770px;
+}
