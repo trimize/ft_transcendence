@@ -7,6 +7,7 @@ SERVER_DIR=server/tcd_back
 .PHONY: all clean compose-up compose-down fclean re front
 
 all: compose-up
+	@$(shell cp ./client/Assets/default_user.jpg ./server/tcd_back/media/profile_pics)
 
 clean:
 	@if [ ! -z "$(shell docker ps -aq)" ]; then docker rm -f $(shell docker ps -aq); else echo "No containers to remove"; fi

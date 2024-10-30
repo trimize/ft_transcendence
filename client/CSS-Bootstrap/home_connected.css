@@ -446,19 +446,20 @@
     background-color: rgba(207, 18, 18, 0.603);
 }
 
-.requestPfp
-{
-    width: 30px;
-    height: 30px;
-    position: absolute;
-    left: 0;
-    top: 0;
+.requestPfp {
+	width: 30px;
+	height: 30px;
+	position: absolute;
+	left: 0;
+	top: 0;
+	background-size: cover;
 }
-
-.requestUsername
-{
-    width: 200px;
-    height: 30px;
-    position: absolute;
-    color: white;
+.requestUsername {
+	width: 100px;
+	height: 30px;
+	position: absolute;
+	color: white;
+	font-size: 15px;
+	left: 0;
+	top: 5px;
 }

@@ -678,7 +678,7 @@ async function renderFriendRequestNotif(friendNotifications)
         friendRequest.appendChild(requestUsername);
         const requestPfp = document.createElement('div');
         requestPfp.classList.add('requestPfp');
-        requestPfp.style.backgroundImage = `url('${BACKEND_URL}${friendNotifications[i].sender.profile_pic}')`;
+        requestPfp.style.backgroundImage = `url(${BACKEND_URL}${friendNotifications[i].sender.profile_pic})`;
         friendRequest.appendChild(requestPfp);
         invitationList.appendChild(friendRequest);
     };
