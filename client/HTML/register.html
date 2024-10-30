@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Transcendance</title>
+        <link rel="stylesheet" href="../CSS-Bootstrap/profile.css">
+        <link rel="stylesheet" href="../CSS-Bootstrap/home.css">
+        <link rel="stylesheet" href="../CSS-Bootstrap/home_connected.css">
+        <link rel="stylesheet" href="../CSS-Bootstrap/edit.css">
+        <link rel="stylesheet" href="../CSS-Bootstrap/login.css">
+        <link rel="stylesheet" href="../CSS-Bootstrap/register.css">
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    </head>
+    <body>
+        <div id="content" class="vh-100">
+            <a id="backButtonRegister" href="/"></a>
+            <div class="container-fluid">
+                <div class="connect-form">
+                    <h2 class="text-center" id="registerTitle">register</h2>
+                    <form id="registerForm" class="needs-validation" novalidate>
+                        <div id="registerUsername">
+                            <input type="text" name="username" class="inputEditProfile" placeholder="Username" required>
+                            <div class="invalid-feedback">
+                                Please enter your username.
+                            </div>
+                        </div>
+                        <div id="registerEmail">
+                            <input type="email" name="email" class="inputEditProfile" placeholder="Email" required>
+                            <div class="invalid-feedback">
+                                Please enter your email.
+                            </div>
+                        </div>
+                        <div id="registerPassword">
+                            <input type="password" name="password" class="inputEditProfile" placeholder="Password" required>
+                            <div class="invalid-feedback">
+                                Please enter your password.
+                            </div>
+                        </div>
+                        <button type="submit" id="registerButton">register</button>
+                        <div class="text-center" id="registerRegister">
+                            <a href="/register" class="btn btn-link">Already have an account ? Login</a>
+                        </div>
+                        <div id="connectionStatusRegister" class="mt-3 text-center">Wrong username/password</div>
+                    </form>
+                </div>
+            </div>
+            <div id="registerBg"></div>
+            <div id="bg"></div>
+        </div>
+        <script type="module" src="./js/router.js"></script>
+    </body>
+</html>

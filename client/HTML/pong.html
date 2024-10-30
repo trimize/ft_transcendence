@@ -7,48 +7,12 @@
 			PONG
 		</title>
 		<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-		<!--<link rel="stylesheet" href="../CSS-Bootstrap/Pong.css">-->
-		<link rel="stylesheet" href="/css/Pong.css">
+		<link rel="stylesheet" href="../CSS-Bootstrap/pong.css">
+		<!--<link rel="stylesheet" href="/css/Pong.css">-->
 		<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 	</head>
 	<body>
-		<div class="container-fluid" id="page">
-
-			<!--The vanigation bar-->
-
-			<nav class="navbar navbar-expand-lg navbar-dark bg-dark" id="navbar">
-
-				<!--Dropdown-->
-
-				<div class="dropdown">
-					<a class="navbar-brand dropdown-toggle" href="#" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-					H
-					</a>
-					<div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-					<a class="dropdown-item" href="/landing">Landing</a>
-					<a class="dropdown-item" href="/login">Login</a>
-					<a class="dropdown-item" href="/leaderboard">Leaderboard</a>
-					<a class="dropdown-item" href="/history">Match History</a>
-					<a class="dropdown-item" href="/customize">Customize</a>
-					</div>
-				</div>
-
-				<!--Game selection-->
-
-				<div class="collapse navbar-collapse d-flex align-items-stretch">
-					<ul class="navbar-nav w-100 flex-grow-1">
-					<li class="nav-item flex-fill">
-						<a class="nav-link nav-item-hover" href="/pong">PONG</a>
-					</li>
-					<li class="nav-item flex-fill">
-						<a class="nav-link nav-item-hover" href="/tic-tac-toe">TIC-TAC-TOE</a>
-					</li>
-					</ul>
-				</div>
-			</nav>
-
-			<!--The Game area with powers divs-->
-
+		<div id="content" class="vh-100">
 			<div class="content-area p-4" id="contentArea">
 				<div class="rectangle" id="player"></div>
 				<div id="score">0 : 0</div>
@@ -67,8 +31,7 @@
 			</div>
 		</div>
 		
-		<!--<script src="../JS/Pong.js"></script>-->
-		<script type="module" src="../JS/pong.js"></script>
+		<script src="../JS/pong.js"></script>
 		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 		<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>

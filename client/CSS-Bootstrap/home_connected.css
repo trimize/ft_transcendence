@@ -43,33 +43,39 @@
     transition: right ease 0.3s;
     /*display: flex;*/
     text-align: center;
+    border-left: 1px solid rgba(182, 183, 184, 0.315);
+    background-color: #81818138;
     /*justify-content: center;
     align-items: center;*/
 }
 
-#friendsList
-{
-    display: flex;
-    width: 250px;
-    flex-direction: column;
-    padding-left: 0;
-    margin-bottom: 0;
-}
-
-#friendsListBg
-{
-    position: absolute;
-    z-index: 0;
-    right: -250px;
-    width: 250px;
-    height: 100%;
-    top: 0px;
-    background-color: rgba(34, 34, 34, 0.651);
-    filter: blur(3px);
-    transition: right ease 0.3s;
+#friendsList {
+	display: flex;
+	width: 250px;
+	flex-direction: column;
+	padding-left: 0;
+	margin-bottom: 0;
+	margin-top: 58px;
 }
 
 .friendItem
+{
+    z-index: 1;
+    height: 70px;
+    width: 100%;
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    font-family: "Roboto", sans-serif;
+    font-size: 20px;
+    color: aliceblue;
+    /*background-color: rgba(119, 119, 115, 0.521);*/
+    border-bottom: 1px solid rgba(255, 255, 255, 0.527);
+    transition: background-color ease 0.3s;
+}
+
+.friendItemNotif
 {
     z-index: 1;
     height: 70px;
@@ -146,51 +152,48 @@
     /*display: none;*/
 }
 
-#showChatRoom
-{
-    position: absolute;
-    height: 20px;
-    width: 20px;
-    z-index: 11;
-    bottom: -20px;
-    left: calc((100% - 250px) / 2);
-    transition: bottom ease 0.3s;
-    background-image: url('../Assets/arrowUp.svg');
-    background-size: contain;
-    cursor: pointer;
-    transform: scaleY(-1);
+#showChatRoom {
+	position: absolute;
+	height: 20px;
+	width: 20px;
+	z-index: 11;
+	bottom: -20px;
+	left: calc((100% - 250px) / 2 + (300px) / 2);
+	transition: bottom ease 0.3s;
+	background-image: url('../Assets/arrowUp.svg');
+	background-size: contain;
+	cursor: pointer;
+	transform: scaleY(-1);
 }
 
-#chatInput
-{
-    z-index: 20;
-    position: absolute;
-    bottom: 25px;
-    width: 400px;
-    color: aliceblue;
-    background-color: rgba(182, 185, 187, 0.205);
-    left: calc((100% - 350px) / 2);
-    border-color: aliceblue;
-    border-width: 1px;
-    overflow: hidden;
-    resize: none;
+#chatInput {
+	z-index: 20;
+	position: absolute;
+	bottom: 25px;
+	width: 400px;
+	color: aliceblue;
+	background-color: rgba(182, 185, 187, 0.205);
+	left: calc(((100% - 350px) / 2) + (300px) / 2);
+	border-color: aliceblue;
+	border-width: 1px;
+	overflow: hidden;
+	resize: none;
 }
 
-#sendButton
-{
-    height: 54px;
-    width: 54px;
-    background-image: url('../Assets/send.svg');
-    background-size: 40px;
-    background-position: center;
-    background-repeat: no-repeat;
-    position: absolute;
-    left: calc(((100% - 350px) / 2) + 400px);
-    background-color: rgba(121, 121, 121, 0.342);
-    border-top-right-radius: 40%;
-    border-bottom-right-radius: 40%;
-    bottom: 25px;
-    transition: background-color ease 0.2s;
+#sendButton {
+	height: 54px;
+	width: 54px;
+	background-image: url('../Assets/send.svg');
+	background-size: 40px;
+	background-position: center;
+	background-repeat: no-repeat;
+	position: absolute;
+	left: calc(((100% - 350px) / 2) + 550px);
+	background-color: rgba(121, 121, 121, 0.342);
+	border-top-right-radius: 40%;
+	border-bottom-right-radius: 40%;
+	bottom: 25px;
+	transition: background-color ease 0.2s;
 }
 
 #sendButton:hover
@@ -205,10 +208,14 @@
     position: absolute;
     right: 0;
     top: 0;
-    width: 100vw;
     height: 550px;
     max-height: 550px;
+    width: 100%;
     background-color: rgba(134, 134, 134, 0.082);
+    display: flex;
+    flex-direction: column-reverse;
+    padding: 10px;
+    overflow-y: auto;
 }
 
 .blurryTopDiv::before {
@@ -222,4 +229,279 @@
     filter: blur(10px); /* Adjust the blur intensity as needed */
     z-index: 1;
     pointer-events: none; /* Make sure it doesn't interfere with clicks */
+}
+
+#searchContact
+{
+    width: 200px;
+    height: 35px;
+    background-color: rgba(34, 34, 34, 0.651);
+    padding: 6px 0;
+    font-family: "Roboto", sans-serif;
+    font-size: 15px;
+    border-style: none;
+    color: rgb(174, 174, 174);
+    z-index: 2;
+    border-bottom: 2px solid rgb(211, 210, 209);
+    resize: none;
+    position: absolute;
+    left: 0;
+    white-space: nowrap;
+    padding-left: 5px;
+    overflow: hidden;
+}
+
+#searchContact:focus
+{
+    outline: none;
+}
+
+#plusButton
+{
+    position: absolute;
+    right: 0;
+    z-index: 2;
+    top: 60px;
+    background-color: rgb(193, 193, 194);
+    width: 49px;
+    height: 35px;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color ease 0.2s, color ease 0.2s;
+}
+
+#plusButton:hover
+{
+    background-color: rgb(72, 72, 72);
+    color: white;
+}
+
+.balloon {
+    max-width: 60%;
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 10px;
+    position: relative;
+    word-wrap: break-word;
+}
+
+.sender {
+    align-self: flex-end;
+    background-color: #DCF8C6;
+    color: #000;
+}
+
+.receiver {
+    align-self: flex-start;
+    background-color: #FFF;
+    color: #000;
+}
+
+.friend-request-notification {
+    background-color: #f0f0f0;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.friend-request-notification p {
+    margin: 0 0 10px 0;
+}
+
+.friend-request-notification button {
+    margin: 5px;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.friend-request-notification button:hover {
+    background-color: #ddd;
+}
+
+#notFriendMessage {
+	color: rgb(138, 138, 138);
+	width: 240px;
+	height: 25px;
+	font-family: 'Roboto';
+	font-size: 20px;
+	font-weight: 300;
+	position: absolute;
+	top: 40px;
+	z-index: 2;
+	left: calc((100% - 250px) / 2 + 175px);
+	display: none;
+}
+
+#inviteContainer
+{
+    z-index: 5;
+    width: 100vw;
+    height: 100vh;
+    backdrop-filter: blur(10px);
+    position: absolute;
+    display: none;
+    background-color: #5555555b;
+    right: 0;
+}
+
+#inviteInput {
+	background-color: #d7c1c140;
+	color: white;
+	border: none;
+	position: absolute;
+	width: 150px;
+	height: 30px;
+	top: 60vh;
+	left: calc(100% - 50vw - (150px / 2));
+}
+
+#inviteButton {
+	font-family: 'Roboto';
+	font-weight: 300;
+	font-size: 20px;
+	width: 150px;
+	height: 40px;
+	border-radius: 10px;
+	position: absolute;
+	top: 75vh;
+	background-color: #a1a3a466;
+	border: none;
+	color: white;
+	left: calc(100% - 50vw - (150px / 2) + 120px);
+	transition: background-color ease 0.3s;
+}
+
+#inviteButton:hover{
+    background-color: #c4c7c97a;
+}
+
+#cancelInviteButton {
+	font-family: 'Roboto';
+	font-weight: 300;
+	font-size: 20px;
+	width: 150px;
+	height: 40px;
+	border-radius: 10px;
+	position: absolute;
+	top: 75vh;
+	background-color: #d6765966;
+	border: none;
+	color: white;
+	left: calc(100% - 50vw - (150px / 2) - 120px);
+	transition: background-color ease 0.3s;
+}
+
+#cancelInviteButton:hover
+{
+    background-color: #f03e0766;
+}
+
+#invitationDiv {
+	position: absolute;
+	left: 0;
+	height: 100%;
+	width: 300px;
+	border-right: 1px rgba(151, 151, 151, 0.377) solid;
+	z-index: 3;
+	background-color: #b1b1b11a;
+}
+
+#invitationList
+{
+    display: flex;
+    flex-direction: column;
+    padding-left: 0;
+}
+
+.friendInvitationElement {
+	height: 80px;
+	width: 100%;
+	align-items: center;
+	display: flex;
+	padding-left: 60px;
+	color: aliceblue;
+	border-bottom: #8d97979e solid 1px;
+}
+
+.correctDiv {
+	cursor: pointer;
+	background-image: url('../Assets/correct.svg');
+	background-color: rgba(138, 136, 136, 0.411);
+	transition: background-color ease 0.3s;
+	width: 30px;
+	height: 30px;
+	background-size: cover;
+	/* margin-left: 0px; */
+	/* margin-right: 10px; */
+}
+.correctDiv:hover
+{
+    background-color: rgba(177, 175, 175, 0.411);
+}
+
+.crossDiv {
+	cursor: pointer;
+	background-image: url('../Assets/cross.svg');
+	background-color: rgba(179, 87, 87, 0.534);
+	transition: background-color ease 0.3s;
+	width: 30px;
+	height: 30px;
+	background-size: cover;
+	margin-right: 20px;
+}
+
+.crossDiv:hover
+{
+    background-color: rgba(207, 18, 18, 0.603);
+}
+
+.requestPfp {
+	width: 30px;
+	height: 30px;
+	position: absolute;
+	left: 0;
+	top: 0;
+	background-size: cover;
+}
+
+.requestUsername {
+	width: 100px;
+	height: 30px;
+	position: absolute;
+	color: white;
+	font-size: 15px;
+	left: 0;
+	top: 5px;
+}
+
+#friendAddStatus {
+	color: green;
+	height: 10px;
+	width: 200px;
+	font-family: 'Roboto';
+	font-weight: 300;
+	position: absolute;
+	left: 30px;
+	top: -50px;
+    animation: glow 5s ease-in-out;
+    display: none;
+}
+
+@keyframes glow {
+    0%, 100% {
+        text-shadow: 0 0 10px #fff, 0 0 20px #ff8c00, 0 0 30px #ff8c00, 0 0 40px #ff8c00;
+        color: #ff8c00;
+    }
+    50% {
+        text-shadow: 0 0 20px #ff8c00, 0 0 30px #ff4500, 0 0 40px #ff4500, 0 0 50px #ff4500;
+        color: #ff4500;
+    }
 }

@@ -1,6 +1,15 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
 from django.db.models import F
+from django.core.exceptions import ValidationError
+
+def validate_no_spaces(value):
+    if ' ' in value:
+        raise ValidationError('Username should not contain spaces')
+
+def validate_length(value):
+    if len(value) < 3 or len(value) > 12:
+        raise ValidationError('Username should be between 3 and 12 characters long')
 
 class UserManager(BaseUserManager):
     def create_user(self, username, email, password=None, **extra_fields):
@@ -19,10 +28,12 @@ class UserManager(BaseUserManager):
         return self.create_user(username, email, password, **extra_fields)
 
 class User(AbstractBaseUser):
-    username = models.CharField(max_length=255, unique=True)
+    username = models.CharField(max_length=12, unique=True, validators=[
+            validate_length,
+            validate_no_spaces
+        ])
     email = models.EmailField(unique=True)
-    # profile_pic = models.CharField(blank=True, null=True)
-    profile_pic = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
+    profile_pic = models.ImageField(upload_to='profile_pics/', default="profile_pics/default_user.jpg")
     friends = models.ManyToManyField('self', blank=True)
     invitations_received = models.ManyToManyField('self', blank=True)
     invitations_sent = models.ManyToManyField('self', blank=True)

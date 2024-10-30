@@ -1,39 +1,38 @@
-import { fetchUserData, getUser, updateGame, createGame, fetchMatch, fetchUserById} from './fetchFunctions.js';
-import { getWebSocket } from './singletonSocket.js';
-import { getCurrentTime } from './utils.js';
+//import { fetchUserData, getUser, updateGame, createGame, fetchMatch, fetchUserById} from './fetchFunctions.js';
+//import { getWebSocket } from './singletonSocket.js';
+//import { getCurrentTime } from './utils.js';
 
-let start = false;
 let invited = false;
 let score_player = 0;
 let score_enemy = 0;
-let single = false;
+let single = true;
 let multi = false;
 let multi_online = false;
 let matchId;
 let finish = false;
 let connected = false;
-const usernameInput = document.getElementById('usernameInput');
+//const usernameInput = document.getElementById('usernameInput');
 const player = document.getElementById("player");
 const enemy = document.getElementById("enemy");
-const customization = document.getElementById("customizationModal");
-const start_button = document.getElementById("start-button");
-const enableBallAcceleration = document.getElementById('ballACC');
-const ballSpeed = document.getElementById('ballSpeed');
-const powersOption = document.getElementById('powers');
-const powerPlayerSpeed = document.getElementById('player_speed');
-const powerPlayerBallSpeed = document.getElementById('ball_speed');
-const powerEnemySpeed = document.getElementById('enemy_speed');
-const powerEnemyBallSpeed = document.getElementById('enemy_ball_speed');
+//const customization = document.getElementById("customizationModal");
+//const start_button = document.getElementById("start-button");
+//const enableBallAcceleration = document.getElementById('ballACC');
+//const ballSpeed = document.getElementById('ballSpeed');
+//const powersOption = document.getElementById('powers');
+//const powerPlayerSpeed = document.getElementById('player_speed');
+//const powerPlayerBallSpeed = document.getElementById('ball_speed');
+//const powerEnemySpeed = document.getElementById('enemy_speed');
+//const powerEnemyBallSpeed = document.getElementById('enemy_ball_speed');
 const movingSquare = document.getElementById("moving-square");
 const defaultBallLeft = parseInt(window.getComputedStyle(movingSquare).left, 10);
 const defaultBallTop = parseInt(window.getComputedStyle(movingSquare).top, 10);
-const retry_button = document.getElementById('retry-button');
-const end_modal = document.getElementById('victoryModal');
-const playerTitle = document.getElementById('waitingLabel');
-const inviteButton = document.getElementById('inviteOnline');
-const startOnlineButton = document.getElementById('startingGameOnline');
-const notConnectedModal = document.getElementById('notConnectedModal');
-const changeGMButoon = document.getElementById('changeGMbutton');
+//const retry_button = document.getElementById('retry-button');
+//const end_modal = document.getElementById('victoryModal');
+//const playerTitle = document.getElementById('waitingLabel');
+//const inviteButton = document.getElementById('inviteOnline');
+//const startOnlineButton = document.getElementById('startingGameOnline');
+//const notConnectedModal = document.getElementById('notConnectedModal');
+//const changeGMButoon = document.getElementById('changeGMbutton');
 let enemyY = parseInt(window.getComputedStyle(enemy).top, 10);
 let ai_ball_info;
 let move_up = true;
@@ -67,19 +66,106 @@ let socket;
 let data;
 let hasValue
 
-function predictBallPosition(ballX, ballY, framesAhead, ball, deltaY, deltaX)
+
+document.addEventListener("keydown", function(event)
 {
-	let futureY = ballY;
-	let futureDeltaY = deltaY;
+    event.preventDefault();
 
-	for (let i = 0; i < framesAhead; i++)
-	{
-		futureY += futureDeltaY;
-		if (futureY <= 0 || futureY >= ball.parentElement.clientHeight)
-			futureDeltaY = -futureDeltaY;
-	}
+    // Only listening when game has started
 
-	return { futureX: ballX + deltaX * framesAhead, futureY };
+    if (!finish)
+    {
+        const currentTop = parseInt(window.getComputedStyle(player).top, 10);
+        const current2pTop = parseInt(window.getComputedStyle(enemy).top, 10);
+        const parentDiv = player.parentElement;
+        const parentHeight = parentDiv.clientHeight;
+        const rectangleHeight = player.clientHeight;
+        const rectangle2pHeight = enemy.clientHeight;
+        
+        // Arrow up/down for player up/down
+        if ((single || multi) && !finish)
+        {
+            if (event.key === "ArrowUp")
+            {
+                let newTop = currentTop - step;
+                if (newTop < 0)
+                    newTop = 0;
+                player.style.top = newTop + "px";
+            }
+            else if (event.key === "ArrowDown")
+            {
+                let newTop = currentTop + step;
+                if (newTop > parentHeight - rectangleHeight)
+                    newTop = parentHeight - rectangleHeight;
+                player.style.top = newTop + "px";
+            }
+        }
+
+        // In case of multiplayer chosen enemy up/down
+
+        if (multi && !finish)
+        {
+            if (event.key === "w")
+            {
+                let newTop2 = current2pTop - step;
+                if (newTop2 < 0)
+                    newTop2 = 0;
+                enemy.style.top = newTop2 + "px";
+            }
+            else if (event.key === "s")
+            {
+                let newTop2 = current2pTop + step;
+                if (newTop2 > parentHeight - rectangle2pHeight)
+                    newTop2 = parentHeight - rectangle2pHeight;
+                enemy.style.top = newTop2 + "px";
+            }
+        }
+    }
+});
+
+
+let previousBallInfo = null; // To store the last known position and speed
+
+function predictBallPosition(ai_ball_info, framesAhead) {
+    // Extract initial information from `ai_ball_info`
+    let { ballX, ballY, deltaX, deltaY, gameHeight, gameWidth } = ai_ball_info;
+
+    let futureY = ballY;
+    let futureX = ballX;
+    let futureDeltaY = deltaY;
+    let futureDeltaX = deltaX;
+    let speedMultiplier = 1.0;
+
+    // Estimate the speed increment if `previousBallInfo` is available
+    if (previousBallInfo) {
+        // Calculate speed change based on previous interval
+        speedMultiplier = Math.sqrt(
+            (deltaX ** 2 + deltaY ** 2) /
+            (previousBallInfo.deltaX ** 2 + previousBallInfo.deltaY ** 2)
+        );
+    }
+
+    // Predict position over `framesAhead`, adjusting for speed
+    for (let i = 0; i < framesAhead; i++) {
+        futureY += futureDeltaY * speedMultiplier;
+        futureX += futureDeltaX * speedMultiplier;
+        // Handle vertical wall collisions
+        if (futureY <= 0 || futureY >= gameHeight) {
+            futureDeltaY = -futureDeltaY;
+            futureY = futureY <= 0 ? -futureY : gameHeight - futureY;
+        }
+
+        // Optional: Handle horizontal wall collisions
+        if (futureX <= 0 || futureX >= gameWidth) {
+            futureDeltaX = -futureDeltaX;
+            futureX = futureX <= 0 ? -futureX : gameWidth - futureX;
+        }
+    }
+
+    // Update `previousBallInfo` for the next call
+    previousBallInfo = { ballX, ballY, deltaX, deltaY };
+
+    return { futureX, futureY };
 }
 
 function handleAIPowers(futureY)
@@ -189,62 +275,6 @@ function handlePlayerPowers()
 	}
 }
 
-document.addEventListener("keydown", function(event)
-{
-	event.preventDefault();
-
-	// Only listening when game has started
-
-	if (start && !finish)
-	{
-		const currentTop = parseInt(window.getComputedStyle(player).top, 10);
-		const current2pTop = parseInt(window.getComputedStyle(enemy).top, 10);
-		const parentDiv = player.parentElement;
-		const parentHeight = parentDiv.clientHeight;
-		const rectangleHeight = player.clientHeight;
-		const rectangle2pHeight = enemy.clientHeight;
-		
-		// Arrow up/down for player up/down
-		if ((single || multi) && !finish)
-		{
-			if (event.key === "ArrowUp")
-			{
-				let newTop = currentTop - step;
-				if (newTop < 0)
-					newTop = 0;
-				player.style.top = newTop + "px";
-			}
-			else if (event.key === "ArrowDown")
-			{
-				let newTop = currentTop + step;
-				if (newTop > parentHeight - rectangleHeight)
-					newTop = parentHeight - rectangleHeight;
-				player.style.top = newTop + "px";
-			}
-		}
-
-		// In case of multiplayer chosen enemy up/down
-
-		if (multi && !finish)
-		{
-			if (event.key === "w")
-			{
-				let newTop2 = current2pTop - step;
-				if (newTop2 < 0)
-					newTop2 = 0;
-				enemy.style.top = newTop2 + "px";
-			}
-			else if (event.key === "s")
-			{
-				let newTop2 = current2pTop + step;
-				if (newTop2 > parentHeight - rectangle2pHeight)
-					newTop2 = parentHeight - rectangle2pHeight;
-				enemy.style.top = newTop2 + "px";
-			}
-		}
-	}
-});
-
 // Handling key pressing for powers
 
 function handleKeyDown(event)
@@ -302,17 +332,6 @@ function startMovingSquare()
 
 	// This is making sure the AI has info of the trajectory of the ball only every second
 
-	if (single)
-	{
-		const ai_info = setInterval(() =>
-		{
-			if (!finish)
-				ai_ball_info = deltaY;
-			else
-				clearInterval(ai_info);
-		}, 1000);
-	}
-
 	const moveInterval = setInterval(() =>
 	{
 		const playerRect = player.getBoundingClientRect();
@@ -323,9 +342,27 @@ function startMovingSquare()
 		const topPosition = parseInt(movingSquare.style.top, 10) || 0;
 		
 		// Calculating the ball's position every 50ms
-
+        
 		const newLeftPosition = leftPosition + deltaX;
 		const newTopPosition = topPosition + deltaY;
+        if (single)
+        {
+            const ai_info = setInterval(() => {
+                if (!finish) {
+                    // Capture the relevant information for the AI
+                    ai_ball_info = {
+                        ballX: newLeftPosition,
+                        ballY: newTopPosition,
+                        deltaX: deltaX,
+                        deltaY: deltaY,
+                        gameHeight: movingSquare.parentElement.clientHeight,
+                        gameWidth: movingSquare.parentElement.clientWidth
+                    };
+                } else {
+                    clearInterval(ai_info);
+                }
+            }, 1000);
+        }
 
 		// Ball bounces if touching the top and bottom edges of the game's window
 		if (ball_step > maxBallSpeed)
@@ -403,19 +440,20 @@ function startMovingSquare()
 		if (newLeftPosition >= centerX && single && bounce_X == -1 && single)
 		{
 
-			// The AI has 9 frames in advance to try and predict the ball direction
+			// The AI has 5 frames in advance to try and predict the ball direction
 
-			let frames_ahead = 6;
-			const predictedPosition = predictBallPosition(leftPosition, topPosition, frames_ahead, movingSquare, ai_ball_info, deltaX);
-
+			let frames_ahead = 15;
+			const predictedPosition = predictBallPosition(ai_ball_info, frames_ahead);
+            const enemyMidPoint = enemyRect.top + enemyRect.height / 2;
 			// Self-explanatory, handles the ai's powers
 			
 			handleAIPowers(predictBallPosition.futureY);
 
 			// AI moves down here, also move_up is a boolean that makes sure the AI doesn't go up
 			// and down frenetically
-
-			if (predictedPosition.futureY > enemyRect.top + enemyRect.height / 2 && move_down)
+            //console.log(predictedPosition.futureY);
+            //console.log(newTopPosition);
+			if (predictedPosition.futureY > enemyMidPoint && move_down)
 			{
 				enemyY += enemy_step;
 				if (enemyY > enemy.parentElement.clientHeight - enemy.clientHeight)
@@ -430,7 +468,7 @@ function startMovingSquare()
 			// AI moves down here, also move_down is a boolean that makes sure the AI doesn't go up
 			// and down frenetically
 
-			else if (predictedPosition.futureY < enemyRect.top + enemyRect.height / 2 && move_up)
+			else if (predictedPosition.futureY < enemyMidPoint && move_up)
 			{
 				enemyY -= enemy_step;
 				if (enemyY <= 0) 
@@ -472,26 +510,26 @@ function startMovingSquare()
 			if (score_player >= 3 || score_enemy >= 3)
 			{
 				document.getElementById("score").textContent = score_player + " : " + score_enemy;
-				if (connected && !hasValue)
-				{
-					const currentTime = getCurrentTime();
-					const matchData =
-					{
-						id: matchId,
-						player1_score: score_player,
-						player2_score: score_enemy,
-						player1_ball_touch: player_touch,
-						player2_ball_touch: enemy_touch,
-						player1_consec_touch: player1_max_consec_touch,
-						player2_consec_touch: player2_max_consec_touch,
-						fastest_ball_speed: maxBallSpeed,
-						end_time: currentTime,
-					};
-					updateGame(matchData);
-				}
+				//if (connected && !hasValue)
+				//{
+				//	const currentTime = getCurrentTime();
+				//	const matchData =
+				//	{
+				//		id: matchId,
+				//		player1_score: score_player,
+				//		player2_score: score_enemy,
+				//		player1_ball_touch: player_touch,
+				//		player2_ball_touch: enemy_touch,
+				//		player1_consec_touch: player1_max_consec_touch,
+				//		player2_consec_touch: player2_max_consec_touch,
+				//		fastest_ball_speed: maxBallSpeed,
+				//		end_time: currentTime,
+				//	};
+				//	updateGame(matchData);
+				//}
 				finish = true;
-				end_modal.style.display = 'block';
-				end_modal.classList.add('show');
+				//end_modal.style.display = 'block';
+				//end_modal.classList.add('show');
 				if (score_enemy == 3)
 				{
 					document.getElementById('victorytitle').textContent = "You lose";
@@ -499,40 +537,46 @@ function startMovingSquare()
 				}
 				else if (score_player == 3)
 				{
-					document.getElementById('victorytitle').textContent = "Victory!";
-					document.getElementById('endScore').textContent = score_player + " : " + score_enemy;
+					//document.getElementById('victorytitle').textContent = "Victory!";
+					//document.getElementById('endScore').textContent = score_player + " : " + score_enemy;
 				}
 				clearInterval(moveInterval);
-				const retryButton = document.getElementById('retry-button');
-				retryButton.addEventListener('click', function()
-				{
-					clearInterval(retryButton);
-					retry();
-					//reset = true;
-				});
+				//const retryButton = document.getElementById('retry-button');
+				//retryButton.addEventListener('click', function()
+				//{
+				//	clearInterval(retryButton);
+				//	retry();
+				//	//reset = true;
+				//});
 				return ;
 			}
-			if (connected && !hasValue)
-			{
-				const matchData =
-				{
-					id: matchId,
-					player1_score: score_player,
-					player2_score: score_enemy,
-					player1_ball_touch: player_touch,
-					player2_ball_touch: enemy_touch,
-					player1_consec_touch: player1_max_consec_touch,
-					player2_consec_touch: player2_max_consec_touch,
-					fastest_ball_speed: maxBallSpeed,
-				};
-				updateGame(matchData);
-			}
+			//if (connected && !hasValue)
+			//{
+				//const matchData =
+				//{
+				//	id: matchId,
+				//	player1_score: score_player,
+				//	player2_score: score_enemy,
+				//	player1_ball_touch: player_touch,
+				//	player2_ball_touch: enemy_touch,
+				//	player1_consec_touch: player1_max_consec_touch,
+				//	player2_consec_touch: player2_max_consec_touch,
+				//	fastest_ball_speed: maxBallSpeed,
+				//};
+				//updateGame(matchData);
+			//}
 			clearInterval(moveInterval);
 			movingSquare.style.display = 'none';
 			ball_power_player_touch = true;
 			ball_powered = false;
-			ball_step = parseInt(ballSpeed.value);
+			//ball_step = parseInt(ballSpeed.value);
 			setTimeout(startMovingSquare, 1000);
 		}
 	}, 50);
 }
+
+let checkValue = setInterval(function()
+{
+    setTimeout(startMovingSquare, 1000);
+    clearInterval(checkValue);
+}, 100);

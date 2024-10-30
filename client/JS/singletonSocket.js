@@ -1,4 +1,6 @@
-import { fetchUserData } from './fetchFunctions.js';
+// import { getUserInfo } from "./appconfig.js";
+import { fetchUserData } from "./fetchFunctions.js";
+
 let socket = null;
 
 export async function getWebSocket() {
@@ -10,9 +12,9 @@ export async function getWebSocket() {
             console.log('WebSocket connection established'); 
             try {
                 const userInfo = await fetchUserData();
-                console.log('Sending to WebSocket:', JSON.stringify({ type: "new_connection", userId: userInfo.userId }));
+                console.log('Sending to WebSocket:', JSON.stringify({ type: "new_connection", userId: userInfo.id }));
                 // Send userId to the WebSocket server
-                socket.send(JSON.stringify({ type: "new_connection" , userId: userId }));
+                socket.send(JSON.stringify({ type: "new_connection" , userId: userInfo.id }));
             } catch (error) {
                 console.error('Failed to fetch user info:', error);
             }

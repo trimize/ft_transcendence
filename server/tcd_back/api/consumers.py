@@ -61,7 +61,7 @@ class SocketConsumer(AsyncWebsocketConsumer):
 			if text_data_json['type'] == 'new_connection':
 				user_id = str(text_data_json.get('userId'))
 				print(f"JSON data: {text_data_json}")
-				if not user_id:
+				if not text_data_json.get('userId'):
 					print("User ID not provided")
 					return
 				user_channels[user_id] = self.channel_name
