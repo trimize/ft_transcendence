@@ -1,6 +1,6 @@
 import { fetchUserData, getUser, sendFriendRequest, getFriendNotifications, refuseFriendRequest, addFriend, getFriends, getPendingRequest, createGame } from "./fetchFunctions.js";
 import { BACKEND_URL, DEFAULT_PROFILE_PIC /* getUserInfo */ } from "./appconfig.js";
-import { getWebSocket } from "./singletonSocket.js";
+import { getWebSocket, sendMessage } from "./singletonSocket.js";
 
 let currentChatUser;
 let socket;
@@ -17,6 +17,7 @@ function closeInviteListener(inviteDiv, inviteInput)
     {
         inviteDiv.style.display = 'none';
         inviteInput.value = '';
+        document.getElementById('nestedBlur').style.display = 'block';
     });
 }
 
@@ -118,6 +119,7 @@ const addEventListeners = () => {
                     if (onlineClicked == false)
                     {
                         inviteContainer.style.display = 'block';
+                        document.getElementById('nestedBlur').style.display = 'block';
                         onlineMultiplayerMenu.style.textShadow = "0 0 15px rgb(255, 255, 255)";
                         onlineClicked = true;
                         multiClicked = false;
@@ -429,7 +431,33 @@ async function showChat() {
                 params.append('game', 'ttt');
             else
                 params.append('game', 'pong');
-            params.append('powers', isPowerEnabled);
+            
+            const body =
+            {
+                "game": params.get('game'),
+                "player1": actualUser.id,
+                "player2": invitee.id,
+                "match_type": "online_multiplayer",
+                "powers": isPowerEnabled
+            }
+            const matchData = await createGame(body);
+            const onlineMatchData =
+            {
+                type: "new_match",
+                game: gameType,
+                matchId: matchId,
+            };
+            await sendMessage(onlineMatchData);
+            const message = {
+                "type": "send_invite",
+                "game": params.get('game'),
+                "hostId": actualUser.id,
+                "inviteeId": invitee.id,
+                "matchId": matchData.matchId
+            }
+        
+            await sendMessage(message);
+            params.append('matchId', matchData.id);
             params.append('host', actualUser.id);
             params.append('invitee', invitee.id);
             window.location.href = `/lobby?${params.toString()}`;
@@ -493,6 +521,7 @@ async function showChat() {
                 chatInput.placeholder = "You need to be friends";
                 notFriendMessage.style.display = 'block';
             }
+            friendItem.querySelector('.redDot').style.display = 'none';
             console.log('Clicked!');
             document.documentElement.style.setProperty('--cube-size', '10vmax');
             showFriends.style.display = 'none';
@@ -582,6 +611,7 @@ async function addFriendButton()
             await sendFriendRequest(friendName);
             const pendingRequests = await getPendingRequest();
             renderPendingRequest(pendingRequests);
+            showChat();
         }
         friendAddStatus.style.display = "block";
         friendAddStatus.addEventListener('animationend', () => {
@@ -620,12 +650,16 @@ async function refuseFriendNotif(friend)
     const showChatRoom = document.getElementById('showChatRoom');
     const cube = document.getElementsByClassName('Cube');
     const showFriends = document.getElementById('showFriends');
+    const faces = document.querySelectorAll('.Face');
     showFriends.style.display = 'block';
     document.documentElement.style.setProperty('--cube-size', '20vmax');
     cube[0].style.top = "40vh";
     cube[0].style.left = "40vw";
     chatRoom.style.bottom = "calc(-1 * (100% - 300px))";
     showChatRoom.style.bottom = "-20px";
+    faces.forEach((face) => {
+        face.style.fontSize = "100px";
+    });
 }
 
 function renderPendingRequest(pendingRequests)
@@ -645,6 +679,18 @@ function renderPendingRequest(pendingRequests)
     // showChat();
 }
 
+function showRedDot(friendId)
+{
+    const friendsList = document.getElementById('friendsList');
+    const allFriendsElements = friendsList.querySelectorAll('.friendItem');
+    allFriendsElements.forEach(child => {
+        if (child.classList.contains('friend' + friendId))
+        {
+            child.querySelector('.redDot').style.display = 'block';
+        }
+    });
+}
+
 function renderFriendRequest(friendNotifications)
 {
     const friendsList = document.getElementById('friendsList');
@@ -657,7 +703,12 @@ function renderFriendRequest(friendNotifications)
         friendRequest.classList.add('friendItem');
         friendRequest.textContent = friendNotifications[i].sender.username;
         friendRequest.style.color = "grey";
-        friendRequest.classList.add('friendRequest')
+        friendRequest.classList.add('friendRequest');
+        friendRequest.classList.add('friend' + friendNotifications[i].sender.id)
+        const redDot = document.createElement('div');
+        redDot.classList.add('redDot');
+        redDot.style.display = 'block';
+        friendRequest.appendChild(redDot);
         friendsList.appendChild(friendRequest);
     };
     // showChat();
@@ -715,6 +766,11 @@ function renderFriendsList(friends, friendNotifications, pendingRequests)
         friendElement.textContent = friends[i].username;
         friendElement.style.color = "cyan";
         friendElement.classList.add('friend');
+        friendElement.classList.add('friend' + friends[i].id);
+        const redDot = document.createElement('div');
+        redDot.classList.add('redDot');
+        redDot.style.display = 'none';
+        friendElement.appendChild(redDot);
         friendsList.appendChild(friendElement);
     };
     showChat();
@@ -785,6 +841,11 @@ export const renderBaseHomePage = async () =>
                 {
                     renderConversationBalloon(message.message, false);
                 }
+                else
+                {
+                    showRedDot(message.senderId);
+                    //console.log('red dot should show now');
+                }   
             } else if (message.type === 'send_invite') {
                 console.log('Received game invite:', message);
                 if (!messages[message.hostId]) {
