@@ -66,6 +66,33 @@ const attachEventListeners = () => {
             } else if (data.message === '2FA required') {
                 document.getElementById('loginForm').style.display = 'none';
                 document.getElementById('2faForm').style.display = 'block';
+                document.getElementById('verify2FA').addEventListener('click', function() {
+                    const username = document.querySelector('#loginForm input[name="username"]').value;
+                    const password = document.querySelector('#loginForm input[name="password"]').value;
+                    const otpToken = document.getElementById('otpToken').value;
+            
+                    fetch(`${BACKEND_URL}/api/verify_2fa/`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ username: username, password: password, token: otpToken })
+                    })
+                    .then(response => response.json())
+                    .then(async data => {
+                        if (data.access && data.refresh) {
+                            localStorage.setItem('access', data.access);
+                            localStorage.setItem('refresh', data.refresh);
+                            localStorage.setItem('websocket_url', data.websocket_url);
+                            window.location.href = '/profile';
+                        } else {
+                            console.error('2FA verification failed:', data);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+                });
             } else {
                 console.error('Login failed:', data);
                 const errorDiv = document.getElementById('connectionStatus');
@@ -79,33 +106,6 @@ const attachEventListeners = () => {
         });
     });
 
-    document.getElementById('verify2FA').addEventListener('click', function() {
-        const username = document.querySelector('#loginForm input[name="username"]').value;
-        const password = document.querySelector('#loginForm input[name="password"]').value;
-        const otpToken = document.getElementById('otpToken').value;
-
-        fetch(`${BACKEND_URL}/api/verify_2fa/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ username: username, password: password, token: otpToken })
-        })
-        .then(response => response.json())
-        .then(async data => {
-            if (data.access && data.refresh) {
-                localStorage.setItem('access', data.access);
-                localStorage.setItem('refresh', data.refresh);
-                localStorage.setItem('websocket_url', data.websocket_url);
-                window.location.href = '/profile';
-            } else {
-                console.error('2FA verification failed:', data);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
-    });
 };
 
 export const renderLogin = () => {
