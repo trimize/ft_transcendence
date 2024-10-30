@@ -298,6 +298,7 @@
     align-self: flex-start;
     background-color: #FFF;
     color: #000;
+    margin-left: 300px;
 }
 
 .friend-request-notification {

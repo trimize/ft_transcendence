@@ -394,7 +394,6 @@ function renderConversationBalloon(message, isSender) {
 async function showChat() {
     let showFriendBool = false;
     let isFriendClicked = false;
-    const friendNotifications = await getFriendNotifications();
     const chatRoom = document.getElementById('chatRoom');
     const conversationDiv = document.getElementById('conversation');
     const showChatRoom = document.getElementById('showChatRoom');
@@ -485,8 +484,6 @@ async function showChat() {
                 chatInput.placeholder = "You need to be friends";
                 notFriendMessage.style.display = 'block';
             }
-            const friendrequests = await getFriendNotifications();
-            renderFriendRequestNotif(friendrequests);
             console.log('Clicked!');
             document.documentElement.style.setProperty('--cube-size', '10vmax');
             showFriends.style.display = 'none';
@@ -501,13 +498,16 @@ async function showChat() {
                 friendItem.style.backgroundColor = "";
             });
             friendItem.style.backgroundColor = "rgba(130, 132, 134, 0.356)";
-
+            conversationDiv.innerHTML = '';
             // Check if the friend is in the list of friend notifications
+
             const friendUsername = friendItem.textContent.trim();
             currentChatUser = await getUser(friendUsername); //May cause issues with async
-            if (messages[friendUsername]) {
-                messages[friendUsername].forEach(msg => {
-                    renderConversationBalloon(msg.message, msg.sender === actualUser.username);
+            const friendrequests = await getFriendNotifications();
+            renderFriendRequestNotif(friendrequests);
+            if (messages[currentChatUser.id]) {
+                messages[currentChatUser.id].forEach(msg => {
+                    renderConversationBalloon(msg.message, msg.senderId === actualUser.id);
                 });
             }
         });
@@ -586,14 +586,16 @@ async function acceptFriendNotif(friend)
 {
     await addFriend(friend.id);
     const friends = await getFriends();
-    console.log(friends);
     const friendNotifications = await getFriendNotifications();
-    console.log(friendNotifications);
     const pendingRequests = await getPendingRequest();
-    console.log(pendingRequests);
     renderFriendRequestNotif(friendNotifications);
     renderFriendRequest(friendNotifications);
     renderFriendsList(friends, friendNotifications, pendingRequests);
+    const chatInput = document.getElementById('chatInput');
+    const notFriendMessage = document.getElementById('notFriendMessage');
+    chatInput.disabled = false;
+    chatInput.placeholder = "Type away..";
+    notFriendMessage.style.display = 'none';
 }
 
 async function refuseFriendNotif(friend)
@@ -605,6 +607,16 @@ async function refuseFriendNotif(friend)
     renderFriendRequestNotif(friendNotifications);
     renderFriendRequest(friendNotifications);
     renderFriendsList(friends, friendNotifications, pendingRequests);
+    const chatRoom = document.getElementById('chatRoom');
+    const showChatRoom = document.getElementById('showChatRoom');
+    const cube = document.getElementsByClassName('Cube');
+    const showFriends = document.getElementById('showFriends');
+    showFriends.style.display = 'block';
+    document.documentElement.style.setProperty('--cube-size', '20vmax');
+    cube[0].style.top = "40vh";
+    cube[0].style.left = "40vw";
+    chatRoom.style.bottom = "calc(-1 * (100% - 300px))";
+    showChatRoom.style.bottom = "-20px";
 }
 
 function renderPendingRequest(pendingRequests)
@@ -649,29 +661,31 @@ function renderFriendRequestNotif(friendNotifications)
     childsToRemove.forEach(child => child.remove());
     for(let i = 0; i < friendNotifications.length; i++)
     {
-        console.log(friendNotifications[i]);
-        const friendRequest = document.createElement('li');
-        friendRequest.classList.add('friendItemNotif');
-        friendRequest.textContent = "New friend request!"
-        friendRequest.style.color = "aliceblue";
-        friendRequest.classList.add('friendInvitationElement');
-        const correct = document.createElement('div');
-        correct.classList.add('correctDiv');
-        friendRequest.appendChild(correct);
-        const cross = document.createElement('div');
-        cross.classList.add('crossDiv');
-        friendRequest.appendChild(cross);
-        const requestUsername = document.createElement('div');
-        requestUsername.classList.add('requestUsername');
-        requestUsername.textContent = friendNotifications[i].sender.username;
-        friendRequest.appendChild(requestUsername);
-        const requestPfp = document.createElement('div');
-        requestPfp.classList.add('requestPfp');
-        requestPfp.style.backgroundImage = `url(${BACKEND_URL}${friendNotifications[i].sender.profile_pic})`;
-        friendRequest.appendChild(requestPfp);
-        invitationList.appendChild(friendRequest);
-        correct.addEventListener('click', () => acceptFriendNotif(friendNotifications[i].sender));
-        cross.addEventListener('click', () => refuseFriendNotif(friendNotifications[i].sender));
+        if (friendNotifications[i].sender.id == currentChatUser.id)
+        {
+            const friendRequest = document.createElement('li');
+            friendRequest.classList.add('friendItemNotif');
+            friendRequest.textContent = "New friend request!"
+            friendRequest.style.color = "aliceblue";
+            friendRequest.classList.add('friendInvitationElement');
+            const correct = document.createElement('div');
+            correct.classList.add('correctDiv');
+            friendRequest.appendChild(correct);
+            const cross = document.createElement('div');
+            cross.classList.add('crossDiv');
+            friendRequest.appendChild(cross);
+            const requestUsername = document.createElement('div');
+            requestUsername.classList.add('requestUsername');
+            requestUsername.textContent = friendNotifications[i].sender.username;
+            friendRequest.appendChild(requestUsername);
+            const requestPfp = document.createElement('div');
+            requestPfp.classList.add('requestPfp');
+            requestPfp.style.backgroundImage = `url(${BACKEND_URL}${friendNotifications[i].sender.profile_pic})`;
+            friendRequest.appendChild(requestPfp);
+            invitationList.appendChild(friendRequest);
+            correct.addEventListener('click', () => acceptFriendNotif(friendNotifications[i].sender));
+            cross.addEventListener('click', () => refuseFriendNotif(friendNotifications[i].sender));
+        }
     };
     // showChat();
 }

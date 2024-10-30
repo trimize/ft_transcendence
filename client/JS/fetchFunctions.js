@@ -300,7 +300,7 @@ export async function refuseFriendRequest(friend_id) {
 	const accessToken = await securelyGetAccessToken();
 	try {
 	  let response = await fetch(
-	    `${BACKEND_URL}/api/refuse_friend_request/${friend_id}`,
+	    `${BACKEND_URL}/api/refuse_friend_request/${friend_id}/`,
 	    {
 	      method: "PUT",
 	      headers: {
