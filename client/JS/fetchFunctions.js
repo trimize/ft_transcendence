@@ -179,7 +179,6 @@ export async function addFriend(userId) {
     );
     if (response.ok) {
       console.log("Friend added successfully");
-      location.reload();
     } else {
       alert("Failed to add friend");
     }
