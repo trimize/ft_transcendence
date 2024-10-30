@@ -49,17 +49,33 @@
     align-items: center;*/
 }
 
-#friendsList
-{
-    display: flex;
-    width: 250px;
-    flex-direction: column;
-    padding-left: 0;
-    margin-bottom: 0;
-    margin-top: 80px;
+#friendsList {
+	display: flex;
+	width: 250px;
+	flex-direction: column;
+	padding-left: 0;
+	margin-bottom: 0;
+	margin-top: 58px;
 }
 
 .friendItem
+{
+    z-index: 1;
+    height: 70px;
+    width: 100%;
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    font-family: "Roboto", sans-serif;
+    font-size: 20px;
+    color: aliceblue;
+    /*background-color: rgba(119, 119, 115, 0.521);*/
+    border-bottom: 1px solid rgba(255, 255, 255, 0.527);
+    transition: background-color ease 0.3s;
+}
+
+.friendItemNotif
 {
     z-index: 1;
     height: 70px;
@@ -405,7 +421,7 @@
     padding-left: 0;
 }
 
-.invitationElement {
+.friendInvitationElement {
 	height: 80px;
 	width: 100%;
 	align-items: center;
@@ -423,9 +439,9 @@
 	width: 30px;
 	height: 30px;
 	background-size: cover;
-	margin-left: 55px;
+	/* margin-left: 0px; */
+	/* margin-right: 10px; */
 }
-
 .correctDiv:hover
 {
     background-color: rgba(177, 175, 175, 0.411);
@@ -439,6 +455,7 @@
 	width: 30px;
 	height: 30px;
 	background-size: cover;
+	margin-right: 20px;
 }
 
 .crossDiv:hover
@@ -454,6 +471,7 @@
 	top: 0;
 	background-size: cover;
 }
+
 .requestUsername {
 	width: 100px;
 	height: 30px;
@@ -462,4 +480,28 @@
 	font-size: 15px;
 	left: 0;
 	top: 5px;
+}
+
+#friendAddStatus {
+	color: green;
+	height: 10px;
+	width: 200px;
+	font-family: 'Roboto';
+	font-weight: 300;
+	position: absolute;
+	left: 30px;
+	top: -50px;
+    animation: glow 5s ease-in-out;
+    display: none;
+}
+
+@keyframes glow {
+    0%, 100% {
+        text-shadow: 0 0 10px #fff, 0 0 20px #ff8c00, 0 0 30px #ff8c00, 0 0 40px #ff8c00;
+        color: #ff8c00;
+    }
+    50% {
+        text-shadow: 0 0 20px #ff8c00, 0 0 30px #ff4500, 0 0 40px #ff4500, 0 0 50px #ff4500;
+        color: #ff4500;
+    }
 }
