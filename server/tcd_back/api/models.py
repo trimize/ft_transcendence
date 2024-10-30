@@ -2,11 +2,14 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
 from django.db.models import F
 from django.core.exceptions import ValidationError
-from django.core.validators import MinLengthValidator, MaxLengthValidator
 
 def validate_no_spaces(value):
     if ' ' in value:
         raise ValidationError('Username should not contain spaces')
+
+def validate_length(value):
+    if len(value) < 3 or len(value) > 12:
+        raise ValidationError('Username should be between 3 and 12 characters long')
 
 class UserManager(BaseUserManager):
     def create_user(self, username, email, password=None, **extra_fields):
@@ -26,8 +29,7 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser):
     username = models.CharField(max_length=12, unique=True, validators=[
-            MinLengthValidator(3),
-            MaxLengthValidator(12),
+            validate_length,
             validate_no_spaces
         ])
     email = models.EmailField(unique=True)
