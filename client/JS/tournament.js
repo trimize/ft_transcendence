@@ -1,51 +1,6 @@
-import { getWebSocket, sendMessage } from './singletonSocket.js';
+import { sendMessage, getSocket, receiveInfoFromSocket } from './socketHandler.js';
 import { fetchUserData, getUser, createTournament , getTournaments, fetchUserById, updateTournament, fetchUsers } from './fetchFunctions.js';
-import { getCurrentTime } from './utlis.js'
-import { getSocket } from './socketHandler.js';
-
-const addEventListeners = async () => {
-    const socket = getSocket();
-    try {
-        const usersListElement = document.getElementById('friendsList');
-        //const noFriendsMessageElement = document.getElementById('noFriendsMessage');
-        const profileData = await fetchUsers();
-
-        if (profileData && profileData.length > 0) {
-            profileData.forEach(friend => {
-                const listItem = document.createElement('li');
-                listItem.classList.add('friendItemTournament');
-                listItem.textContent = friend.username;
-                const inviteButton = document.createElement('div');
-                inviteButton.classList.add('friendItemInvite');
-                inviteButton.textContent = 'Invite';
-                listItem.appendChild(inviteButton);
-                usersListElement.appendChild(listItem);
-            });
-        }
-    } catch (error) {
-        console.error('Failed to fetch user data:', error);
-    }
-
-    const updatePlayerNames = (playerName) => {
-        const playerElements = document.querySelectorAll('.player-name');
-        //for (let playerElement of playerElements) {
-        //    if (playerElement.textContent.startsWith('Player')) {
-        //        playerElement.textContent = playerName;
-        //        break;
-        //    }
-        //}
-    };
-
-    const inviteButtons = document.querySelectorAll('.friendItemInvite');
-    inviteButtons.forEach(inviteButton => {
-        inviteButton.addEventListener('click', async (button) => {
-            const friendName = button.target.parentElement.firstChild.textContent.trim();
-            console.log(`Inviting ${friendName}`);
-            
-        });
-    });
-}
-
+import { getWebSocket } from './singletonSocket.js';
 const renderTournamentPage = () => {
 	return `
 	<div id="friendsListDivTournament">
@@ -95,6 +50,73 @@ const renderTournamentPage = () => {
 		</div>
 		<div id="bg"></div>`
 
+}
+
+const addEventListeners = async () => {
+	//get socket here??
+    try {
+        const usersListElement = document.getElementById('friendsListDivTournament');
+        const profileData = await fetchUsers();
+
+        if (profileData && profileData.length > 0) {
+            profileData.forEach(friend => {
+                const listItem = document.createElement('li');
+                listItem.classList.add('friendItemTournament');
+				let username = friend.username;
+				if (friend.username.length > 5)
+					username = friend.username.substring(0, 4) + "...";
+                listItem.textContent = username;
+                const inviteButton = document.createElement('div');
+                inviteButton.classList.add('friendItemInvite');
+                inviteButton.textContent = 'Invite';
+                listItem.appendChild(inviteButton);
+                usersListElement.appendChild(listItem);
+            });	
+        } else {
+			const listItem = document.createElement('li');
+			listItem.classList.add('friendItemTournament');
+			listItem.textContent = 'No friends found';
+		}
+    } catch (error) {
+        console.error('Failed to fetch user data:', error);
+    }
+
+    const updatePlayerNames = (playerName) => {
+        const playerElements = document.querySelectorAll('.player-name');
+        //for (let playerElement of playerElements) {
+        //    if (playerElement.textContent.startsWith('Player')) {
+        //        playerElement.textContent = playerName;
+        //        break;
+        //    }
+        //}
+    };
+
+    const inviteButtons = document.querySelectorAll('.friendItemInvite');
+    inviteButtons.forEach(inviteButton => {
+        inviteButton.addEventListener('click', async (button) => {
+            const friendName = button.target.parentElement.textContent;
+			// socket.send(JSON.stringify({ type: 'send_invite', game: 'tournament', friendName: friendName }));
+            console.log(`Inviting ${friendName}`);
+            
+        });
+    });
+	// socket.addEventListener('message', function(event)
+	// {
+	// 	const message = JSON.parse(event.data);
+	// 	if (message.type === 'send_invite')
+	// 	{
+	// 		console.log('Received game invite:', message);
+	// 	} else if (message.type === 'send_invite') {
+	// 		console.log('Received game invite:', message);
+	// 		if (!messages[message.hostId]) {
+	// 			messages[message.hostId] = [];
+	// 		}
+	// 		messages[message.hostId].push(message);
+	// 		if (currentChatUser && message.hostId === currentChatUser.id) {
+	// 			renderFriendRequestNotification(message.hostId, true, message.game);
+	// 		}
+	// 	}
+	// });
 }
 
 export const renderTournament = () => {
