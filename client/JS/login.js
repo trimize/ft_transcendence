@@ -26,6 +26,7 @@ const renderLoginForm = () => {
                         <div id="connectionStatus" class="mt-3 text-center">Wrong username/password</div>
                     </form>
                     <div id="2faForm" class="mt-3" style="display: none;">
+                    <div id="otpError" class="mt-3 text-center" style="display: none;"></div>
                         <input type="text" id="otpTokenLogin" class="inputEditProfile mb-3" placeholder="Enter OTP Token" required>
                         <button id="verify2FALogin" class="btn btn-primary btn-block">Verify 2FA</button>
                     </div>
@@ -71,7 +72,15 @@ const attachEventListeners = () => {
                         const username = document.querySelector('#loginForm input[name="username"]').value;
                         const password = document.querySelector('#loginForm input[name="password"]').value;
                         const otpToken = document.getElementById('otpTokenLogin').value;
-                
+                        if (!otpToken) {
+                            const errorDiv = document.getElementById('otpError');
+                            if (errorDiv) {
+                                errorDiv.textContent = "OTP token cannot be empty";
+                                errorDiv.style.display = "block";
+                                errorDiv.style.color = 'red';
+                            }
+                            return;
+                        }
                         fetch(`${BACKEND_URL}/api/verify_2fa/`, {
                             method: 'POST',
                             headers: {
@@ -87,7 +96,12 @@ const attachEventListeners = () => {
                                 localStorage.setItem('websocket_url', data.websocket_url);
                                 window.location.href = '/profile';
                             } else {
-                                console.error('2FA verification failed:', data);
+                                const errorDiv = document.getElementById('otpError');
+                                if (errorDiv) {
+                                    errorDiv.textContent = "Incorrect OTP token";
+                                    errorDiv.style.display = "block";
+                                    errorDiv.style.color = 'red';
+                                }
                             }
                         })
                         .catch(error => {
