@@ -346,8 +346,8 @@ function renderBaseHomeConnected()
             <div id="showFriends"></div>
             <div id="friendsListDiv">
                 <div id="friendsTitle"></div>
-                <text id="friendAddStatus">friend added successfully!</text>
-                <textarea type="text" id="searchContact" placeholder="John Doe"></textarea>
+                <text id="friendAddStatus"></text>
+                <textarea type="text" id="searchContact" placeholder="Search user"></textarea>
                 <div id="plusButton">+</div>
                 <ul id="friendsList">
                 </ul>
@@ -476,7 +476,7 @@ async function showChat() {
             if (friendItem.classList.contains('friend'))
             {
                 notFriendMessage.style.display = 'none';
-                chatInput.disabled = true;
+                chatInput.disabled = false;
                 chatInput.placeholder = "Type away..";
             }
             else
@@ -568,6 +568,8 @@ async function addFriendButton()
         } */
         else
         {
+            friendAddStatus.style.color = "green";
+            friendAddStatus.textContent = 'Friend request sent!';
             await sendFriendRequest(friendName);
             const pendingRequests = await getPendingRequest();
             renderPendingRequest(pendingRequests);
