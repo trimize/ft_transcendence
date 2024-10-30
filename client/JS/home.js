@@ -218,7 +218,16 @@ const addEventListeners = () => {
                     params.append('offline', offline);
                     let matchId = null;
                     if (!offline) {
-                        matchId = await createGame(actualUser.id, null, 'tic-tac-toe', isPowerEnabled);
+                        const requestBody = {
+                            host: actualUser.id,
+                            game: 'tic-tac-toe',
+                            player1: actualUser.id,
+                            player2: (invitee ? invitee.id : null),
+                            match_type: (multiClicked == true ? 'local_multiplayer' : 'singleplayer'),
+                            powers: isPowerEnabled,
+                            start_time: new Date().toISOString()
+                        };
+                        matchId = await createGame(requestBody);
                         params.append('matchId', matchId);
                     }
                     params.append('powers', isPowerEnabled);
