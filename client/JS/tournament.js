@@ -1,6 +1,7 @@
-import { sendMessage, getSocket, receiveInfoFromSocket } from './socketHandler.js';
+import { sendMessage, getSocket } from './socketHandler.js';
 import { fetchUserData, getUser, createTournament , getTournaments, fetchUserById, updateTournament, fetchUsers } from './fetchFunctions.js';
 import { getWebSocket } from './singletonSocket.js';
+
 const renderTournamentPage = () => {
 	return `
 	<div id="friendsListDivTournament">
@@ -53,7 +54,6 @@ const renderTournamentPage = () => {
 }
 
 const addEventListeners = async () => {
-	//get socket here??
     try {
         const usersListElement = document.getElementById('friendsListDivTournament');
         const profileData = await fetchUsers();
@@ -90,33 +90,31 @@ const addEventListeners = async () => {
         //    }
         //}
     };
-
+	
     const inviteButtons = document.querySelectorAll('.friendItemInvite');
     inviteButtons.forEach(inviteButton => {
         inviteButton.addEventListener('click', async (button) => {
+			let socket = getSocket();
             const friendName = button.target.parentElement.textContent;
-			// socket.send(JSON.stringify({ type: 'send_invite', game: 'tournament', friendName: friendName }));
-            console.log(`Inviting ${friendName}`);
-            
+			// const userData = await fetchUserData();
+			// needs to be updated according to the logic when game and tournament is created
+			// const tournamentData = await getTournaments();
+			const message = {
+                "type": "send_invite",
+                "game": 'pong',
+                "hostId": 1,
+                "inviteeId": friendName,
+                "matchId": 1
+            }
+			if (socket.readyState === WebSocket.OPEN) {
+                sendMessage(socket, message);
+                console.log(`Inviting ${friendName}`);
+            } else {
+                console.error('WebSocket is not open.');
+            }
+			// receiveInfoFromSocket(socket);
         });
     });
-	// socket.addEventListener('message', function(event)
-	// {
-	// 	const message = JSON.parse(event.data);
-	// 	if (message.type === 'send_invite')
-	// 	{
-	// 		console.log('Received game invite:', message);
-	// 	} else if (message.type === 'send_invite') {
-	// 		console.log('Received game invite:', message);
-	// 		if (!messages[message.hostId]) {
-	// 			messages[message.hostId] = [];
-	// 		}
-	// 		messages[message.hostId].push(message);
-	// 		if (currentChatUser && message.hostId === currentChatUser.id) {
-	// 			renderFriendRequestNotification(message.hostId, true, message.game);
-	// 		}
-	// 	}
-	// });
 }
 
 export const renderTournament = () => {
