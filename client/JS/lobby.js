@@ -119,12 +119,14 @@ async function socketListener()
 				newParams.append('ballAcc', matchData.ballAcc);
 				newParams.append('ballSpeed', matchData.ballSpeed);
 				newParams.append('powers', matchData.powers);
+				newParams.append('offline', false);
 			} else if (matchData.game == 'tic-tac-toe') {
 				const newParams = new URLSearchParams();
 				newParams.append('host', player1.id);
 				newParams.append('invitee', player2.id);
 				newParams.append('matchId', matchData.id);
 				newParams.append('powers', matchData.powers);
+				newParams.append('offline', false);
 				window.location.href = `/tic-tac-toe?${newParams.toString()}`;
 			}
 		} else if (message.type === 'refuse_invite' && message.matchId == matchData.id)
