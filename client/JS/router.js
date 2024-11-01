@@ -4,6 +4,7 @@ import { renderRegister } from "./register.js"
 import { renderProfile } from "./profile.js"
 import { renderLobby } from "./lobby.js"
 import { renderTTT } from "./tic-tac-toe.js"
+import { renderPong } from "./pong.js"
 import { getWebSocket } from "./singletonSocket.js";
 
 const router = () => {
@@ -24,6 +25,9 @@ const router = () => {
             break;
         case 'tic-tac-toe':
             renderTTT();
+            break;
+        case 'pong':
+            renderPong();
             break;
         case '/':
             renderBaseHomePage();

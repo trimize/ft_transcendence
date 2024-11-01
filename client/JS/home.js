@@ -1011,8 +1011,8 @@ export const renderBaseHomePage = async () =>
     }
     else
     {
-        offline = true;
         document.getElementById('content').innerHTML = renderBaseHomeBlock();
+        offline = true;
         addEventListeners();
     }
     
