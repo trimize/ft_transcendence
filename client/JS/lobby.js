@@ -2,8 +2,8 @@ import { createGame, fetchUserById, fetchUserData, fetchMatch, updateGame } from
 import { getWebSocket, sendMessage } from "./singletonSocket.js";
 import { getCurrentTime } from "./utlis.js";
 
-let socket;
 let user;
+let socket;
 let player1;
 let player2;
 let opponent;
@@ -70,25 +70,28 @@ export async function renderLobby()
 			"playerId": user.id,
 			"game": urlParams.get('game'),
 		}
-		socket.send(JSON.stringify(messageData));
-	}
-
-	if (!matchmaking && user.id != urlParams.get('host') && user.id != urlParams.get('invitee')) {
-		return`
-			<div>Error Page Here</div>
-		`;
-	} else if (user.id != matchData.player1 && user.id != matchData.player2) {
-		return`
-			<div>Error Page Here</div>
-		`;
-	} else if (user.id == urlParams.get('host')) {
-		player1 = user;
-		isPlayer1Ready = true;
-		player2 = await fetchUserById(urlParams.get('invitee'));
+		console.log("sending matchmaking message");
+		console.log(messageData);
+		sendMessage(messageData);
 	} else {
-		player2 = user;
-		isPlayer2Ready = true;
-		player1 = await fetchUserById(urlParams.get('host'));
+
+		if (user.id != urlParams.get('host') && user.id != urlParams.get('invitee')) {
+			return`
+			<div>Error Page Here</div>
+			`;
+		} else if (user.id != matchData.player1 && user.id != matchData.player2) {
+			return`
+			<div>Error Page Here</div>
+			`;
+		} else if (user.id == urlParams.get('host')) {
+			player1 = user;
+			isPlayer1Ready = true;
+			player2 = await fetchUserById(urlParams.get('invitee'));
+		} else {
+			player2 = user;
+			isPlayer2Ready = true;
+			player1 = await fetchUserById(urlParams.get('host'));
+		}
 	}
 
 	document.getElementById('content').innerHTML = lobbyHtml();
@@ -107,7 +110,7 @@ async function socketListener()
 	{
 		const message = JSON.parse(event.data);
 		console.log("message received " + event.data);
-		if (message.type === 'waiting_state')
+		if (message.type == 'waiting_state')
 		{
 			if (message.opponentId == user.id && matchData.id == message.matchId)
 			{
@@ -125,33 +128,38 @@ async function socketListener()
 				};
 				await updateGame(game_update_message);
 			}
-		} else if (message.type === 'allons-y')
+		} else if (message.type == 'allons-y')
 		{
 			if (!matchmaking && message.matchId != matchData.id) {
 				return;
 			}
-				stopWaitingState();
+			stopWaitingState();
 
-				if (matchmaking) {
-					matchData = await fetchMatch(message.matchId);
-				}
+			if (matchmaking) {
+				matchData = await fetchMatch(message.matchId);
+				console.log("matchData");
+				console.log(matchData);
+			}
 
-				if (matchData.game == 'pong') {
-					const newParams = new URLSearchParams();
-					newParams.append('host', player1.id);
-					newParams.append('invitee', player2.id);
-					newParams.append('matchId', matchData.id);
-					newParams.append('ballAcc', matchData.ballAcc);
-					newParams.append('ballSpeed', matchData.ballSpeed);
-					newParams.append('powers', matchData.powers);
-				} else if (matchData.game == 'tic-tac-toe') {
-					const newParams = new URLSearchParams();
-					newParams.append('host', player1.id);
-					newParams.append('invitee', player2.id);
-					newParams.append('matchId', matchData.id);
-					newParams.append('powers', matchData.powers);
-					window.location.href = `/tic-tac-toe?${newParams.toString()}`;
-				}
+			console.log("allons-y message received");
+
+			if (matchData.game == 'pong') {
+				const newParams = new URLSearchParams();
+				newParams.append('host', matchData.player1);
+				newParams.append('invitee', matchData.player2);
+				newParams.append('matchId', matchData.id);
+				newParams.append('ballAcc', matchData.ballAcc);
+				newParams.append('ballSpeed', matchData.ballSpeed);
+				newParams.append('powers', matchData.powers);
+			} else if (matchData.game == 'tic-tac-toe') {
+				console.log("allons-y message received2");
+				const newParams = new URLSearchParams();
+				newParams.append('host', matchData.player1);
+				newParams.append('invitee', matchData.player2);
+				newParams.append('matchId', matchData.id);
+				newParams.append('powers', matchData.powers);
+				window.location.href = `/tic-tac-toe?${newParams.toString()}`;
+			}
 		} else if (message.type === 'refuse_invite' && message.matchId == matchData.id)
 		{
 			stopWaitingState();

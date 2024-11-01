@@ -2,9 +2,11 @@ import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from .models import User, Match_Record
+from django.utils import timezone
+from asgiref.sync import sync_to_async
 
 user_channels = {}
-matchmaking = {}
+matchmaking = []
 
 class SocketConsumer(AsyncWebsocketConsumer):
 	async def connect(self):
@@ -273,26 +275,28 @@ class SocketConsumer(AsyncWebsocketConsumer):
 				print(f"Matchmaking: {matchmaking}")
 				
 				match_found = None
-				for i in matchmaking:
-					if matchmaking[i].get('game') == game:
-						match_found = matchmaking[i]
+				for match in matchmaking:
+					if match.get('game') == game:
+						match_found = match
 						break
 
 				if match_found:
 					print(f"Found a match for game {game}: {match_found}")
+		
+					game = 'tic-tac-toe' if game == 'ttt' else game
 					# Create a new match record and save to the database
-					match = Match_Record(
+					match = await sync_to_async(Match_Record.objects.create)(
 						game=game,
 						player1_id=player_id,
 						player2_id=match_found.get('playerId'),
-						match_type='online_multiplayer'
+						match_type='online_multiplayer',
 						start_time=timezone.now()
 					)
-					match.save()
+					await sync_to_async(match.save)()
 					matchmaking.remove(match_found)
 					# Send message to both players
 					player1_channel_name = user_channels.get(player_id)
-					player2_channel_name = user_channels.get(match_found.get('playerId'))
+					player2_channel_name = user_channels.get(str(match_found.get('playerId')))
 					message = {
 								'type': 'allons-y',
 								'player1': player_id,

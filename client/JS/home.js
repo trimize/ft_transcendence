@@ -7,6 +7,7 @@ let actualUser;
 let messages = {};
 let gameChosen;
 let isPowerEnabled;
+let matchmakingClicked = false;
 let offline = true;
 
 
@@ -438,8 +439,17 @@ async function showChat() {
     const inviteContainer = document.getElementById('inviteContainer');
 
     inviteButton.addEventListener('click', async () => {
-
         console.log('Invite button clicked');
+
+        if (matchmakingClicked) {
+            console.log('Matchmaking chosen');
+            const params = new URLSearchParams();
+            params.append('matchmaking', 'true');
+            params.append('game', gameChosen);
+            window.location.href = `/lobby?${params.toString()}`;
+            return;
+        }
+
         const username = inviteInput.value.trim();
         let invitee = await getUser(username);
         if (invitee && invitee.id !== actualUser.id) {
