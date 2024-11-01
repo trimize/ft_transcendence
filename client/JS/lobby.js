@@ -1,4 +1,4 @@
-import { createGame, fetchUserById, fetchUserData, fetchMatch } from "./fetchFunctions.js";
+import { createGame, fetchUserById, fetchUserData, fetchMatch, updateGame } from "./fetchFunctions.js";
 import { getWebSocket, sendMessage } from "./singletonSocket.js";
 import { getCurrentTime } from "./utlis.js";
 
@@ -102,7 +102,11 @@ async function socketListener()
 				}
 				await sendMessage(messageData);
 				// TODO Update match sending the start time
-
+				const game_update_message = {
+					"id": matchData.id,
+					"start_time": new Date().toISOString()
+				};
+				await updateGame(game_update_message);
 			}
 		} else if (message.type === 'allons-y' && message.matchId == matchData.id)
 		{

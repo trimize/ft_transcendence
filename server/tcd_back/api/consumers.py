@@ -33,6 +33,7 @@ class SocketConsumer(AsyncWebsocketConsumer):
 			print("User does not exist")
 			return
 
+		print(f"User {user_id} disconnected")
 		# Iterate through friends and send a message to connected friends
 		for friend in friends:
 			friend_id = str(friend.id)
@@ -41,8 +42,9 @@ class SocketConsumer(AsyncWebsocketConsumer):
 					'type': 'friend_disconnected',
 					'userId': user_id,
 				}
+				print(f"Sending disconnect message to user {friend_id}")
 				await self.channel_layer.send(
-					user_channels[friend_id],
+					user_channels.get(friend_id),
 					{
 					'type': 'send_message',
 					'message': message
@@ -85,7 +87,7 @@ class SocketConsumer(AsyncWebsocketConsumer):
 							'userId': user_id
 						}
 						await self.channel_layer.send(
-							user_channels[friend_id],
+							user_channels.get(friend_id),
 							{
 							'type': 'send_message',
 							'message': message
@@ -183,7 +185,7 @@ class SocketConsumer(AsyncWebsocketConsumer):
 					await self.channel_layer.send(
 						host_channel_name,
 						{
-							'type': 'invite_refused',
+							'type': 'send_message',
 							'message': text_data_json
 						}
 					)

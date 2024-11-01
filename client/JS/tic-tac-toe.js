@@ -127,13 +127,15 @@ function checkers(change) {
 
         const isEnd = (player1score >= 3 || player2score >= 3);
 
-        if (actualUser.id === host && !isOffline) {
+        if (actualUser.id == host && !isOffline) {
+            console.log('Updating game');
             const game_update_body = {
                 id: matchId,
-                player1score: player1score,
-                player2score: player2score,
+                player1_score: player1score,
+                player2_score: player2score,
                 end_time: (isEnd ? new Date() : null)
             };
+
             updateGame(game_update_body);
         }
 
@@ -488,6 +490,9 @@ export const renderTTT = async () => {
         });
     } else {
         matchData = await fetchMatch(matchId);
+        console.log('Match data:');
+        console.log(matchData);
+
         player1score = matchData.player1_score;
         player2score = matchData.player2_score;
 
@@ -529,14 +534,9 @@ export const renderTTT = async () => {
                     checkers(true);
                 } else if (message.movement === 'switch') {
                     switchCells(message.index1, message.index2);
-                    if (currentPlayer === 'O') {
-                        checkers(false);
-                    } else {
-                        checkers(true);
-                    }
                 }
-            } else if (message.type === 'friend_disconnect') {
-                if (message.id == host || message.id == invitee) {
+            } else if (message.type === 'friend_disconnected') {
+                if (message.userId == host || message.userId == invitee) {
                     const lobbyParams = new URLSearchParams();
                     lobbyParams.append('matchId', matchId);
                     lobbyParams.append('host', host);

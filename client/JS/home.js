@@ -794,10 +794,10 @@ async function acceptGameInvite(jsonMessage) {
         params.append('game', 'ttt');
     else
         params.append('game', 'pong');
-    params.append('matchId', jsonMessage.matchId);
-    params.append('host', jsonMessage.hostId);
-    params.append('invitee', jsonMessage.inviteeId);
-    params.append('powers', jsonMessage.powers);
+    params.append('matchId', matchData.id);
+    params.append('host', matchData.player1);
+    params.append('invitee', matchData.player2);
+    params.append('powers', matchData.powers);
     window.location.href = `/lobby?${params.toString()}`;
     messages[jsonMessage.hostId].forEach(msg => {
         if ((msg.type === 'send_invite' && msg.matchId === jsonMessage.matchId) || (msg.type === 'waiting_state' && msg.matchId === jsonMessage.matchId)) {
@@ -933,7 +933,7 @@ export const renderBaseHomePage = async () =>
                 if (!messages[message.userId]) {
                     messages[message.userId] = [];
                 }
-                if (messages[message.userId].forEach(msg => (msg.type === 'waiting_state' && msg.matchId == message.matchId) || (msg.type === 'send_invite' && msg.matchId == message.matchId))) {
+                if (messages[message.userId].some(msg => (msg.type === 'waiting_state' && msg.matchId == message.matchId) || (msg.type === 'send_invite' && msg.matchId == message.matchId))) {
                     return;
                 }
                 messages[message.userId].push(message);
