@@ -46,63 +46,120 @@ let offline;
 let userInfo;
 
 
-
-document.addEventListener("keydown", function(event)
+export const renderPong = async () =>
 {
-    event.preventDefault();
+	const urlParams = new URLSearchParams(window.location.search);
+	offline = urlParams.get('offline');
+	ball_step = urlParams.get('ballSpeed');
+	power = urlParams.get('powers');
+	ball_acc = urlParams.get('ballAcc');
+	defaultBallSpeed = urlParams.get('ballSpeed');
+	if (urlParams.get('type') == 'multi')
+		multi = true;
+	else if (urlParams.get('type') == 'single')
+		single = true;
+	else
+		multi_online = true;
 
-    // Only listening when game has started
+	if (!offline)
+	{
+		matchId = urlParams.get('matchId');
+		userInfo = await fetchUserData();
+	}
+	if (!offline && multi_online)
+	{
+		player1Id = urlParams.get('host');
+		player2Id = urlParams.get('invitee');
+		handlingSocketEvents();
+	}
 
-    if (!finish)
-    {
-        const currentTop = parseInt(window.getComputedStyle(player).top, 10);
-        const current2pTop = parseInt(window.getComputedStyle(enemy).top, 10);
-        const parentDiv = player.parentElement;
-        const parentHeight = parentDiv.clientHeight;
-        const rectangleHeight = player.clientHeight;
-        const rectangle2pHeight = enemy.clientHeight;
-        
-        // Arrow up/down for player up/down
-        if ((single || multi) && !finish)
-        {
-            if (event.key === "ArrowUp")
-            {
-                let newTop = currentTop - step;
-                if (newTop < 0)
-                    newTop = 0;
-                player.style.top = newTop + "px";
-            }
-            else if (event.key === "ArrowDown")
-            {
-                let newTop = currentTop + step;
-                if (newTop > parentHeight - rectangleHeight)
-                    newTop = parentHeight - rectangleHeight;
-                player.style.top = newTop + "px";
-            }
-        }
+	document.addEventListener("keydown", function(event)
+	{
+		event.preventDefault();
 
-        // In case of multiplayer chosen enemy up/down
+		// Only listening when game has started
 
-        if (multi && !finish)
-        {
-            if (event.key === "w")
-            {
-                let newTop2 = current2pTop - step;
-                if (newTop2 < 0)
-                    newTop2 = 0;
-                enemy.style.top = newTop2 + "px";
-            }
-            else if (event.key === "s")
-            {
-                let newTop2 = current2pTop + step;
-                if (newTop2 > parentHeight - rectangle2pHeight)
-                    newTop2 = parentHeight - rectangle2pHeight;
-                enemy.style.top = newTop2 + "px";
-            }
-        }
-    }
-});
+		if (!finish)
+		{
+			const currentTop = parseInt(window.getComputedStyle(player).top, 10);
+			const current2pTop = parseInt(window.getComputedStyle(enemy).top, 10);
+			const parentDiv = player.parentElement;
+			const parentHeight = parentDiv.clientHeight;
+			const rectangleHeight = player.clientHeight;
+			const rectangle2pHeight = enemy.clientHeight;
+			
+			// Arrow up/down for player up/down
+			if ((single || multi))
+			{
+				if (event.key === "ArrowUp")
+				{
+					let newTop = currentTop - step;
+					if (newTop < 0)
+						newTop = 0;
+					player.style.top = newTop + "px";
+				}
+				else if (event.key === "ArrowDown")
+				{
+					let newTop = currentTop + step;
+					if (newTop > parentHeight - rectangleHeight)
+						newTop = parentHeight - rectangleHeight;
+					player.style.top = newTop + "px";
+				}
+			}
 
+			// In case of multiplayer chosen enemy up/down
+
+			if (multi)
+			{
+				if (event.key === "w")
+				{
+					let newTop2 = current2pTop - step;
+					if (newTop2 < 0)
+						newTop2 = 0;
+					enemy.style.top = newTop2 + "px";
+				}
+				else if (event.key === "s")
+				{
+					let newTop2 = current2pTop + step;
+					if (newTop2 > parentHeight - rectangle2pHeight)
+						newTop2 = parentHeight - rectangle2pHeight;
+					enemy.style.top = newTop2 + "px";
+				}
+			}
+			else if (multi_online)
+			{
+				let newTop;
+				if (event.key === "ArrowUp")
+				{
+					newTop = currentTop - step;
+					if (newTop < 0)
+						newTop = 0;
+				}
+				else if (event.key === "ArrowDown")
+				{
+					newTop = currentTop + step;
+					if (newTop > parentHeight - rectangleHeight)
+						newTop = parentHeight - rectangleHeight;
+				}
+				const matchData =
+				{
+					type: "match_update",
+					matchId: matchId,
+					hostId: player1Id,
+					inviteeId: player2Id,
+					player1Position: newTop
+				};
+				sendMessage(matchData)
+			}
+		}
+	});
+	let checkValue = setInterval(function()
+	{
+		setTimeout(startMovingSquare, 1000);
+		clearInterval(checkValue);
+	}, 100);
+	document.getElementById('content').innerHTML = pongHTML();
+}
 
 let previousBallInfo = null; // To store the last known position and speed
 
@@ -393,7 +450,7 @@ function startMovingSquare()
 	const player = document.getElementById("player");
 	const enemy = document.getElementById("enemy");
 	const movingSquare = document.getElementById("moving-square");
-let enemyY = parseInt(window.getComputedStyle(enemy).top, 10);
+	let enemyY = parseInt(window.getComputedStyle(enemy).top, 10);
 	//console.log(ball_step);
 	const contentArea = player.parentElement;
 	enemy.style.left = contentArea.getBoundingClientRect().right - 97 + "px";
@@ -671,12 +728,6 @@ let enemyY = parseInt(window.getComputedStyle(enemy).top, 10);
 	}, 50);
 }
 
-let checkValue = setInterval(function()
-{
-    setTimeout(startMovingSquare, 1000);
-    clearInterval(checkValue);
-}, 100);
-
 function pongHTML()
 {
 	return `<div class="content-area p-4" id="contentArea">
@@ -695,121 +746,6 @@ function pongHTML()
 					<div class="bottom-right" id="enemy_ball_speed">Ball Speed</div>
 				</div>
 			</div>`
-}
-
-export const renderPong = async () =>
-{
-	const urlParams = new URLSearchParams(window.location.search);
-	offline = urlParams.get('offline');
-	ball_step = urlParams.get('ballSpeed');
-	power = urlParams.get('powers');
-	ball_acc = urlParams.get('ballAcc');
-	defaultBallSpeed = urlParams.get('ballSpeed');
-	if (urlParams.get('type') == 'multi')
-		multi = true;
-	else if (urlParams.get('type') == 'single')
-		single = true;
-	else
-		multi_online = true;
-
-	if (!offline)
-	{
-		matchId = urlParams.get('matchId');
-		userInfo = await fetchUserData();
-	}
-	if (!offline && multi_online)
-	{
-		player1Id = urlParams.get('host');
-		player2Id = urlParams.get('invitee');
-		handlingSocketEvents();
-	}
-
-	document.addEventListener("keydown", function(event)
-	{
-		event.preventDefault();
-
-		// Only listening when game has started
-
-		if (!finish)
-		{
-			const currentTop = parseInt(window.getComputedStyle(player).top, 10);
-			const current2pTop = parseInt(window.getComputedStyle(enemy).top, 10);
-			const parentDiv = player.parentElement;
-			const parentHeight = parentDiv.clientHeight;
-			const rectangleHeight = player.clientHeight;
-			const rectangle2pHeight = enemy.clientHeight;
-			
-			// Arrow up/down for player up/down
-			if ((single || multi))
-			{
-				if (event.key === "ArrowUp")
-				{
-					let newTop = currentTop - step;
-					if (newTop < 0)
-						newTop = 0;
-					player.style.top = newTop + "px";
-				}
-				else if (event.key === "ArrowDown")
-				{
-					let newTop = currentTop + step;
-					if (newTop > parentHeight - rectangleHeight)
-						newTop = parentHeight - rectangleHeight;
-					player.style.top = newTop + "px";
-				}
-			}
-
-			// In case of multiplayer chosen enemy up/down
-
-			if (multi)
-			{
-				if (event.key === "w")
-				{
-					let newTop2 = current2pTop - step;
-					if (newTop2 < 0)
-						newTop2 = 0;
-					enemy.style.top = newTop2 + "px";
-				}
-				else if (event.key === "s")
-				{
-					let newTop2 = current2pTop + step;
-					if (newTop2 > parentHeight - rectangle2pHeight)
-						newTop2 = parentHeight - rectangle2pHeight;
-					enemy.style.top = newTop2 + "px";
-				}
-			}
-			else if (multi_online)
-			{
-				let newTop;
-				if (event.key === "ArrowUp")
-				{
-					newTop = currentTop - step;
-					if (newTop < 0)
-						newTop = 0;
-				}
-				else if (event.key === "ArrowDown")
-				{
-					newTop = currentTop + step;
-					if (newTop > parentHeight - rectangleHeight)
-						newTop = parentHeight - rectangleHeight;
-				}
-				const matchData =
-				{
-					type: "match_update",
-					matchId: matchId,
-					hostId: player1Id,
-					inviteeId: player2Id,
-					player1Position: newTop
-				};
-				sendMessage(matchData)
-			}
-		}
-	});
-	let checkValue = setInterval(function()
-	{
-		setTimeout(startMovingSquare, 1000);
-		clearInterval(checkValue);
-	}, 100);
-	document.getElementById('content').innerHTML = pongHTML();
 }
 
 function handlingSocketEvents()
