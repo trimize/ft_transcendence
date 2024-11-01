@@ -463,17 +463,9 @@ export const renderTTT = async () => {
     type = urlParams.get('type');
     AIDifficulty = urlParams.get('ai');
     matchId = urlParams.get('matchId');
-    if (!hasPowers) {
-        player2hasSwitch = false;
-        player1hasSwitch = false;
-    }
-    if (AIDifficulty === 'easy'){
-        ai = true;
-        player2hasSwitch = false;
-    } else if (AIDifficulty === 'hard') {
+    if (AIDifficulty === 'easy' || AIDifficulty === 'hard') {
         ai = true;
     }
-
 	document.getElementById('content').innerHTML = tttHtml();
     cells = document.querySelectorAll('.cell');
     resetButton = document.getElementById('reset');
@@ -495,6 +487,8 @@ export const renderTTT = async () => {
 
         player1score = matchData.player1_score;
         player2score = matchData.player2_score;
+
+        hasPowers = matchData.powers;
 
         const scoreDiv = document.getElementById('score');
         scoreDiv.textContent = `${player1score}:${player2score}`;
