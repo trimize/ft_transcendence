@@ -1,6 +1,7 @@
-import { sendMessage, getSocket } from './socketHandler.js';
+import { getWebSocket, sendMessage } from './singletonSocket.js';
 import { fetchUserData, getUser, createTournament , getTournaments, fetchUserById, updateTournament, fetchUsers } from './fetchFunctions.js';
-import { getWebSocket } from './singletonSocket.js';
+
+let socket;
 
 const renderTournamentPage = () => {
 	return `
@@ -94,7 +95,7 @@ const addEventListeners = async () => {
     const inviteButtons = document.querySelectorAll('.friendItemInvite');
     inviteButtons.forEach(inviteButton => {
         inviteButton.addEventListener('click', async (button) => {
-			let socket = getSocket();
+			socket = await getWebSocket();
             const friendName = button.target.parentElement.textContent;
 			// const userData = await fetchUserData();
 			// needs to be updated according to the logic when game and tournament is created
@@ -107,12 +108,11 @@ const addEventListeners = async () => {
                 "matchId": 1
             }
 			if (socket.readyState === WebSocket.OPEN) {
-                sendMessage(socket, message);
+                sendMessage(message);
                 console.log(`Inviting ${friendName}`);
             } else {
                 console.error('WebSocket is not open.');
             }
-			// receiveInfoFromSocket(socket);
         });
     });
 }

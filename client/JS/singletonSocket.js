@@ -1,5 +1,4 @@
 import { fetchUserData } from "./fetchFunctions.js";
-import { receiveInfoFromSocket } from "./socketHandler.js";
 
 let socket = null;
 
@@ -19,9 +18,9 @@ export async function getWebSocket() {
                 console.error('Failed to fetch user info:', error);
             }
         });
-        // socket.addEventListener('message', (event) => {
-        //    console.log('Message received:', event.data);
-        // });
+        socket.addEventListener('message', (event) => {
+           console.log('Message received:', event.data);
+        });
 
         socket.addEventListener('close', () => {
             console.log('WebSocket connection closed');
@@ -31,14 +30,12 @@ export async function getWebSocket() {
         socket.addEventListener('error', (error) => {
             console.error('WebSocket error:', error);
         });
-        receiveInfoFromSocket(socket);
     }
     return socket;
 }
 
 export async function sendMessage(message)
 {
-	// const socket = await getWebSocket();
 	if (socket.readyState === WebSocket.OPEN)
 	{
 		let json_message = JSON.stringify(message);
