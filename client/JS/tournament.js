@@ -1,6 +1,6 @@
 import { getWebSocket, sendMessage } from './singletonSocket.js';
 import { fetchUserData, getUser, createTournament , getTournaments, fetchUserById, updateTournament } from './fetchFunctions.js';
-import { getCurrentTime } from './utlis.js'
+import { getCurrentTime } from './utils.js'
 
 let userData;
 let tournamentData;

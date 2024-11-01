@@ -1,6 +1,6 @@
 import { fetchUserData, fetchMatch, getUser, sendFriendRequest, getFriendNotifications, refuseFriendRequest, addFriend, getFriends, getPendingRequest, createGame } from "./fetchFunctions.js";
 import { BACKEND_URL,  } from "./appconfig.js";
-import { sendMessage, socket, openWebSocket } from "./singletonSocket.js";
+import { sendMessage, getWebSocket } from "./singletonSocket.js";
 
 let currentChatUser;
 let actualUser;
@@ -31,6 +31,7 @@ const addEventListeners = () => {
     const ballSpeedDiv = document.getElementById('inputRangeDiv');
     const AITitle = document.getElementById('ballSpeedText');
     const ballAccDiv = document.getElementById('ballAccDiv');
+    const ballAcc = document.getElementById('ballAcc');
     AITitle.style.display = "none";
     ballSlider.style.display = "none";
     let invitee;
@@ -186,16 +187,12 @@ const addEventListeners = () => {
                 gameChosen = "pong";
                 ballSlider.addEventListener('input', function()
                 {
-                    if (ballSlider.value < 10)
-                        ballSpeedComment.textContent = "Very Slow!";
-                    else if (ballSlider.value < 20)
+                    if (ballSlider.value == 1)
                         ballSpeedComment.textContent = "Slow!";
-                    else if (ballSlider.value >= 20 && ballSlider.value < 30)
-                        ballSpeedComment.textContent = "Normal Speed!";
-                    else if (ballSlider.value > 30 && ballSlider.value <= 35)
+                    else if (ballSlider.value == 2)
+                        ballSpeedComment.textContent = "Normal!";
+                    else if (ballSlider.value == 3)
                         ballSpeedComment.textContent = "Fast!";
-                    else if (ballSlider.value > 35)
-                        ballSpeedComment.textContent = "Very fast!";
                 });
             }
             else if (face.classList.contains('tttFace')) 
@@ -250,14 +247,55 @@ const addEventListeners = () => {
                         };
                         matchId = await createGame(requestBody);
                         params.append('matchId', matchId);
+                        params.append('host', actualUser.id);
                     }
                     params.append('powers', isPowerEnabled);
-                    params.append('host', actualUser.id);
                     params.append('type', (multiClicked == true ? 'multi' : 'single'));
                     if (singleClicked == true) {
-                        params.append('ai', (ballSlider.value < 19 ? 'easy' : 'hard'));
+                        params.append('ai', (ballSlider.value < 2 ? 'easy' : 'hard'));
                     }
                     window.location.href = `/tic-tac-toe?${params.toString()}`;
+                }
+                else if (face.classList.contains('pongFace') && (multiClicked == true || singleClicked == true)) {
+                    let theBallSpeed;
+                    switch(ballSlider.value)
+                    {
+                        case 1:
+                            theBallSpeed = 10;
+                            break;
+                        case 2:
+                            theBallSpeed = 20;
+                            break;
+                        case 3:
+                            theBallSpeed = 30;
+                            break;
+                        default:
+                            theBallSpeed = 20;
+                    }
+                    const params = new URLSearchParams();
+                    params.append('offline', offline);
+                    let matchId = null;
+                    if (!offline) {
+                        const requestBody = {
+                            host: actualUser.id,
+                            game: 'pong',
+                            player1: actualUser.id,
+                            player2: (invitee ? invitee.id : null),
+                            match_type: (multiClicked == true ? 'local_multiplayer' : 'singleplayer'),
+                            powers: isPowerEnabled,
+                            ball_speed: theBallSpeed,
+                            ball_acc: ballAcc.checked,
+                            start_time: new Date().toISOString()
+                        };
+                        matchId = await createGame(requestBody);
+                        params.append('matchId', matchId);
+                        params.append('host', actualUser.id);
+                    }
+                    params.append('ballAcc', ballAcc.checked);
+                    params.append('ballSpeed', theBallSpeed);
+                    params.append('powers', isPowerEnabled);
+                    params.append('type', (multiClicked == true ? 'multi' : 'single'));
+                    window.location.href = `/pong?${params.toString()}`;
                 }
             });
 
@@ -295,7 +333,7 @@ function renderBaseHomeBlock()
                 <span class= "gameMenuText" id="multiplayer">Multiplayer</span>
                 <div class="align-items-center justify-content-between" id="inputRangeDiv">
                     <label for="ballSpeed" id="ballSpeedText" class="customizeGameTitles">Ball Speed</label>
-                    <input type="range" id="ballSpeed" class="form-control w-50" min="5" max="40">
+                    <input type="range" id="ballSpeed" class="form-control w-50" min="1" max="3">
                 </div>
                 <span id="inputRangeText">&nbsp;</span>
                 <div class="align-items-center justify-content-between" id="powersDiv">
@@ -350,7 +388,7 @@ function renderBaseHomeConnected()
                 </div>
                 <div class="align-items-center justify-content-between" id="inputRangeDiv">
                     <label for="ballSpeed" id="ballSpeedText" class="customizeGameTitles">Ball Speed</label>
-                    <input type="range" id="ballSpeed" class="form-control w-50" min="5" max="40">
+                    <input type="range" id="ballSpeed" class="form-control w-50" min="1" max="3">
                 </div>
                 <span id="inputRangeText">&nbsp;</span>
                 <div class="align-items-center justify-content-between" id="powersDiv">
@@ -926,8 +964,7 @@ export const renderBaseHomePage = async () =>
         renderFriendsList(friends, friendNotifications, pendingRequests);
 
         // showChat();
-        if (socket == null)
-            openWebSocket();
+        const socket = getWebSocket();
         socket.addEventListener('message', function(event)
         {
             const message = JSON.parse(event.data);
@@ -974,8 +1011,8 @@ export const renderBaseHomePage = async () =>
     }
     else
     {
-        offline = true;
         document.getElementById('content').innerHTML = renderBaseHomeBlock();
+        offline = true;
         addEventListeners();
     }
     

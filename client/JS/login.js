@@ -1,4 +1,3 @@
-import { openWebSocket, socket } from "./singletonSocket.js";
 import { BACKEND_URL, /*updateUserDataGlobal*/ } from "./appconfig.js";
 
 
@@ -61,7 +60,6 @@ const attachEventListeners = () => {
                 localStorage.setItem('access', data.access);
                 localStorage.setItem('refresh', data.refresh);
                 localStorage.setItem('websocket_url', data.websocket_url);
-                openWebSocket();
                 window.location.href = '/';
             } else if (data.message === '2FA required') {
                 const loginForm = document.getElementById('loginForm');
@@ -95,7 +93,6 @@ const attachEventListeners = () => {
                                 localStorage.setItem('access', data.access);
                                 localStorage.setItem('refresh', data.refresh);
                                 localStorage.setItem('websocket_url', data.websocket_url);
-                                openWebSocket();
                                 window.location.href = '/';
                             } else {
                                 const errorDiv = document.getElementById('otpError');

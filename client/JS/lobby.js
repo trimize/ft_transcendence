@@ -1,6 +1,6 @@
 import { createGame, fetchUserById, fetchUserData, fetchMatch, updateGame } from "./fetchFunctions.js";
 import { getWebSocket, sendMessage } from "./singletonSocket.js";
-import { getCurrentTime } from "./utlis.js";
+import { getCurrentTime } from "./utils.js";
 
 let user;
 let socket;
@@ -149,12 +149,14 @@ async function socketListener()
 				newParams.append('ballAcc', matchData.ballAcc);
 				newParams.append('ballSpeed', matchData.ballSpeed);
 				newParams.append('powers', matchData.powers);
+				newParams.append('offline', false);
 			} else if (matchData.game == 'tic-tac-toe') {
 				const newParams = new URLSearchParams();
 				newParams.append('host', matchData.player1);
 				newParams.append('invitee', matchData.player2);
 				newParams.append('matchId', matchData.id);
 				newParams.append('powers', matchData.powers);
+				newParams.append('offline', false);
 				window.location.href = `/tic-tac-toe?${newParams.toString()}`;
 			}
 		} else if (message.type === 'refuse_invite' && message.matchId == matchData.id)
