@@ -1,9 +1,8 @@
 import { getWebSocket, sendMessage } from './singletonSocket.js';
-import { fetchUserData, getUser, createTournament , getTournaments, fetchUserById, updateTournament, fetchUsers } from './fetchFunctions.js';
+import { fetchUserData, getUser, createTournament , getTournamentById, fetchUserById, updateTournament, fetchUsers } from './fetchFunctions.js';
 
 let socket;
 const params = new URLSearchParams(window.location.search);
-let players = [];
 
 const renderTournamentPageHost = (host) => {
 	return `
@@ -154,13 +153,13 @@ const addEventListeners = async () => {
     });
 }
 
-const setupPlayers = (players) => {
-	//add match making logic here
-    const playerElements = document.querySelectorAll('.player-name');
-    for (let i = 0; i < players.length; i++) {
-        playerElements[i].textContent = players[i].username;
-    }
-};
+// const setupPlayers = (players) => {
+// 	//add match making logic here
+//     const playerElements = document.querySelectorAll('.player-name');
+//     for (let i = 0; i < players.length; i++) {
+//         playerElements[i].textContent = players[i].username;
+//     }
+// };
 
 const renderPlayButtons = () => {
 	console.log('Rendering play buttons');
@@ -189,30 +188,39 @@ const receiveInfoFromSocket = (socket) => {
 		if (msg.type === 'tournament_invite_response') {
 			console.log('Invitation response received:', msg);
 			if (msg.status == 'accepted') {
-				console.log('Invitation accepted');
-				if (players.length >= 4) {
-                    setupPlayers();
-					renderPlayButtons();
-                    return;
-                }
-                const playerKey = `player${players.length + 1}`;
-                const newPlayer = {};
-                newPlayer[playerKey] = msg.invitee;
-                players.push(newPlayer);
-                console.log('Player added:', newPlayer);
+				const message = {
+					"type": "tournament_invite_accepted",
+					"tournamentId": params.get('tournamentId'),
+					"inviteeId": inviteeInfo.id,
+					"newPlayerId": msg.invitee,
+					"newPlayerName": msg.inviteeName,
+				}
+				if (socket.readyState === WebSocket.OPEN) {
+					sendMessage(message);
+					console.log(`Inviting ${friendName}`);
+				} else {
+					console.error('WebSocket is not open.');
+				}
 			} else {
+				//handle declined invitation to tournament
 				console.log(`User #id ${msg.invitee} declined the invitation`);
 				return;
 			}
+		} else if (msg.type === 'tournament_invite_accepted') {
+			//rerender players names in the grid after they accept the invitation by fetching tournament info
 		}
     });
 }
 
 export const renderTournament = async () => {
-	const host = await fetchUserById(params.get('hostId'));
 	const user = await fetchUserData();
-	players.push({player1: host});
-	if (user.id == params.get('hostId')) {
+	const tournament = await getTournamentById(params.get('tournamentId'));
+	const host = await getUser(tournament.player1.id); //proper tournament needs to be created
+	if (!user || !tournament) {
+		document.getElementById('content').innerHTML = '<div>Failed to load tournament</div>';
+		return;
+	}
+	if (user.id == tournament.player1) {
 		document.getElementById('content').innerHTML = renderTournamentPageHost(host);
 		addEventListeners();
 	} else {
@@ -220,4 +228,8 @@ export const renderTournament = async () => {
 	}
 	socket = await getWebSocket();
 	receiveInfoFromSocket(socket);
+	if (players.length == 4) {
+		setupPlayers(players);
+		renderPlayButtons();
+	}
 }

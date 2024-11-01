@@ -248,6 +248,24 @@ class SocketConsumer(AsyncWebsocketConsumer):
 					)
 				else:
 					print(f"User {host_id} is not connected")
+			elif text_data_json['type'] == 'tournament_invite_accepted':
+				tournament_id = text_data_json.get('tournamentId')
+				if not tournament_id:
+					print("Tournament ID not provided")
+					return
+				self.room_group_name = f'tournament_{tournament_id}'
+				print(f"Adding to group: {self.room_group_name}")
+				await self.channel_layer.group_add(
+					self.room_group_name,
+					self.channel_name
+				)
+				await self.channel_layer.group_send(
+					self.room_group_name,
+					{
+						'type': 'send_message',
+						'message': text_data_json
+					}
+				)
 
 	async def send_message(self, event):
 		message = event['message']

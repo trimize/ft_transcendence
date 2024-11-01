@@ -3,7 +3,7 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
-from .views import user_views, match_views, tf_views
+from .views import user_views, match_views, tf_views, tournament_views
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -47,8 +47,8 @@ urlpatterns = [
 	path('matches/<int:pk>/', match_views.get_match, name='get_match'),
 	path('matches/player/<int:player_id>/', match_views.get_match_by_player, name='get_match_by_player'),
 	# # Tournament urls
-	# path('get_tournaments/', tournament_views.get_tournaments, name='get_tournaments'),
-	# path('create_tournament/', tournament_views.create_tournament, name='create_tournament'),
-	# path('update_tournament/', tournament_views.update_tournament, name='update_tournament'),
-	# path('get_tournament/<int:pk>/', tournament_views.get_tournament, name='get_tournament')
+	path('get_tournaments/', tournament_views.get_tournaments, name='get_tournaments'),
+	path('create_tournament/', tournament_views.create_tournament, name='create_tournament'),
+	path('update_tournament/', tournament_views.update_tournament, name='update_tournament'),
+	path('get_tournament/<int:pk>/', tournament_views.get_tournament, name='get_tournament')
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

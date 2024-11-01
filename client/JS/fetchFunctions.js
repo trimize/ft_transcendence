@@ -423,3 +423,23 @@ export async function updateTournament(body) {
 	  console.error(error.message);
 	}
 }
+
+export async function getTournamentById(tournamentId) {
+	const accessToken = await securelyGetAccessToken();
+	try {
+	  let response = await fetch(
+	    `${BACKEND_URL}/api/get_tournament/${tournamentId}/`,
+	    {
+	      method: "GET",
+	      headers: {
+		Authorization: `Bearer ${accessToken}`,
+		"Content-Type": "application/json",
+	      },
+	    }
+	  );
+	  if (!response.ok) throw new Error("Failed to fetch tournament data");
+	  return await response.json();
+	} catch (error) {
+	  console.error(error.message);
+	}
+}
