@@ -1,14 +1,14 @@
 import { fetchUserData, getUser, sendFriendRequest, getFriendNotifications, refuseFriendRequest, addFriend, getFriends, getPendingRequest, createGame } from "./fetchFunctions.js";
-import { BACKEND_URL, DEFAULT_PROFILE_PIC /* getUserInfo */ } from "./appconfig.js";
-import { getWebSocket, sendMessage } from "./singletonSocket.js";
+import { BACKEND_URL,  } from "./appconfig.js";
+import { sendMessage, socket, openWebSocket } from "./singletonSocket.js";
 
 let currentChatUser;
-let socket;
 let actualUser;
 let messages = {};
 let gameChosen;
 let isPowerEnabled;
 let offline = true;
+
 
 function closeInviteListener(inviteDiv, inviteInput)
 {
@@ -17,7 +17,6 @@ function closeInviteListener(inviteDiv, inviteInput)
     {
         inviteDiv.style.display = 'none';
         inviteInput.value = '';
-        document.getElementById('nestedBlur').style.display = 'block';
     });
 }
 
@@ -119,7 +118,6 @@ const addEventListeners = () => {
                     if (onlineClicked == false)
                     {
                         inviteContainer.style.display = 'block';
-                        document.getElementById('nestedBlur').style.display = 'block';
                         onlineMultiplayerMenu.style.textShadow = "0 0 15px rgb(255, 255, 255)";
                         onlineClicked = true;
                         multiClicked = false;
@@ -131,6 +129,26 @@ const addEventListeners = () => {
                             ballSlider.style.display = "none";
                             ballSpeedComment.textContent = " ";
                         }
+                        const matchmaking = document.getElementById('matchmaking');
+                        const inviteInput = document.getElementById('inviteInput');
+                        matchmaking.addEventListener('click', function()
+                        {
+                            if (matchmakingClicked == false)
+                            {
+                                inviteInput.value = "";
+                                inviteInput.disabled = true;
+                                inviteInput.placeholder = "Matchmaking chosen";
+                                matchmaking.style.textShadow = "0 0 15px rgb(255, 255, 255)";
+                                matchmakingClicked = true;
+                            }
+                            else
+                            {
+                                matchmaking.style.textShadow = "0 0 0px rgb(255, 255, 255)";
+                                inviteInput.placeholder = "Enter a username";
+                                inviteInput.disabled = false;
+                                matchmakingClicked = false;
+                            }
+                        });
                     }
                     else if (onlineClicked == true)
                     {
@@ -298,9 +316,6 @@ function renderBaseHomeBlock()
             </div>`;
 }
 
-// addEventListeners();
-//        showChat();
-
 function renderBaseHomeConnected()
 {
     return `<div class="half left">
@@ -318,6 +333,9 @@ function renderBaseHomeConnected()
                 <div id="inviteContainer">
                     <input type="text" id="inviteInput" placeholder="Enter username" />
                     <button id="inviteButton">Go to lobby</button>
+                    <button id="matchmaking">Matchmaking</button>
+                    <div id="pipe">||</div>
+                    <div id="inviteTextToLobby">Invite a friend</div>
                     <button id="cancelInviteButton">Cancel</button>
                 </div>
                 <div class="align-items-center justify-content-between" id="inputRangeDiv">
@@ -806,7 +824,6 @@ export const renderBaseHomePage = async () =>
     {
         offline = false;
         document.getElementById('content').innerHTML = renderBaseHomeConnected();
-        socket = await getWebSocket();
         actualUser = await fetchUserData();
         const friends = await getFriends();
         const friendNotifications = await getFriendNotifications();
@@ -817,6 +834,8 @@ export const renderBaseHomePage = async () =>
         renderFriendsList(friends, friendNotifications, pendingRequests);
 
         // showChat();
+        if (socket == null)
+            openWebSocket();
         socket.addEventListener('message', function(event)
         {
             const message = JSON.parse(event.data);

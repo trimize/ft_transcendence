@@ -3,14 +3,17 @@ import {
   updateUserData,
   fetchMatches,
 } from "./fetchFunctions.js";
+
 import {
   deleteUser,
   anonymizeUser,
   setup2FA,
   verify2FA,
 } from "./fetchFunctionsUsers.js";
+
 import { populateMatchesHistory } from "./matchHistory.js";
 import { DEFAULT_PROFILE_PIC, BACKEND_URL } from "./appconfig.js";
+import { closeWebSocket } from "./singletonSocket.js";
 
 const renderProfilePage = (userData) => {
   return `
@@ -160,6 +163,7 @@ const attachEventListeners = () => {
 
   logoutButton.addEventListener("click", function () {
     localStorage.clear();
+    closeWebSocket();
     window.location.href = "/";
   });
 

@@ -103,22 +103,21 @@
     cursor: pointer;
 }
 
-#showFriends
-{
-    position: absolute;
-    width: 40px;
-    height: 40px;
-    top: calc(100% - 300px - 60px);
-    right: 0px;
-    background-color: rgba(34, 34, 34, 0.651);
-    border-top-left-radius: 10px;
-    border-bottom-left-radius: 10px;
-    border-top-right-radius: 0px;
-    border-bottom-right-radius: 0px;
-    background-image: url('../Assets/arrow.svg');
-    background-size: contain;
-    transition: right 0.3s ease, transform 0.5s ease;
-    cursor: pointer;
+#showFriends {
+	position: absolute;
+	width: 40px;
+	height: 40px;
+	top: calc(100% - 300px - 60px);
+	right: 0px;
+	background-color: rgba(92, 89, 89, 0.7);
+	border-top-left-radius: 10px;
+	border-bottom-left-radius: 10px;
+	border-top-right-radius: 0px;
+	border-bottom-right-radius: 0px;
+	background-image: url('../Assets/arrow.svg');
+	background-size: contain;
+	transition: right 0.3s ease, transform 0.5s ease;
+	cursor: pointer;
 }
 
 #showFriends.flipped
@@ -347,13 +346,13 @@
 }
 
 #inviteContainer {
-    z-index: 5;
-    width: 100vw;
-    height: 100vh;
-    position: absolute;
-    display: none;
-    background-color: #0000005e;
-    right: 0;
+	z-index: 5;
+	width: 100vw;
+	height: 100vh;
+	position: absolute;
+	display: none;
+	background-color: #000000b8;
+	right: 0;
 }
 
 #inviteInput {
@@ -361,10 +360,10 @@
 	color: white;
 	border: none;
 	position: absolute;
-	width: 150px;
+	width: 250px;
 	height: 30px;
 	top: 60vh;
-	left: calc(100% - 50vw - (150px / 2));
+	left: calc((100% / 3) * 2 - (250px / 2));
 }
 
 #inviteInput::placeholder
@@ -384,10 +383,9 @@
 	background-color: #a1a3a466;
 	border: none;
 	color: white;
-	left: calc(100% - 50vw - (150px / 2) + 120px);
+	left: calc((100% / 2) - (150px / 2) + (170px / 2));
 	transition: background-color ease 0.3s, color ease 0.3s;
 }
-
 #inviteButton:hover{
     background-color: #f1f1f1f3;
     color: black;
@@ -405,7 +403,7 @@
 	background-color: #d67659c9;
 	border: none;
 	color: white;
-	left: calc(100% - 50vw - (150px / 2) - 120px);
+	left: calc((100% / 2) - (150px / 2) - (170px / 2));
 	transition: background-color ease 0.3s;
 }
 
@@ -526,8 +524,39 @@
     display: none;
 }
 
-#nestedBlur
-{
-    backdrop-filter: blur(10px);
-    display: none;
+#matchmaking {
+	font-family: 'Roboto';
+	font-weight: 100;
+	font-size: 40px;
+	width: 350px;
+	height: 60px;
+	/* border-radius: 10px; */
+	position: absolute;
+	top: 35vh;
+	background-color: #fff0;
+	color: white;
+	left: calc((100% / 3) - (350px / 2));
+	transition: text-shadow 0.2s ease;
+    border: none;
+}
+
+#inviteTextToLobby {
+	font-family: 'Roboto';
+	font-weight: 100;
+	font-size: 40px;
+	color: white;
+	position: absolute;
+	left: calc((100% / 3) * 2 - (350px / 2));
+	top: 35vh;
+	width: 350px;
+	height: 60px;
+}
+
+#pipe {
+	font-size: 40px;
+	color: white;
+	position: absolute;
+	font-weight: 100;
+	left: calc((100% / 2));
+	top: 35vh;
 }
