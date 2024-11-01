@@ -11,28 +11,7 @@ let multi_online = false;
 let matchId;
 let finish = false;
 //const usernameInput = document.getElementById('usernameInput');
-const player = document.getElementById("player");
-const enemy = document.getElementById("enemy");
-//const customization = document.getElementById("customizationModal");
-//const start_button = document.getElementById("start-button");
-//const enableBallAcceleration = document.getElementById('ballACC');
-//const ballSpeed = document.getElementById('ballSpeed');
-//const powersOption = document.getElementById('powers');
-const powerPlayerSpeed = document.getElementById('player_speed');
-const powerPlayerBallSpeed = document.getElementById('ball_speed');
-const powerEnemySpeed = document.getElementById('enemy_speed');
-const powerEnemyBallSpeed = document.getElementById('enemy_ball_speed');
-const movingSquare = document.getElementById("moving-square");
-const defaultBallLeft = parseInt(window.getComputedStyle(movingSquare).left, 10);
-const defaultBallTop = parseInt(window.getComputedStyle(movingSquare).top, 10);
-//const retry_button = document.getElementById('retry-button');
-//const end_modal = document.getElementById('victoryModal');
-//const playerTitle = document.getElementById('waitingLabel');
-//const inviteButton = document.getElementById('inviteOnline');
-//const startOnlineButton = document.getElementById('startingGameOnline');
-//const notConnectedModal = document.getElementById('notConnectedModal');
-//const changeGMButoon = document.getElementById('changeGMbutton');
-let enemyY = parseInt(window.getComputedStyle(enemy).top, 10);
+
 let ai_ball_info;
 let move_up = true;
 let move_down = true;
@@ -222,6 +201,8 @@ function handleAIPowers(futureY)
 
 function handleEnemyPowers()
 {
+	const powerEnemySpeed = document.getElementById('enemy_speed');
+	const powerEnemyBallSpeed = document.getElementById('enemy_ball_speed');
 
 	// Using the speed player power for 10 seconds on key press
 
@@ -279,6 +260,8 @@ function handleEnemyPowers()
 
 function handlePlayerPowers()
 {
+	const powerPlayerSpeed = document.getElementById('player_speed');
+	const powerPlayerBallSpeed = document.getElementById('ball_speed');
 
 	// Using the speed player power for 10 seconds on key press
 
@@ -338,6 +321,10 @@ function handlePlayerPowers()
 
 function handleKeyDown(event)
 {
+	const powerPlayerSpeed = document.getElementById('player_speed');
+	const powerPlayerBallSpeed = document.getElementById('ball_speed');
+	const powerEnemySpeed = document.getElementById('enemy_speed');
+	const powerEnemyBallSpeed = document.getElementById('enemy_ball_speed');
 	if (event.code === "Numpad1" && player_consec_touch >= 5)
 	{
 		if (single || multi)
@@ -403,6 +390,10 @@ function handleKeyDown(event)
 
 function startMovingSquare()
 {
+	const player = document.getElementById("player");
+	const enemy = document.getElementById("enemy");
+	const movingSquare = document.getElementById("moving-square");
+let enemyY = parseInt(window.getComputedStyle(enemy).top, 10);
 	//console.log(ball_step);
 	const contentArea = player.parentElement;
 	enemy.style.left = contentArea.getBoundingClientRect().right - 97 + "px";

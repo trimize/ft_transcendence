@@ -3,16 +3,20 @@ DB_IMAGE_NAME=my-postgres-db
 DB_CONTAINER_NAME=my-postgres-container
 DB_PORT=5432
 SERVER_DIR=server/tcd_back
+HOST_IP=$(shell hostname -i)
 
 .PHONY: all clean compose-up compose-down fclean re front
 
 all: compose-up
 	@$(shell cp ./client/Assets/default_user.jpg ./server/tcd_back/media/profile_pics)
+	@$(shell sed -i 's/$(HOST_IP)/localhost/g' ./client/nginx.conf)
 
 clean:
 	@if [ ! -z "$(shell docker ps -aq)" ]; then docker rm -f $(shell docker ps -aq); else echo "No containers to remove"; fi
 	@if [ ! -z "$(shell docker images -q)" ]; then docker rmi -f $(shell docker images -q); else echo "No images to remove"; fi
 compose-up:
+	@$(shell echo "HOST_IP=$(HOST_IP)" > .env && chmod 777 .env)
+	@$(shell sed -i 's/localhost/'$(HOST_IP)'/g' ./client/nginx.conf)
 	docker compose up --build -d
 
 compose-down:

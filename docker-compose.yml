@@ -35,11 +35,15 @@ services:
     build:
       context: ./client
     container_name: nginx
+    environment:
+      HOST_IP: ${HOST_IP}
     ports:
       - "8080:80"
       - "4443:443"
     volumes:
       - ./client/ssl:/etc/nginx/ssl
+    env_file:
+      - .env
 
   redis:
     image: "redis:alpine"

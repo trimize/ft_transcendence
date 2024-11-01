@@ -11,5 +11,6 @@ COPY ./JS /usr/share/nginx/html/js
 RUN mkdir /usr/share/nginx/html/Assets
 COPY ./Assets /usr/share/nginx/html/Assets
 
+
 # Start Nginx
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["/bin/bash", "-c", "sed -i 's/localhost/'$(hostname -i)'/g' /usr/share/nginx/html/js/appconfig.js && nginx -g 'daemon off;'"]

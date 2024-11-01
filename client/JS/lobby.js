@@ -1,6 +1,6 @@
 import { createGame, fetchUserById, fetchUserData, fetchMatch, updateGame } from "./fetchFunctions.js";
 import { getWebSocket, sendMessage } from "./singletonSocket.js";
-import { getCurrentTime } from "./utlis.js";
+import { getCurrentTime } from "./utils.js";
 
 let user;
 let socket;
