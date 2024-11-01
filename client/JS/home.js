@@ -1,4 +1,4 @@
-import { fetchUserData, getUser, sendFriendRequest, getFriendNotifications, refuseFriendRequest, addFriend, getFriends, getPendingRequest, createGame } from "./fetchFunctions.js";
+import { fetchUserData, fetchMatch, getUser, sendFriendRequest, getFriendNotifications, refuseFriendRequest, addFriend, getFriends, getPendingRequest, createGame } from "./fetchFunctions.js";
 import { BACKEND_URL, DEFAULT_PROFILE_PIC /* getUserInfo */ } from "./appconfig.js";
 import { getWebSocket, sendMessage } from "./singletonSocket.js";
 
@@ -434,30 +434,30 @@ async function showChat() {
             
             const body =
             {
-                "game": params.get('game'),
+                "game": 'tic-tac-toe',
                 "player1": actualUser.id,
                 "player2": invitee.id,
                 "match_type": "online_multiplayer",
                 "powers": isPowerEnabled
             }
-            const matchData = await createGame(body);
-            const onlineMatchData =
-            {
-                type: "new_match",
-                game: gameType,
-                matchId: matchId,
-            };
-            await sendMessage(onlineMatchData);
+            const match_id = await createGame(body);
+            // const onlineMatchData =
+            // {
+            //     type: "new_match",
+            //     game: gameType,
+            //     matchId: matchId,
+            // };
+            // await sendMessage(onlineMatchData);
             const message = {
                 "type": "send_invite",
-                "game": params.get('game'),
+                "game": 'tic-tac-toe',
                 "hostId": actualUser.id,
                 "inviteeId": invitee.id,
-                "matchId": matchData.matchId
+                "matchId": match_id
             }
         
             await sendMessage(message);
-            params.append('matchId', matchData.id);
+            params.append('matchId', match_id);
             params.append('host', actualUser.id);
             params.append('invitee', invitee.id);
             window.location.href = `/lobby?${params.toString()}`;
@@ -542,10 +542,18 @@ async function showChat() {
             const friendUsername = friendItem.textContent.trim();
             currentChatUser = await getUser(friendUsername); //May cause issues with async
             const friendrequests = await getFriendNotifications();
-            renderFriendRequestNotif(friendrequests);
+            for (let i = 0; i < friendrequests.length; i++) {
+                if (friendrequests[i].sender.username == currentChatUser.username) {
+                    renderFriendRequestNotif(friendrequests[i]);
+                }
+            }
             if (messages[currentChatUser.id]) {
                 messages[currentChatUser.id].forEach(msg => {
-                    renderConversationBalloon(msg.message, msg.senderId === actualUser.id);
+                    if (msg.type === 'chat_message') {
+                        renderConversationBalloon(msg.message, msg.senderId === actualUser.id);
+                    } else if (msg.type === 'send_invite' || msg.type === 'waiting_state') {
+                        renderFriendRequestNotif(msg);
+                    }
                 });
             }
         });
@@ -714,40 +722,105 @@ function renderFriendRequest(friendNotifications)
     // showChat();
 }
 
-function renderFriendRequestNotif(friendNotifications)
+function renderFriendRequestNotif(jsonMessage)
 {
+    console.log(jsonMessage);
     const invitationList = document.getElementById('invitationList');
     const childsToRemove = invitationList.querySelectorAll('.friendInvitationElement');
     childsToRemove.forEach(child => child.remove());
-    for(let i = 0; i < friendNotifications.length; i++)
-    {
-        if (friendNotifications[i].sender.id == currentChatUser.id)
-        {
-            const friendRequest = document.createElement('li');
-            friendRequest.classList.add('friendItemNotif');
-            friendRequest.textContent = "New friend request!"
-            friendRequest.style.color = "aliceblue";
-            friendRequest.classList.add('friendInvitationElement');
-            const correct = document.createElement('div');
-            correct.classList.add('correctDiv');
-            friendRequest.appendChild(correct);
-            const cross = document.createElement('div');
-            cross.classList.add('crossDiv');
-            friendRequest.appendChild(cross);
-            const requestUsername = document.createElement('div');
-            requestUsername.classList.add('requestUsername');
-            requestUsername.textContent = friendNotifications[i].sender.username;
-            friendRequest.appendChild(requestUsername);
-            const requestPfp = document.createElement('div');
-            requestPfp.classList.add('requestPfp');
-            requestPfp.style.backgroundImage = `url(${BACKEND_URL}${friendNotifications[i].sender.profile_pic})`;
-            friendRequest.appendChild(requestPfp);
-            invitationList.appendChild(friendRequest);
-            correct.addEventListener('click', () => acceptFriendNotif(friendNotifications[i].sender));
-            cross.addEventListener('click', () => refuseFriendNotif(friendNotifications[i].sender));
-        }
-    };
+
+    const friendRequest = document.createElement('li');
+    friendRequest.classList.add('friendItemNotif');
+    friendRequest.style.color = "aliceblue";
+    friendRequest.classList.add('friendInvitationElement');
+
+    const correct = document.createElement('div');
+    correct.classList.add('correctDiv');
+    friendRequest.appendChild(correct);
+
+    const cross = document.createElement('div');
+    cross.classList.add('crossDiv');
+    friendRequest.appendChild(cross);
+
+    const requestUsername = document.createElement('div');
+    requestUsername.classList.add('requestUsername');
+    requestUsername.textContent = currentChatUser.username;
+    friendRequest.appendChild(requestUsername);
+
+    const requestPfp = document.createElement('div');
+    requestPfp.classList.add('requestPfp');
+    requestPfp.style.backgroundImage = `url(${BACKEND_URL}${currentChatUser.profile_pic})`;
+    friendRequest.appendChild(requestPfp);
+
+    const messageText = document.createElement('div');
+    messageText.classList.add('messageText');
+    friendRequest.appendChild(messageText);
+
+    invitationList.appendChild(friendRequest);
+
+    if (!('type' in jsonMessage)) {
+        console.log('No type');
+        messageText.textContent = "New friend request!"
+        correct.addEventListener('click', () => acceptFriendNotif(jsonMessage.sender));
+        cross.addEventListener('click', () => refuseFriendNotif(jsonMessage.sender));
+    } else if (jsonMessage.type == 'send_invite') {
+        console.log('Game invite being rendered:', jsonMessage);
+        messageText.textContent = "New game invite!"
+        correct.addEventListener('click', () => acceptGameInvite(jsonMessage));
+        cross.addEventListener('click', () => refuseGameInvite(jsonMessage));
+    } else if (jsonMessage.type == 'waiting_state') {
+        console.log('Waiting state being rendered:', jsonMessage);
+        messageText.textContent = "Finish the game!"
+        correct.addEventListener('click', () => acceptGameInvite(jsonMessage));
+        cross.style.display = 'none';
+    } else if (jsonMessage.type == 'tournament_invite') {
+        messageText.textContent = "New game invite!"
+        correct.addEventListener('click', () => acceptGameInvite(jsonMessage));
+        cross.addEventListener('click', () => refuseGameInvite(jsonMessage));
+    }
+
     // showChat();
+}
+
+async function acceptGameInvite(jsonMessage) {
+    console.log('Accepting game invite:', jsonMessage);
+    const matchData = await fetchMatch(jsonMessage.matchId);
+    if (!matchData) {
+        console.error('Failed to fetch match data');
+        return;
+    }
+    const params = new URLSearchParams();
+    if (gameChosen == "tic-tac-toe")
+        params.append('game', 'ttt');
+    else
+        params.append('game', 'pong');
+    params.append('matchId', jsonMessage.matchId);
+    params.append('host', jsonMessage.hostId);
+    params.append('invitee', jsonMessage.inviteeId);
+    params.append('powers', jsonMessage.powers);
+    window.location.href = `/lobby?${params.toString()}`;
+    messages[jsonMessage.hostId].forEach(msg => {
+        if ((msg.type === 'send_invite' && msg.matchId === jsonMessage.matchId) || (msg.type === 'waiting_state' && msg.matchId === jsonMessage.matchId)) {
+            messages[jsonMessage.hostId].splice(messages[jsonMessage.hostId].indexOf(msg), 1);
+        }
+    });
+}
+
+function refuseGameInvite(jsonMessage) {
+    console.log('Refusing game invite:', jsonMessage);
+    const messageData = {
+        type: 'refuse_invite',
+        hostId: jsonMessage.hostId,
+        inviteeId: jsonMessage.inviteeId,
+        matchId: jsonMessage.matchId
+    };
+    socket.send(JSON.stringify(messageData));
+    messages[jsonMessage.hostId].forEach(msg => {
+        if ((msg.type === 'send_invite' && msg.matchId === jsonMessage.matchId)) {
+            messages[jsonMessage.hostId].splice(messages[jsonMessage.hostId].indexOf(msg), 1);
+        }
+    });
+    // TODO hide the notification
 }
 
 function renderFriendsList(friends, friendNotifications, pendingRequests)
@@ -852,8 +925,20 @@ export const renderBaseHomePage = async () =>
                     messages[message.hostId] = [];
                 }
                 messages[message.hostId].push(message);
-                if (currentChatUser && message.hostId === currentChatUser.id) {
-                    renderFriendRequestNotification(message.hostId, true, message.game);
+                if (currentChatUser && message.hostId == currentChatUser.id) {
+                    renderFriendRequestNotif(message);
+                }
+            } else if (message.type === 'waiting_state') {
+                console.log('Received waiting state:', message);
+                if (!messages[message.userId]) {
+                    messages[message.userId] = [];
+                }
+                if (messages[message.userId].forEach(msg => (msg.type === 'waiting_state' && msg.matchId == message.matchId) || (msg.type === 'send_invite' && msg.matchId == message.matchId))) {
+                    return;
+                }
+                messages[message.userId].push(message);
+                if (currentChatUser && message.userId == currentChatUser.id) {
+                    renderFriendRequestNotif(message);
                 }
             }
         });

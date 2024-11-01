@@ -74,8 +74,8 @@ function handleCellClickOnline(event) {
         index: index,
         player: currentPlayer,
         matchId: matchId,
-        host: host,
-        invitee: invitee,
+        hostId: host,
+        inviteeId: invitee
     };
 
     socket.send(JSON.stringify(game_update_message));
@@ -305,9 +305,10 @@ function handleDropOnline(event) {
         index2: targetCellIndex,
         player: currentPlayer,
         matchId: matchId,
-        host: host,
-        invitee: invite
+        hostId: host,
+        inviteeId: invitee
     };
+    socket.send(JSON.stringify(game_update_message));
 }
 
 function switchCells(currentCellIndex, targetCellIndex) {
@@ -487,8 +488,8 @@ export const renderTTT = async () => {
         });
     } else {
         matchData = await fetchMatch(matchId);
-        player1score = matchData.player1score;
-        player2score = matchData.player2score;
+        player1score = matchData.player1_score;
+        player2score = matchData.player2_score;
 
         const scoreDiv = document.getElementById('score');
         scoreDiv.textContent = `${player1score}:${player2score}`;
@@ -498,11 +499,17 @@ export const renderTTT = async () => {
             document.getElementById('content').innerHTML = '';
             return;
         }
-        if (actualUser.id !== host && actualUser.id !== invitee) {
+
+        console.log('Actual user:');
+        console.log(actualUser);
+        console.log('Match data:');
+        console.log(matchData);
+
+        if (actualUser.id != host && actualUser.id != invitee) {
             alert('You are not part of this match!');
             document.getElementById('content').innerHTML = '';
             return;
-        } else if (actualUser.id !== matchData.player1 && actualUser.player2 !== matchData.invitee) {
+        } else if (actualUser.id != matchData.player1 && actualUser.id != matchData.player2) {
             alert('You are not part of this match!');
             document.getElementById('content').innerHTML = '';
             return;
@@ -527,6 +534,16 @@ export const renderTTT = async () => {
                     } else {
                         checkers(true);
                     }
+                }
+            } else if (message.type === 'friend_disconnect') {
+                if (message.id == host || message.id == invitee) {
+                    const lobbyParams = new URLSearchParams();
+                    lobbyParams.append('matchId', matchId);
+                    lobbyParams.append('host', host);
+                    lobbyParams.append('invitee', invitee);
+                    lobbyParams.append('powers', hasPowers);
+                    lobbyParams.append('game', 'ttt');
+                    window.location.href = `/lobby?${lobbyParams.toString()}`;
                 }
             }
         });
