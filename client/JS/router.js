@@ -3,6 +3,7 @@ import { renderLogin } from "./login.js"
 import { renderRegister } from "./register.js"
 import { renderProfile } from "./profile.js"
 import { renderLobby } from "./lobby.js"
+import { renderTTT } from "./tic-tac-toe.js"
 import { getWebSocket } from "./singletonSocket.js";
 
 const router = () => {

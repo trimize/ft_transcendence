@@ -1,4 +1,4 @@
-import { createGame, fetchUserById, fetchUserData, fetchMatch } from "./fetchFunctions.js";
+import { createGame, fetchUserById, fetchUserData, fetchMatch, updateGame } from "./fetchFunctions.js";
 import { getWebSocket, sendMessage } from "./singletonSocket.js";
 import { getCurrentTime } from "./utlis.js";
 
@@ -8,20 +8,29 @@ let player1;
 let player2;
 let opponent;
 let matchData;
+let intervalId;
 
 let isPlayer1Ready = false;
 let isPlayer2Ready = false;
 
 async function waitingState()
 {
-	setInterval( async () => {
-		const message = {
-			"type": "waiting",
-			"opponentId": (user.id == player1.id ? player2.id : player1.id),
-			"matchId": matchData.matchId
-		}
-		await sendMessage(message);
-	}, 2000)
+    intervalId = setInterval(async () => {
+        const message = {
+            "type": "waiting_state",
+			"userId": user.id,
+            "opponentId": (user.id == player1.id ? player2.id : player1.id),
+            "matchId": matchData.id
+        };
+        await sendMessage(message);
+    }, 2000);
+	// console.log('Waiting for opponent');
+}
+
+function stopWaitingState() {
+    if (intervalId) {
+        clearInterval(intervalId);
+    }
 }
 
 function lobbyHtml()
@@ -48,6 +57,8 @@ export async function renderLobby()
 	user = await fetchUserData();
 	socket = await getWebSocket();
 	matchData = await fetchMatch(urlParams.get('matchId'));
+	console.log("Match data is ");
+	console.log(matchData);
 	if (user.id != urlParams.get('host') && user.id != urlParams.get('invitee')) {
 		return`
 			<div>Error Page Here</div>
@@ -65,10 +76,11 @@ export async function renderLobby()
 		isPlayer2Ready = true;
 		player1 = await fetchUserById(urlParams.get('host'));
 	}
+	document.getElementById('content').innerHTML = lobbyHtml();
 
+	socketListener();
 	waitingState();
 
-	document.getElementById('content').innerHTML = lobbyHtml();
 }
 
 async function socketListener()
@@ -76,38 +88,49 @@ async function socketListener()
 	socket.addEventListener('message', async function(event)
 	{
 		const message = JSON.parse(event.data);
-		if (message.type === 'waiting')
+		console.log("message received " + event.data);
+		if (message.type === 'waiting_state')
 		{
+			stopWaitingState();
 			if (message.opponentId == user.id && matchData.id == message.matchId)
 			{
 				const messageData = {
 					"type": "allons-y",
 					"player1": player1.id,
 					"player2": player2.id,
-					"matchId": matchData.matchId
+					"matchId": matchData.id
 				}
 				await sendMessage(messageData);
 				// TODO Update match sending the start time
+				const game_update_message = {
+					"id": matchData.id,
+					"start_time": new Date().toISOString()
+				};
+				await updateGame(game_update_message);
 			}
-		}
-		if (message.type === 'allons-y' && message.matchId == matchData.id)
+		} else if (message.type === 'allons-y' && message.matchId == matchData.id)
 		{
+			stopWaitingState();
 			if (matchData.game == 'pong') {
 				const newParams = new URLSearchParams();
-				newParams.append('host', player1);
-				newParams.append('invitee', player2);
+				newParams.append('host', player1.id);
+				newParams.append('invitee', player2.id);
 				newParams.append('matchId', matchData.id);
 				newParams.append('ballAcc', matchData.ballAcc);
 				newParams.append('ballSpeed', matchData.ballSpeed);
 				newParams.append('powers', matchData.powers);
 			} else if (matchData.game == 'tic-tac-toe') {
 				const newParams = new URLSearchParams();
-				newParams.append('host', player1);
-				newParams.append('invitee', player2);
+				newParams.append('host', player1.id);
+				newParams.append('invitee', player2.id);
 				newParams.append('matchId', matchData.id);
 				newParams.append('powers', matchData.powers);
 				window.location.href = `/tic-tac-toe?${newParams.toString()}`;
 			}
+		} else if (message.type === 'refuse_invite' && message.matchId == matchData.id)
+		{
+			stopWaitingState();
+			window.location.href = '/';
 		}
 	});
 }

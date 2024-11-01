@@ -33,6 +33,7 @@ class SocketConsumer(AsyncWebsocketConsumer):
 			print("User does not exist")
 			return
 
+		print(f"User {user_id} disconnected")
 		# Iterate through friends and send a message to connected friends
 		for friend in friends:
 			friend_id = str(friend.id)
@@ -41,8 +42,9 @@ class SocketConsumer(AsyncWebsocketConsumer):
 					'type': 'friend_disconnected',
 					'userId': user_id,
 				}
+				print(f"Sending disconnect message to user {friend_id}")
 				await self.channel_layer.send(
-					user_channels[friend_id],
+					user_channels.get(friend_id),
 					{
 					'type': 'send_message',
 					'message': message
@@ -85,7 +87,7 @@ class SocketConsumer(AsyncWebsocketConsumer):
 							'userId': user_id
 						}
 						await self.channel_layer.send(
-							user_channels[friend_id],
+							user_channels.get(friend_id),
 							{
 							'type': 'send_message',
 							'message': message
@@ -183,7 +185,7 @@ class SocketConsumer(AsyncWebsocketConsumer):
 					await self.channel_layer.send(
 						host_channel_name,
 						{
-							'type': 'invite_refused',
+							'type': 'send_message',
 							'message': text_data_json
 						}
 					)
@@ -220,6 +222,50 @@ class SocketConsumer(AsyncWebsocketConsumer):
 						'message': text_data_json
 					}
 				)
+			elif text_data_json['type'] == 'waiting_state':
+				opponent_id = str(text_data_json.get('opponentId'))
+				match_id = text_data_json.get('matchId')
+				if not match_id:
+					print("Match ID not provided")
+					return
+				opponent_channel_name = user_channels.get(opponent_id)
+				if not opponent_channel_name:
+					print(f"Opponent {opponent_id} not connected")
+					return
+				print(f"Sending waiting state to user {opponent_id} on channel {opponent_channel_name}")
+				await self.channel_layer.send(
+					opponent_channel_name,
+					{
+						'type': 'send_message',
+						'message': text_data_json
+					}
+				)
+			elif text_data_json['type'] == 'allons-y':
+				player1_id = str(text_data_json.get('player1'))
+				player2_id = str(text_data_json.get('player2'))
+				player1_channel_name = user_channels.get(player1_id)
+				player2_channel_name = user_channels.get(player2_id)
+				if not player1_channel_name:
+					print(f"Player 1 {player1_id} not connected")
+					return
+				if not player2_channel_name:
+					print(f"Player 2 {player2_id} not connected")
+					return
+				await self.channel_layer.send(
+					player1_channel_name,
+					{
+						'type': 'send_message',
+						'message': text_data_json
+					}
+				)
+				await self.channel_layer.send(
+					player2_channel_name,
+					{
+						'type': 'send_message',
+						'message': text_data_json
+					}
+				)
+			
 
 
 	async def send_message(self, event):
