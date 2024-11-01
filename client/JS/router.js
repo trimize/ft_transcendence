@@ -5,6 +5,7 @@ import { renderProfile } from "./profile.js"
 import { renderLobby } from "./lobby.js"
 import { renderTTT } from "./tic-tac-toe.js"
 import { getWebSocket } from "./singletonSocket.js";
+import { renderMatchHistory } from "./matchHistory.js"
 
 const router = () => {
     const path = window.location.pathname.replace('/', '');
@@ -18,6 +19,9 @@ const router = () => {
             break;
         case 'profile':
             renderProfile();
+            break;
+        case 'match-history':
+            renderMatchHistory();
             break;
         case 'lobby':
             renderLobby();

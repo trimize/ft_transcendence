@@ -188,11 +188,16 @@ export async function addFriend(userId) {
   }
 }
 
-export async function fetchMatches(userId) {
+export async function fetchMatches(type, userId = null) {
   const accessToken = await securelyGetAccessToken();
   try {
+	const params = new URLSearchParams();
+	params.append("type", type);
+	if (userId) {
+		params.append("user_id", userId);
+	}
     let response = await fetch(
-      `${BACKEND_URL}/api/matches/player/${userId}/`,
+      `${BACKEND_URL}/api/matches?${params}`,
       {
         method: "GET",
         headers: {

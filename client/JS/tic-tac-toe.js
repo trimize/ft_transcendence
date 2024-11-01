@@ -536,7 +536,7 @@ export const renderTTT = async () => {
                     lobbyParams.append('host', host);
                     lobbyParams.append('invitee', invitee);
                     lobbyParams.append('powers', hasPowers);
-                    lobbyParams.append('game', 'ttt');
+                    lobbyParams.append('game', 'tic-tac-toe');
                     window.location.href = `/lobby?${lobbyParams.toString()}`;
                 }
             }

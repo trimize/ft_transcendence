@@ -54,6 +54,11 @@ class SocketConsumer(AsyncWebsocketConsumer):
 					}
 				)
 
+		for match in matchmaking:
+			if match.get('playerId') == user_id:
+				matchmaking.remove(match)
+				break
+
 	async def receive(self, text_data):
 		try:
 			text_data_json = json.loads(text_data)

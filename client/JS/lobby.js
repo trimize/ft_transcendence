@@ -46,7 +46,7 @@ function lobbyHtml()
 				<div class="lobbyPlayerPfp" id="lobbyPlayer2Pfp"></div>
 				<div class="lobbyPlayerUsername" id="lobbyPlayer2Username">to</div>
 			</div>
-			<div id="lobbyStatusText">Game Starting ..</div>
+			<div id="lobbyStatusText">Waiting for player ..</div>
 		</div>
 		<div id="bg"></div>
 	`;
@@ -141,8 +141,6 @@ async function socketListener()
 				console.log(matchData);
 			}
 
-			console.log("allons-y message received");
-
 			if (matchData.game == 'pong') {
 				const newParams = new URLSearchParams();
 				newParams.append('host', matchData.player1);
@@ -152,7 +150,6 @@ async function socketListener()
 				newParams.append('ballSpeed', matchData.ballSpeed);
 				newParams.append('powers', matchData.powers);
 			} else if (matchData.game == 'tic-tac-toe') {
-				console.log("allons-y message received2");
 				const newParams = new URLSearchParams();
 				newParams.append('host', matchData.player1);
 				newParams.append('invitee', matchData.player2);

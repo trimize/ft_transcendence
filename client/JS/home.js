@@ -211,7 +211,7 @@ const addEventListeners = () => {
                 const gameText = document.getElementById('gameText');
                 gameText.textContent = 'Tic-tac-toe game is cool';
                 AITitle.textContent = "AI Difficulty";
-                gameChosen = "ttt";
+                gameChosen = "tic-tac-toe";
                 if (multiClicked == true)
                 {
                     ballSlider.style.display = "none";
@@ -455,8 +455,8 @@ async function showChat() {
         if (invitee && invitee.id !== actualUser.id) {
             console.log('Invitee already set:', invitee);
             const params = new URLSearchParams();
-            if (gameChosen == "ttt")
-                params.append('game', 'ttt');
+            if (gameChosen == "tic-tac-toe")
+                params.append('game', 'tic-tac-toe');
             else
                 params.append('game', 'pong');
             
@@ -819,7 +819,7 @@ async function acceptGameInvite(jsonMessage) {
     }
     const params = new URLSearchParams();
     if (gameChosen == "tic-tac-toe")
-        params.append('game', 'ttt');
+        params.append('game', 'tic-tac-toe');
     else
         params.append('game', 'pong');
     params.append('matchId', matchData.id);

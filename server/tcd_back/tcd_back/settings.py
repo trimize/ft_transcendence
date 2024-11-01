@@ -28,6 +28,22 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+# Ensure that Django only serves the site over HTTPS
+SECURE_SSL_REDIRECT = True
+
+# Use secure cookies
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
+# HSTS settings
+SECURE_HSTS_SECONDS = 31536000  # 1 year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+
+# Additional security settings
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
 
 # Application definition
 
