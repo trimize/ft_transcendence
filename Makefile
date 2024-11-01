@@ -15,7 +15,7 @@ clean:
 	@if [ ! -z "$(shell docker ps -aq)" ]; then docker rm -f $(shell docker ps -aq); else echo "No containers to remove"; fi
 	@if [ ! -z "$(shell docker images -q)" ]; then docker rmi -f $(shell docker images -q); else echo "No images to remove"; fi
 compose-up:
-	@$(shell echo "HOST_IP=$(HOST_IP)" > .env && chmod 777 .env)
+	@$(shell chmod 777 .env && sed -i "s/^HOST_IP=.*/HOST_IP=${HOST_IP}/" .env)
 	@$(shell sed -i 's/localhost/'$(HOST_IP)'/g' ./client/nginx.conf)
 	docker compose up --build -d
 
