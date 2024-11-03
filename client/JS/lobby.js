@@ -1,3 +1,4 @@
+import { BACKEND_URL } from "./appconfig.js";
 import { createGame, fetchUserById, fetchUserData, fetchMatch, updateGame } from "./fetchFunctions.js";
 import { getWebSocket, sendMessage } from "./singletonSocket.js";
 import { getCurrentTime } from "./utils.js";
@@ -10,6 +11,7 @@ let opponent;
 let matchData;
 let intervalId;
 let matchmaking = false;
+let firstInvite = false;
 
 let isPlayer1Ready = false;
 let isPlayer2Ready = false;
@@ -21,7 +23,8 @@ async function waitingState()
             "type": "waiting_state",
 			"userId": user.id,
             "opponentId": (user.id == player1.id ? player2.id : player1.id),
-            "matchId": matchData.id
+            "matchId": matchData.id,
+			"firstInvite": firstInvite
         };
         await sendMessage(message);
     }, 2000);
@@ -55,12 +58,26 @@ function lobbyHtml()
 export async function renderLobby()
 {
 	const urlParams = new URLSearchParams(window.location.search);
-	matchmaking = urlParams.get('matchmaking');
 	user = await fetchUserData();
 	socket = await getWebSocket();
-
+	matchmaking = urlParams.get('matchmaking');
+	firstInvite = urlParams.has('firstInvite') ? urlParams.get('firstInvite') : false;
+	
+	document.getElementById('content').innerHTML = lobbyHtml();
+	const player1UsernameDiv = document.getElementById('lobbyPlayer1Username');
+	const player2UsernameDiv = document.getElementById('lobbyPlayer2Username');
+	const player1PfpDiv = document.getElementById('lobbyPlayer1Pfp');
+	const player2PfpDiv = document.getElementById('lobbyPlayer2Pfp');
+	
+	player1UsernameDiv.textContent = user.username;
+	player1PfpDiv.style.backgroundImage = `url(${BACKEND_URL}${user.profile_pic})`;
+	
+	
 	if (!matchmaking) {
 		matchData = await fetchMatch(urlParams.get('matchId'));
+		player2 = await fetchUserById(urlParams.get('invitee'));
+		player2UsernameDiv.textContent = player2.username;
+		player2PfpDiv.style.backgroundImage = `url(${BACKEND_URL}${player2.profile_pic})`;
 	}
 	
 	
@@ -94,7 +111,6 @@ export async function renderLobby()
 		}
 	}
 
-	document.getElementById('content').innerHTML = lobbyHtml();
 
 	socketListener();
 
