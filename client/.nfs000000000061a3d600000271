@@ -1,0 +1,79 @@
+user  nginx;
+worker_processes  1;
+
+events {
+    worker_connections 1024;
+}
+
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+
+    sendfile        on;
+    keepalive_timeout  65;
+
+    # HTTP server
+    server {
+        listen 80;
+        listen [::]:80;
+        server_name localhost;
+
+        root /usr/share/nginx/html;
+
+        index index.html index.htm;
+
+        # Default route, redirect to Landing.html
+        location / {
+            try_files $uri $uri/ /index.html;
+        }
+        
+        # Custom 404 page
+        error_page 404 /index.html;
+
+        # Redirect all HTTP requests to HTTPS
+        # return 301 https://$host$request_uri;
+    }
+
+    # HTTPS server
+    # server {
+    #     listen 443 ssl;
+    #     listen [::]:443 ssl;
+    #     server_name localhost;
+
+    #     root /usr/share/nginx/html;
+
+    #     index index.html index.htm;
+
+    #     ssl_certificate /etc/nginx/ssl/nginx.crt;
+    #     ssl_certificate_key /etc/nginx/ssl/nginx.key;
+
+    #     # Optional: Improve SSL security (modern settings)
+    #     ssl_protocols TLSv1.2 TLSv1.3;
+    #     ssl_prefer_server_ciphers on;
+    #     ssl_ciphers 'ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256';
+
+    #     # Default route for HTTPS
+    #     location / {
+    #         try_files $uri $uri/ /index.html;
+    #     }
+
+    #     # Custom 404 page for HTTPS
+    #     error_page 404 /index.html;
+    # }
+
+    # server {
+    #     listen 8443 ssl;
+    #     server_name localhost;
+
+    #     ssl_certificate /etc/nginx/ssl/nginx.crt;
+    #     ssl_certificate_key /etc/nginx/ssl/nginx.key;
+
+    #     location / {
+    #         proxy_pass http://localhost:8000;  # Assuming Django runs on port 8000
+    #         proxy_set_header Host $host;
+    #         proxy_set_header X-Real-IP $remote_addr;
+    #         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    #         proxy_set_header X-Forwarded-Proto $scheme;
+    #     }
+    # }
+}

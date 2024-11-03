@@ -6,7 +6,7 @@ let currentChatUser;
 let actualUser;
 let messages = {};
 let gameChosen;
-let isPowerEnabled;
+let isPowerEnabled = false;
 let matchmakingClicked = false;
 let offline = true;
 let socket;
