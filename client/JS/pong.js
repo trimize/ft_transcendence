@@ -2,7 +2,6 @@ import { fetchUserData, getUser, updateGame, createGame, fetchMatch, fetchUserBy
 import { getWebSocket, sendMessage } from './singletonSocket.js';
 import { getCurrentTime } from './utils.js';
 
-let invited = false;
 let score_player = 0;
 let score_enemy = 0;
 let single = false;
@@ -37,6 +36,7 @@ let enemy_used_ball_power = false;
 let player_used_ball_power = false;
 let player1Id = 0;
 let player2Id;
+let margins;
 let player1Position;
 let player2Position;
 let reset = false;
@@ -44,23 +44,21 @@ let data;
 let hasValue;
 let offline;
 let userInfo;
+let player1_info;
+let player2_info;
 
 
 export const renderPong = async () =>
 {
 	const urlParams = new URLSearchParams(window.location.search);
-	offline = urlParams.get('offline');
-	ball_step = urlParams.get('ballSpeed');
-	power = urlParams.get('powers');
-	ball_acc = urlParams.get('ballAcc');
-	defaultBallSpeed = urlParams.get('ballSpeed');
-	if (urlParams.get('type') == 'multi')
-		multi = true;
-	else if (urlParams.get('type') == 'single')
-		single = true;
-	else
-		multi_online = true;
-
+	offline = urlParams.get('offline') == 'true' ? true : false;
+	ball_step = parseInt(urlParams.get('ballSpeed'), 10);
+	power = urlParams.get('powers') == 'true' ? true : false;
+	ball_acc = urlParams.get('ballAcc') == 'true' ? true : false;
+	defaultBallSpeed = parseInt(urlParams.get('ballSpeed'), 10);
+	multi = urlParams.get('type') == 'multiplayer' ? true : false;
+	single = urlParams.get('type') == 'singleplayer' ? true : false;
+	multi_online = urlParams.get('type') == 'multiplayer_online' ? true : false;	
 	if (!offline)
 	{
 		matchId = urlParams.get('matchId');
@@ -70,17 +68,24 @@ export const renderPong = async () =>
 	{
 		player1Id = urlParams.get('host');
 		player2Id = urlParams.get('invitee');
+		player1_info = await fetchUserById(player1Id);
+		player2_info = await fetchUserById(player2Id);
 		handlingSocketEvents();
 	}
+
+	document.getElementById('content').innerHTML = pongHTML();
+	const contentArea = document.getElementById('contentArea');
+	const computedStyle = getComputedStyle(contentArea);
+	const leftValue = computedStyle.left;
+	margins = parseInt(leftValue, 10);
 
 	document.addEventListener("keydown", function(event)
 	{
 		event.preventDefault();
-
-		// Only listening when game has started
-
 		if (!finish)
 		{
+			const player = document.getElementById("player");
+			const enemy = document.getElementById("enemy");
 			const currentTop = parseInt(window.getComputedStyle(player).top, 10);
 			const current2pTop = parseInt(window.getComputedStyle(enemy).top, 10);
 			const parentDiv = player.parentElement;
@@ -153,12 +158,27 @@ export const renderPong = async () =>
 			}
 		}
 	});
+
 	let checkValue = setInterval(function()
 	{
 		setTimeout(startMovingSquare, 1000);
 		clearInterval(checkValue);
 	}, 100);
-	document.getElementById('content').innerHTML = pongHTML();
+
+	if (!offline && !multi_online)
+		document.getElementById('pongPlayer1').textContent = userInfo.username;
+	else if(!offline && multi_online)
+	{
+		document.getElementById('pongPlayer1').textContent = player1_info.username;
+		document.getElementById('pongPlayer2').textContent = player2_info.username;
+	}
+	if (!power)
+	{
+		document.getElementById('player_speed').classList.add('d-none');
+		document.getElementById('ball_speed').classList.add('d-none');
+		document.getElementById('enemy_speed').classList.add('d-none');
+		document.getElementById('enemy_ball_speed').classList.add('d-none');
+	}
 }
 
 let previousBallInfo = null; // To store the last known position and speed
@@ -207,6 +227,10 @@ function predictBallPosition(ai_ball_info, framesAhead) {
 
 function handleAIPowers(futureY)
 {
+	const enemy = document.getElementById("enemy");
+	let enemyY = parseInt(window.getComputedStyle(enemy).top, 10);
+	const powerEnemySpeed = document.getElementById('enemy_speed');
+	const powerEnemyBallSpeed = document.getElementById('enemy_ball_speed');
 
 	// If AI is too far from the future Y of the ball it uses the speed power to get to it faster
 
@@ -322,7 +346,7 @@ function handlePlayerPowers()
 
 	// Using the speed player power for 10 seconds on key press
 
-	if (power && player_consec_touch >= 5)
+	if (player_consec_touch >= 5)
 	{
 		if (!key_1_player_pressed)
 		{
@@ -343,7 +367,7 @@ function handlePlayerPowers()
 
 	// Using the ball speed power on key press for the player but only when touched by the player
 
-	if (power && player_consec_touch >= 7)
+	if (player_consec_touch >= 7)
 	{
 		if (!key_2_player_pressed)
 		{
@@ -355,8 +379,6 @@ function handlePlayerPowers()
 		{
 			player_consec_touch = player_consec_touch - 7;
 			key_2_player_pressed = false;
-			if (single || multi)
-				player_used_ball_power = true;
 		}
 	}
 
@@ -385,35 +407,46 @@ function handleKeyDown(event)
 	if (event.code === "Numpad1" && player_consec_touch >= 5)
 	{
 		if (single || multi)
-			step = 60;
-		key_1_player_pressed = true;
-		if (player1Id == userInfo.id)
 		{
+			step = 60;
 			powerPlayerSpeed.style.backgroundColor = "rgba(128, 128, 128, 0.3)";
 			powerPlayerSpeed.style.color = "rgba(255, 255, 255, 0.3)";
 		}
-		else
+		else if (multi_online)
 		{
-			powerEnemySpeed.style.backgroundColor = "rgba(128, 128, 128, 0.3)";
-			powerEnemySpeed.style.color = "rgba(255, 255, 255, 0.3)";
+			key_1_player_pressed = true;
+			if (player1Id == userInfo.id)
+			{
+				step = 60;
+				powerPlayerSpeed.style.backgroundColor = "rgba(128, 128, 128, 0.3)";
+				powerPlayerSpeed.style.color = "rgba(255, 255, 255, 0.3)";
+			}
+			else
+			{
+				enemy_step = 60;
+				powerEnemySpeed.style.backgroundColor = "rgba(128, 128, 128, 0.3)";
+				powerEnemySpeed.style.color = "rgba(255, 255, 255, 0.3)";
+			}
 		}
 	}
 	if (event.code === "Numpad2" && player_consec_touch >= 7)
 	{
-		key_2_player_pressed = true;
-		if (player1Id == userInfo.id)
-		{
-			powerPlayerBallSpeed.style.backgroundColor = "rgba(128, 128, 128, 0.3)";
-			powerPlayerBallSpeed.style.color = "rgba(255, 255, 255, 0.3)";
-		}
-		else
-		{
-			powerEnemyBallSpeed.style.backgroundColor = "rgba(128, 128, 128, 0.3)";
-			powerEnemyBallSpeed.style.color = "rgba(255, 255, 255, 0.3)";
-		}
 		ball_powered = true;
 		if (multi_online)
 		{
+			key_2_player_pressed = true;
+			if (player1Id == userInfo.id)
+			{
+				player_used_ball_power = true;
+				powerPlayerBallSpeed.style.backgroundColor = "rgba(128, 128, 128, 0.3)";
+				powerPlayerBallSpeed.style.color = "rgba(255, 255, 255, 0.3)";
+			}
+			else
+			{
+				enemy_used_ball_power = true;
+				powerEnemyBallSpeed.style.backgroundColor = "rgba(128, 128, 128, 0.3)";
+				powerEnemyBallSpeed.style.color = "rgba(255, 255, 255, 0.3)";
+			}
 			if (player1Id == userInfo.id)
 			{
 
@@ -442,6 +475,12 @@ function handleKeyDown(event)
 				sendMessage(matchData)
 			}
 		}
+		else
+		{
+			key_2_player_pressed = true;
+			powerPlayerBallSpeed.style.backgroundColor = "rgba(128, 128, 128, 0.3)";
+			powerPlayerBallSpeed.style.color = "rgba(255, 255, 255, 0.3)";
+		}
 	}
 }
 
@@ -453,7 +492,6 @@ function startMovingSquare()
 	let enemyY = parseInt(window.getComputedStyle(enemy).top, 10);
 	//console.log(ball_step);
 	const contentArea = player.parentElement;
-	enemy.style.left = contentArea.getBoundingClientRect().right - 97 + "px";
 
 	let bounce_bool = true;
 	document.getElementById("score").textContent = score_player + " : " + score_enemy;
@@ -539,16 +577,18 @@ function startMovingSquare()
 			if (ball_acc)
 				ball_step += 1;
 			deltaX *= -1;
+			console.log(ball_step);
 			player_touch++;
 			player_consec_touch++;
 			bounce_bool = false;
 			bounce_X *= -1;
-			if (ball_powered && ball_power_player_touch && ball_power_enemy_touch && !enemy_used_ball_power)
+			if (ball_powered && ball_power_player_touch && ball_power_enemy_touch && !enemy_used_ball_power && power)
 			{
 				ball_step = ball_step + 7;
 				ball_power_player_touch = false;
+				console.log('Touching powered ball' + ball_step);
 			}
-			if (ball_powered && !ball_power_enemy_touch && enemy_used_ball_power)
+			if (ball_powered && !ball_power_enemy_touch && enemy_used_ball_power && power)
 			{
 				ball_step = ball_step - 7;
 				ball_power_enemy_touch = true;
@@ -568,14 +608,14 @@ function startMovingSquare()
 			enemy_consec_touch++;
 			bounce_bool = false;
 			bounce_X *= -1;
-			if (ball_powered && !ball_power_player_touch && player_used_ball_power)
+			if (ball_powered && !ball_power_player_touch && player_used_ball_power && power)
 			{
 				ball_step = ball_step - 7;
 				ball_power_player_touch = true;
 				ball_powered = false;
 				player_used_ball_power = false;
 			}
-			if (ball_powered && ball_power_enemy_touch && ball_power_player_touch && !player_used_ball_power)
+			if (ball_powered && ball_power_enemy_touch && ball_power_player_touch && !player_used_ball_power && power)
 			{
 				ball_step = ball_step + 7;
 				ball_power_enemy_touch = false;
@@ -600,8 +640,8 @@ function startMovingSquare()
 			const predictedPosition = predictBallPosition(ai_ball_info, frames_ahead);
             const enemyMidPoint = enemyRect.top + enemyRect.height / 2;
 			// Self-explanatory, handles the ai's powers
-			
-			handleAIPowers(predictBallPosition.futureY);
+			if (power)
+				handleAIPowers(predictBallPosition.futureY);
 
 			// AI moves down here, also move_up is a boolean that makes sure the AI doesn't go up
 			// and down frenetically
@@ -637,21 +677,23 @@ function startMovingSquare()
 
 		}
 
-
-		handlePlayerPowers();
-		if (multi_online || multi)
-			handleEnemyPowers();
+		if (power == true)
+		{
+			handlePlayerPowers();
+			if (multi_online || multi)
+				handleEnemyPowers();
+		}
 		// Checking if the ball is lost for player or enemy
 		// Resets everything needed for another round
+		//console.log(newLeftPosition);
 
-		if (newLeftPosition > 0 && newLeftPosition < ParentRect.right - 50)
+		if (newLeftPosition + margins > (ParentRect.left - 10)  && newLeftPosition + margins < ParentRect.right - 50)
 		{
 			movingSquare.style.left = `${newLeftPosition}px`;
 			movingSquare.style.top = `${newTopPosition}px`;
 		}
 		else
 		{
-			console.log('yes');
 			if (newLeftPosition >= ParentRect.right - 50)
 			{
 				score_player++;
@@ -730,7 +772,10 @@ function startMovingSquare()
 
 function pongHTML()
 {
-	return `<div class="content-area p-4" id="contentArea">
+	return `
+			<div id="pongPlayer1">Player 1</div>
+			<div id="pongPlayer2">Player 2</div>
+			<div id="contentArea">
 				<div class="rectangle" id="player"></div>
 				<div id="score">0 : 0</div>
 				<div class="moving-square" id="moving-square"></div>
@@ -745,7 +790,8 @@ function pongHTML()
 					<div class="bottom-right" id="enemy_speed">Player Speed</div>
 					<div class="bottom-right" id="enemy_ball_speed">Ball Speed</div>
 				</div>
-			</div>`
+			</div>
+			<div id="bg"></div>`
 }
 
 function handlingSocketEvents()

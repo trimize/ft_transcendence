@@ -6,7 +6,7 @@ let currentChatUser;
 let actualUser;
 let messages = {};
 let gameChosen;
-let isPowerEnabled;
+let isPowerEnabled = false;
 let matchmakingClicked = false;
 let offline = true;
 
@@ -250,7 +250,7 @@ const addEventListeners = () => {
                         params.append('host', actualUser.id);
                     }
                     params.append('powers', isPowerEnabled);
-                    params.append('type', (multiClicked == true ? 'multi' : 'single'));
+                    params.append('type', (multiClicked == true ? 'multiplayer' : 'singleplayer'));
                     if (singleClicked == true) {
                         params.append('ai', (ballSlider.value < 2 ? 'easy' : 'hard'));
                     }
@@ -294,7 +294,7 @@ const addEventListeners = () => {
                     params.append('ballAcc', ballAcc.checked);
                     params.append('ballSpeed', theBallSpeed);
                     params.append('powers', isPowerEnabled);
-                    params.append('type', (multiClicked == true ? 'multi' : 'single'));
+                    params.append('type', (multiClicked == true ? 'multiplayer' : 'singleplayer'));
                     window.location.href = `/pong?${params.toString()}`;
                 }
             });
