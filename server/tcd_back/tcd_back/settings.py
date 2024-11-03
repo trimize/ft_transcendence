@@ -28,8 +28,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-# Ensure that Django only serves the site over HTTPS
-SECURE_SSL_REDIRECT = True
+SECURE_SSL_REDIRECT = False
 
 # Use secure cookies
 SESSION_COOKIE_SECURE = True
@@ -93,6 +92,12 @@ CORS_ALLOW_CREDENTIALS = True
 
 # Allow all origins (not recommended for production)
 CORS_ALLOW_ALL_ORIGINS = True
+
+CORS_ALLOWED_ORIGINS = [
+    "https://localhost:4443",
+    "https://10.24.105.8:4443",
+    "https://10.24.105.8:8443",
+]
 
 ROOT_URLCONF = 'tcd_back.urls'
 

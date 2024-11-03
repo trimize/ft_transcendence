@@ -95,32 +95,12 @@ const matchHistoryHTML = () => {
       <a id="backButtonEdit" href="/profile"></a>
                   <h1 class="text-center mt-5">Match History</h1>
                   <div class="container mt-5">
-                      <table class="table table-dark table-striped">
-                          <thead>
-                              <tr>
-                                  <th scope="col">Date</th>
-                                  <th scope="col">Game</th>
-                                  <th scope="col">Game type</th>
-                                  <th scope="col">Opponent</th>
-                                  <th scope="col">Play</th>
-                              </tr>
-                          </thead>
-                          <tbody id="unfinishedMatchesTable">
-                          </tbody>
-                      </table>
-                      <table class="table table-dark table-striped">
-                          <thead>
-                              <tr>
-                                  <th scope="col">Date</th>
-                                  <th scope="col">Game</th>
-                                  <th scope="col">Game type</th>
-                                  <th scope="col">Opponent</th>
-                                  <th scope="col">Result</th>
-                              </tr>
-                          </thead>
-                          <tbody id="matchHistoryTable">
-                          </tbody>
-                      </table>
+                        <div class="unfinishedMatches" id="unfinishedMatches">
+                            <h2>Unfinished Matches</h2>
+                        </div>
+                        <div class="finishedMatches" id="finishedMatches">
+                            <h2>Finished Matches</h2>
+                        </div>
                   </div>
               </div><div id="bg"></div>`;
 };
