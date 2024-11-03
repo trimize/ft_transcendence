@@ -756,6 +756,7 @@ function startMovingSquare()
 			}
 			if (score_player >= 3 || score_enemy >= 3)
 			{
+				document.getElementById("endPongDiv").style.display = 'block';
 				document.getElementById("score").textContent = score_player + " : " + score_enemy;
 				if (!offline)
 				{
@@ -777,13 +778,19 @@ function startMovingSquare()
 				finish = true;
 				if (score_enemy == 3)
 				{
-					//document.getElementById('victorytitle').textContent = "You lose";
-					//document.getElementById('endScore').textContent = score_player + " : " + score_enemy;
+					if (multi_online)
+						document.getElementById('winnerPongPlayer').textContent = player2_info.username;
+					else
+						document.getElementById('winnerPongPlayer').textContent = "Player 2";
 				}
 				else if (score_player == 3)
 				{
-					//document.getElementById('victorytitle').textContent = "Victory!";
-					//document.getElementById('endScore').textContent = score_player + " : " + score_enemy;
+					if (multi_online)
+						document.getElementById('winnerPongPlayer').textContent = player1_info.username;
+					else if (!offline)
+						document.getElementById('winnerPongPlayer').textContent = userInfo.username;
+					else
+						document.getElementById('winnerPongPlayer').textContent = "Player 1";
 				}
 				clearInterval(moveInterval);
 				//const retryButton = document.getElementById('retry-button');
@@ -842,8 +849,9 @@ function pongHTML()
 				</div>
 			</div>
 			<div id="endPongDiv">
+				<div id="pongVictoryText">WINNER</div>
 				<div id="winnerPongPlayer">Player</div>
-				<div id="pongMainMenu">Go back home</div>
+				<button id="pongMainMenu" href="/">Go back home</button>
 			</div>
 			<div id="bg"></div>`
 }

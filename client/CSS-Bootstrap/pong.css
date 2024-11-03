@@ -130,3 +130,60 @@
 	font-weight: 300;
 	font-size: 15px;
 }
+
+#endPongDiv {
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    background-color: #4f134d4a;
+    backdrop-filter: blur(9px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+	display: none;
+}
+
+#pongVictoryText {
+    font-family: 'Roboto Condensed';
+    font-size: 150px;
+    font-weight: 900;
+    position: absolute;
+    top: 150px;
+    background: url("../Assets/victory.gif");
+    background-size: cover;
+    -webkit-background-clip: text;
+    color: transparent;
+    background-position: center;
+    width: 600px;
+    left: calc(100% - 50vw - 300px);
+}
+
+#winnerPongPlayer {
+    font-size: 70px;
+    font-family: 'Roboto';
+    width: 600px;
+    position: absolute;
+    left: calc(100% - 50vw - 300px);
+    text-align: center;
+    top: 450px;
+}
+
+#pongMainMenu {
+    position: absolute;
+    bottom: 200px;
+    font-size: 30px;
+    padding: 5px;
+    padding-right: 10px;
+    padding-left: 10px;
+    border: 1px solid white;
+    cursor: pointer;
+    background-color: #47484938;
+    transition: background-color ease 0.3s;
+    left: calc(100% - 50vw - 110px);
+    /* top: 500px; */
+}
+
+#pongMainMenu:hover {
+    background-color: #9ea2a55e;
+}
