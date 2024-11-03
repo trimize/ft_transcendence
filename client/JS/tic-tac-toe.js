@@ -1,5 +1,5 @@
 import { getWebSocket } from "./singletonSocket.js";
-import { fetchUserData, fetchMatch, updateGame } from "./fetchFunctions.js";
+import { fetchUserData, fetchMatch, updateGame, fetchUserById } from "./fetchFunctions.js";
 
 let socket;
 let firstMove = true;
@@ -491,6 +491,13 @@ export const renderTTT = async () => {
     if (!isOffline) {
         player1score = matchData.player1_score;
         player2score = matchData.player2_score;
+    }
+
+    if (type == 'singleplayer') {
+        player2.textContent = 'AI';
+    } else if (type == 'online_multiplayer') {
+        player1.textContent = actualUser.id == host ? 'You' : await fetchUserById(host).username;
+        player2.textContent = actualUser.id == invitee ? 'You' : await fetchUserById(invitee).username;
     }
     
     const scoreDiv = document.getElementById('score');

@@ -30,8 +30,9 @@
     margin-bottom: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
-	background-color: rgba(0, 0, 0, 0.5); /* Darker black with transparency */
+	background-color: rgba(0, 0, 0, 0.25); /* Darker black with transparency */
     color: white; /* Ensure text is readable on dark background */
+	width: 800px;
 }
 
 .unfinishedMatch p, .finishedMatch p {

@@ -528,6 +528,7 @@ async function showChat() {
             params.append('matchId', match_id);
             params.append('host', actualUser.id);
             params.append('invitee', invitee.id);
+            params.append('firstInvite', true);
             window.location.href = `/lobby?${params.toString()}`;
         } else {
             console.log('User not found');
@@ -987,10 +988,13 @@ export const renderBaseHomePage = async () =>
                     showRedDot(message.senderId);
                     //console.log('red dot should show now');
                 }   
-            } else if (message.type === 'send_invite') {
+            } else if (message.type === 'send_invite' || message.firstInvite == 'true') {
                 console.log('Received game invite:', message);
                 if (!messages[message.hostId]) {
                     messages[message.hostId] = [];
+                }
+                if (messages[message.userId].some(msg => (msg.type === 'waiting_state' && msg.matchId == message.matchId) || (msg.type === 'send_invite' && msg.matchId == message.matchId))) {
+                    return;
                 }
                 messages[message.hostId].push(message);
                 if (currentChatUser && message.hostId == currentChatUser.id) {
