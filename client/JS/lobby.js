@@ -146,10 +146,9 @@ async function socketListener()
 				newParams.append('host', matchData.player1);
 				newParams.append('invitee', matchData.player2);
 				newParams.append('matchId', matchData.id);
-				newParams.append('ballAcc', matchData.ballAcc);
-				newParams.append('ballSpeed', matchData.ballSpeed);
-				newParams.append('powers', matchData.powers);
 				newParams.append('offline', false);
+				newParams.append('type', 'multiplayer_online');
+				window.location.href = `/pong?${newParams.toString()}`;
 			} else if (matchData.game == 'tic-tac-toe') {
 				const newParams = new URLSearchParams();
 				newParams.append('host', matchData.player1);

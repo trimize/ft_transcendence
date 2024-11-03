@@ -117,6 +117,10 @@ export async function createGame(body) {
     });
     if (!response.ok) throw new Error("Failed to create game");
     const gameData = await response.json();
+	console.log("Body is");
+	console.log(JSON.stringify(body));
+	console.log("Response is");
+	console.log(gameData);
     return gameData.id;
   } catch (error) {
     console.error(error.message);

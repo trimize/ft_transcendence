@@ -7,8 +7,10 @@ let actualUser;
 let messages = {};
 let gameChosen;
 let isPowerEnabled = false;
+let isBallAccEnabled = false;
 let matchmakingClicked = false;
 let offline = true;
+let theBallSpeed;
 
 
 function closeInviteListener(inviteDiv, inviteInput)
@@ -257,7 +259,6 @@ const addEventListeners = () => {
                     window.location.href = `/tic-tac-toe?${params.toString()}`;
                 }
                 else if (face.classList.contains('pongFace') && (multiClicked == true || singleClicked == true)) {
-                    let theBallSpeed;
                     switch(ballSlider.value)
                     {
                         case 1:
@@ -475,6 +476,8 @@ async function showChat() {
     const inviteInput = document.getElementById('inviteInput');
     const inviteButton = document.getElementById('inviteButton');
     const inviteContainer = document.getElementById('inviteContainer');
+    const ballAcc = document.getElementById('ballAcc');
+    const ballSlider = document.getElementById('ballSpeed');
 
     inviteButton.addEventListener('click', async () => {
         console.log('Invite button clicked');
@@ -493,18 +496,45 @@ async function showChat() {
         if (invitee && invitee.id !== actualUser.id) {
             console.log('Invitee already set:', invitee);
             const params = new URLSearchParams();
-            if (gameChosen == "tic-tac-toe")
-                params.append('game', 'tic-tac-toe');
-            else
-                params.append('game', 'pong');
-            
-            const body =
+            params.append('game', gameChosen);
+            let body;
+            if (gameChosen == 'tic-tac-toe')
             {
-                "game": 'tic-tac-toe',
-                "player1": actualUser.id,
-                "player2": invitee.id,
-                "match_type": "online_multiplayer",
-                "powers": isPowerEnabled
+                body =
+                {
+                    "game": gameChosen,
+                    "player1": actualUser.id,
+                    "player2": invitee.id,
+                    "match_type": "online_multiplayer",
+                    "powers": isPowerEnabled
+                }
+            }
+            else
+            {
+                switch(ballSlider.value)
+                {
+                    case 1:
+                        theBallSpeed = 10;
+                        break;
+                    case 2:
+                        theBallSpeed = 20;
+                        break;
+                    case 3:
+                        theBallSpeed = 30;
+                        break;
+                    default:
+                        theBallSpeed = 20;
+                }
+                body =
+                {
+                    "game": gameChosen,
+                    "player1": actualUser.id,
+                    "player2": invitee.id,
+                    "match_type": "online_multiplayer",
+                    "powers": isPowerEnabled,
+                    "ball_speed": theBallSpeed,
+                    "ball_acc": ballAcc.checked
+                }
             }
             const match_id = await createGame(body);
             // const onlineMatchData =
@@ -516,7 +546,7 @@ async function showChat() {
             // await sendMessage(onlineMatchData);
             const message = {
                 "type": "send_invite",
-                "game": 'tic-tac-toe',
+                "game": gameChosen,
                 "hostId": actualUser.id,
                 "inviteeId": invitee.id,
                 "matchId": match_id
@@ -526,6 +556,7 @@ async function showChat() {
             params.append('matchId', match_id);
             params.append('host', actualUser.id);
             params.append('invitee', invitee.id);
+            params.append('powers', isPowerEnabled);
             window.location.href = `/lobby?${params.toString()}`;
         } else {
             console.log('User not found');
@@ -964,7 +995,7 @@ export const renderBaseHomePage = async () =>
         renderFriendsList(friends, friendNotifications, pendingRequests);
 
         // showChat();
-        const socket = getWebSocket();
+        const socket = await getWebSocket();
         socket.addEventListener('message', function(event)
         {
             const message = JSON.parse(event.data);

@@ -8,7 +8,9 @@ let single = false;
 let multi = false;
 let multi_online = false;
 let matchId;
+let matchData;
 let finish = false;
+let socket;
 //const usernameInput = document.getElementById('usernameInput');
 
 let ai_ball_info;
@@ -23,8 +25,8 @@ let player2_max_consec_touch = 0;
 let power = false;
 let player_touch = 0;
 let enemy_touch = 0;
-let player_consec_touch = 7;
-let enemy_consec_touch = 7;
+let player_consec_touch = 4;
+let enemy_consec_touch = 4;
 let step = 20;
 let enemy_step = 20;
 let key_1_player_pressed = false;
@@ -46,6 +48,7 @@ let offline;
 let userInfo;
 let player1_info;
 let player2_info;
+let turn_ball = 1;
 
 
 export const renderPong = async () =>
@@ -70,7 +73,14 @@ export const renderPong = async () =>
 		player2Id = urlParams.get('invitee');
 		player1_info = await fetchUserById(player1Id);
 		player2_info = await fetchUserById(player2Id);
-		handlingSocketEvents();
+		matchData = await fetchMatch(matchId);
+		console.log(matchData);
+		ball_step = parseInt(matchData.ball_speed, 10);
+		defaultBallSpeed = ball_step;
+		ball_acc = matchData.ball_acc;
+		power = matchData.powers;
+		console.log("this is power" + power);
+		console.log("this is ball_acc" + ball_acc);
 	}
 
 	document.getElementById('content').innerHTML = pongHTML();
@@ -131,53 +141,88 @@ export const renderPong = async () =>
 					enemy.style.top = newTop2 + "px";
 				}
 			}
-			else if (multi_online)
+			else if (multi_online && (event.key === "ArrowUp" || event.key === "ArrowDown"))
 			{
-				let newTop;
-				if (event.key === "ArrowUp")
+				if (userInfo.id == player1Id)
 				{
-					newTop = currentTop - step;
-					if (newTop < 0)
-						newTop = 0;
+					let newTop;
+					if (event.key === "ArrowUp")
+					{
+						newTop = currentTop - step;
+						if (newTop < 0)
+							newTop = 0;
+					}
+					else if (event.key === "ArrowDown")
+					{
+						newTop = currentTop + step;
+						if (newTop > parentHeight - rectangleHeight)
+							newTop = parentHeight - rectangleHeight;
+					}
+					const matchData =
+					{
+						type: "match_update",
+						matchId: matchId,
+						hostId: player1Id,
+						inviteeId: player2Id,
+						player1Position: newTop
+					};
+					sendMessage(matchData)
 				}
-				else if (event.key === "ArrowDown")
+				else if (userInfo.id == player2Id)
 				{
-					newTop = currentTop + step;
-					if (newTop > parentHeight - rectangleHeight)
-						newTop = parentHeight - rectangleHeight;
+					let newTop;
+					if (event.key === "ArrowUp")
+					{
+						newTop = current2pTop - step;
+						if (newTop < 0)
+							newTop = 0;
+					}
+					else if (event.key === "ArrowDown")
+					{
+						newTop = current2pTop + step;
+						if (newTop > parentHeight - rectangle2pHeight)
+							newTop = parentHeight - rectangle2pHeight;
+					}
+					console.log("I am trying to update my position");
+					const matchData =
+					{
+						type: "match_update",
+						matchId: matchId,
+						hostId: player1Id,
+						inviteeId: player2Id,
+						player2Position: newTop
+					};
+					sendMessage(matchData)
 				}
-				const matchData =
-				{
-					type: "match_update",
-					matchId: matchId,
-					hostId: player1Id,
-					inviteeId: player2Id,
-					player1Position: newTop
-				};
-				sendMessage(matchData)
 			}
 		}
 	});
 
-	let checkValue = setInterval(function()
+	if (single || multi || userInfo.id == player1Id)
 	{
-		setTimeout(startMovingSquare, 1000);
-		clearInterval(checkValue);
-	}, 100);
+		let checkValue = setInterval(function()
+		{
+			setTimeout(startMovingSquare, 1000);
+			clearInterval(checkValue);
+		}, 100);
+	}
 
 	if (!offline && !multi_online)
 		document.getElementById('pongPlayer1').textContent = userInfo.username;
 	else if(!offline && multi_online)
 	{
+		if (!power)
+		{
+			document.getElementById('player_speed').style.display = 'none';
+			document.getElementById('ball_speed').style.display = 'none';
+			document.getElementById('enemy_speed').style.display = 'none';
+			document.getElementById('enemy_ball_speed').style.display = 'none';
+		}
 		document.getElementById('pongPlayer1').textContent = player1_info.username;
 		document.getElementById('pongPlayer2').textContent = player2_info.username;
-	}
-	if (!power)
-	{
-		document.getElementById('player_speed').classList.add('d-none');
-		document.getElementById('ball_speed').classList.add('d-none');
-		document.getElementById('enemy_speed').classList.add('d-none');
-		document.getElementById('enemy_ball_speed').classList.add('d-none');
+		handlingSocketEvents();
+		if (userInfo.id == player2Id)
+			document.addEventListener("keydown", handleKeyDown);
 	}
 }
 
@@ -234,7 +279,7 @@ function handleAIPowers(futureY)
 
 	// If AI is too far from the future Y of the ball it uses the speed power to get to it faster
 
-	if (power && enemy_consec_touch >= 5)
+	if (power && enemy_consec_touch >= 2)
 	{
 		powerEnemySpeed.style.backgroundColor = "red";
 		powerEnemySpeed.style.color = "white";
@@ -243,7 +288,7 @@ function handleAIPowers(futureY)
 			step = 60;
 			powerEnemySpeed.style.backgroundColor = "rgba(128, 128, 128, 0.3)";
 			powerEnemySpeed.style.color = "rgba(255, 255, 255, 0.3)";
-			enemy_consec_touch = enemy_consec_touch - 5;
+			enemy_consec_touch = enemy_consec_touch - 2;
 			setTimeout(() =>
 			{
 				step = 20;
@@ -253,7 +298,7 @@ function handleAIPowers(futureY)
 
 	// Using the ball speed power for the AI but only when touched by the AI
 
-	if (power && enemy_consec_touch >= 7)
+	if (power && enemy_consec_touch >= 4)
 	{
 		powerEnemyBallSpeed.style.backgroundColor = "red";
 		powerEnemyBallSpeed.style.color = "white";
@@ -261,78 +306,19 @@ function handleAIPowers(futureY)
 			powerEnemyBallSpeed.style.backgroundColor = "rgba(128, 128, 128, 0.3)";
 			powerEnemyBallSpeed.style.color = "rgba(255, 255, 255, 0.3)";
 			ball_powered = true;
-			enemy_consec_touch = enemy_consec_touch - 7;
+			enemy_consec_touch = enemy_consec_touch - 4;
 			enemy_used_ball_power = true;
 		}, 2000);
 	}
 
 	// If the player has lost consecutive touch points at any point reverts the power's styles back
 
-	if (power && enemy_consec_touch < 7)
+	if (power && enemy_consec_touch < 4)
 	{
 		powerEnemyBallSpeed.style.backgroundColor = "rgba(128, 128, 128, 0.3)";
 		powerEnemyBallSpeed.style.color = "rgba(255, 255, 255, 0.3)";
 	}
-	if (power && enemy_consec_touch < 5)
-	{
-		powerEnemySpeed.style.backgroundColor = "rgba(128, 128, 128, 0.3)";
-		powerEnemySpeed.style.color = "rgba(255, 255, 255, 0.3)";
-	}
-}
-
-function handleEnemyPowers()
-{
-	const powerEnemySpeed = document.getElementById('enemy_speed');
-	const powerEnemyBallSpeed = document.getElementById('enemy_ball_speed');
-
-	// Using the speed player power for 10 seconds on key press
-
-	if (power && enemy_consec_touch >= 5)
-	{
-		if (!key_1_player_pressed)
-		{
-			powerEnemySpeed.style.backgroundColor = "red";
-			powerEnemySpeed.style.color = "white";
-		}
-		document.addEventListener("keydown", handleKeyDown);
-		if (key_1_player_pressed)
-		{
-			enemy_consec_touch = enemy_consec_touch - 5;
-			setTimeout(() =>
-			{
-				step = 20;
-			}, 10000);
-		}
-		key_1_player_pressed = false
-	}
-
-	// Using the ball speed power on key press for the player but only when touched by the player
-
-	if (power && enemy_consec_touch >= 7)
-	{
-		if (!key_2_player_pressed)
-		{
-			powerEnemyBallSpeed.style.backgroundColor = "red";
-			powerEnemyBallSpeed.style.color = "white";
-		}
-		document.addEventListener("keydown", handleKeyDown);
-		if (key_2_player_pressed)
-		{
-			enemy_consec_touch = enemy_consec_touch - 7;
-			key_2_player_pressed = false;
-			if (single || multi)
-				enemy_used_ball_power = true;
-		}
-	}
-
-	// If the player has lost consecutive touch points at any point reverts the power's styles back
-
-	if (power && enemy_consec_touch < 7)
-	{
-		powerEnemyBallSpeed.style.backgroundColor = "rgba(128, 128, 128, 0.3)";
-		powerEnemyBallSpeed.style.color = "rgba(255, 255, 255, 0.3)";
-	}
-	if (power && enemy_consec_touch < 5)
+	if (power && enemy_consec_touch < 2)
 	{
 		powerEnemySpeed.style.backgroundColor = "rgba(128, 128, 128, 0.3)";
 		powerEnemySpeed.style.color = "rgba(255, 255, 255, 0.3)";
@@ -346,7 +332,7 @@ function handlePlayerPowers()
 
 	// Using the speed player power for 10 seconds on key press
 
-	if (player_consec_touch >= 5)
+	if (player_consec_touch >= 2)
 	{
 		if (!key_1_player_pressed)
 		{
@@ -356,7 +342,7 @@ function handlePlayerPowers()
 		document.addEventListener("keydown", handleKeyDown);
 		if (key_1_player_pressed)
 		{
-			player_consec_touch = player_consec_touch - 5;
+			player_consec_touch = player_consec_touch - 2;
 			setTimeout(() =>
 			{
 				step = 20;
@@ -367,7 +353,7 @@ function handlePlayerPowers()
 
 	// Using the ball speed power on key press for the player but only when touched by the player
 
-	if (player_consec_touch >= 7)
+	if (player_consec_touch >= 4)
 	{
 		if (!key_2_player_pressed)
 		{
@@ -377,19 +363,19 @@ function handlePlayerPowers()
 		document.addEventListener("keydown", handleKeyDown);
 		if (key_2_player_pressed)
 		{
-			player_consec_touch = player_consec_touch - 7;
+			player_consec_touch = player_consec_touch - 4;
 			key_2_player_pressed = false;
 		}
 	}
 
 	// If the player has lost consecutive touch points at any point reverts the power's styles back
 
-	if (power && player_consec_touch < 7)
+	if (power && player_consec_touch < 4)
 	{
 		powerPlayerBallSpeed.style.backgroundColor = "rgba(128, 128, 128, 0.3)";
 		powerPlayerBallSpeed.style.color = "rgba(255, 255, 255, 0.3)";
 	}
-	if (power && player_consec_touch < 5)
+	if (power && player_consec_touch < 2)
 	{
 		powerPlayerSpeed.style.backgroundColor = "rgba(128, 128, 128, 0.3)";
 		powerPlayerSpeed.style.color = "rgba(255, 255, 255, 0.3)";
@@ -404,7 +390,7 @@ function handleKeyDown(event)
 	const powerPlayerBallSpeed = document.getElementById('ball_speed');
 	const powerEnemySpeed = document.getElementById('enemy_speed');
 	const powerEnemyBallSpeed = document.getElementById('enemy_ball_speed');
-	if (event.code === "Numpad1" && player_consec_touch >= 5)
+	if (event.code === "Numpad1" && player_consec_touch >= 2)
 	{
 		if (single || multi)
 		{
@@ -420,18 +406,40 @@ function handleKeyDown(event)
 				step = 60;
 				powerPlayerSpeed.style.backgroundColor = "rgba(128, 128, 128, 0.3)";
 				powerPlayerSpeed.style.color = "rgba(255, 255, 255, 0.3)";
-			}
-			else
-			{
-				enemy_step = 60;
-				powerEnemySpeed.style.backgroundColor = "rgba(128, 128, 128, 0.3)";
-				powerEnemySpeed.style.color = "rgba(255, 255, 255, 0.3)";
+				const matchData =
+				{
+					type: "match_update",
+					matchId: matchId,
+					hostId: player1Id,
+					inviteeId: player2Id,
+					player1UsedPower1: true
+				};
+				sendMessage(matchData)
 			}
 		}
 	}
-	if (event.code === "Numpad2" && player_consec_touch >= 7)
+	if (event.code === "Numpad1" && enemy_consec_touch >= 2 && multi_online && userInfo.id == player2Id)
 	{
-		ball_powered = true;
+		step = 60;
+
+		setTimeout(() => {
+			step = 20;
+		}, "10000");
+
+		powerEnemySpeed.style.backgroundColor = "rgba(128, 128, 128, 0.3)";
+		powerEnemySpeed.style.color = "rgba(255, 255, 255, 0.3)";
+		const matchData =
+		{
+			type: "match_update",
+			matchId: matchId,
+			hostId: player1Id,
+			inviteeId: player2Id,
+			player2UsedPower1: true
+		};
+		sendMessage(matchData)
+	}
+	if (event.code === "Numpad2" && player_consec_touch >= 4)
+	{
 		if (multi_online)
 		{
 			key_2_player_pressed = true;
@@ -440,16 +448,7 @@ function handleKeyDown(event)
 				player_used_ball_power = true;
 				powerPlayerBallSpeed.style.backgroundColor = "rgba(128, 128, 128, 0.3)";
 				powerPlayerBallSpeed.style.color = "rgba(255, 255, 255, 0.3)";
-			}
-			else
-			{
-				enemy_used_ball_power = true;
-				powerEnemyBallSpeed.style.backgroundColor = "rgba(128, 128, 128, 0.3)";
-				powerEnemyBallSpeed.style.color = "rgba(255, 255, 255, 0.3)";
-			}
-			if (player1Id == userInfo.id)
-			{
-
+				
 				const matchData =
 				{
 					type: "match_update",
@@ -461,26 +460,30 @@ function handleKeyDown(event)
 				};
 				sendMessage(matchData)
 			}
-			else
-			{
-				const matchData =
-				{
-					type: "match_update",
-					matchId: matchId,
-					hostId: player1Id,
-					inviteeId: player2Id,
-					ball_powered: true,
-					enemy_used_ball_power: true,
-				};
-				sendMessage(matchData)
-			}
 		}
 		else
 		{
+			ball_powered = true;
 			key_2_player_pressed = true;
 			powerPlayerBallSpeed.style.backgroundColor = "rgba(128, 128, 128, 0.3)";
 			powerPlayerBallSpeed.style.color = "rgba(255, 255, 255, 0.3)";
 		}
+	}
+	if (event.code === "Numpad2" && enemy_consec_touch >= 4 && multi_online && userInfo.id == player2Id)
+	{
+		enemy_used_ball_power = true;
+		powerEnemyBallSpeed.style.backgroundColor = "rgba(128, 128, 128, 0.3)";
+		powerEnemyBallSpeed.style.color = "rgba(255, 255, 255, 0.3)";
+		const matchData =
+		{
+			type: "match_update",
+			matchId: matchId,
+			hostId: player1Id,
+			inviteeId: player2Id,
+			ball_powered: true,
+			enemy_used_ball_power: true,
+		};
+		sendMessage(matchData)
 	}
 }
 
@@ -509,6 +512,7 @@ function startMovingSquare()
 	let deltaY = Math.cos(angle) * ball_step; // Vertical movement
 	let bounce_X = 1;
 	let bounce_Y = 1;
+	deltaX *= turn_ball;
 
 	// Since AI makes its own calculation of the trajectory of the ball we need to update it every 50ms
 	const ballSPeed = setInterval(() =>
@@ -572,7 +576,7 @@ function startMovingSquare()
 		// Ball bounces if near enough to the player
 		// Uses the power of the player if used to make the ball faster
 
-		if (squareRect.bottom <= playerRect.bottom + 20 && squareRect.top >= playerRect.top - 15 && squareRect.left <= playerRect.right + 20 && bounce_bool && squareRect.left >= playerRect.right - 20)
+		if (squareRect.bottom <= playerRect.bottom + 50 && squareRect.top + 50 >= playerRect.top && squareRect.left <= playerRect.right + 20 && bounce_bool && squareRect.left >= playerRect.right - 20)
 		{
 			if (ball_acc)
 				ball_step += 1;
@@ -599,7 +603,7 @@ function startMovingSquare()
 
 		// Ball bounces if near enough to the enemy
 		// Makes the ball slower again if the player used his power and touched the ball
-		if (squareRect.bottom <= enemyRect.bottom + 20 && squareRect.top >= enemyRect.top - 25 && squareRect.right >= enemyRect.left - 20 && bounce_bool && squareRect.right <= enemyRect.left + 20)
+		if (squareRect.bottom <= enemyRect.bottom + 50 && squareRect.top + 50 >= enemyRect.top && squareRect.right >= enemyRect.left - 20 && bounce_bool && squareRect.right <= enemyRect.left + 20)
 		{
 			deltaX *= -1;
 			if (ball_acc && bounce_bool)
@@ -680,8 +684,8 @@ function startMovingSquare()
 		if (power == true)
 		{
 			handlePlayerPowers();
-			if (multi_online || multi)
-				handleEnemyPowers();
+			if (multi_online)
+				enemyPowersRender();
 		}
 		// Checking if the ball is lost for player or enemy
 		// Resets everything needed for another round
@@ -691,18 +695,64 @@ function startMovingSquare()
 		{
 			movingSquare.style.left = `${newLeftPosition}px`;
 			movingSquare.style.top = `${newTopPosition}px`;
+			if (multi_online)
+			{
+				const matchData =
+				{
+					type: "match_update",
+					matchId: matchId,
+					hostId: player1Id,
+					inviteeId: player2Id,
+					ball_left: parseInt(movingSquare.style.left, 10),
+					ball_top: parseInt(movingSquare.style.top, 10),
+					enemy_consec_touch: enemy_consec_touch,
+					player_consec_touch: player_consec_touch
+				};
+				sendMessage(matchData)
+			}
 		}
 		else
 		{
-			if (newLeftPosition >= ParentRect.right - 50)
+			if (newLeftPosition + margins >= ParentRect.right - 50)
 			{
 				score_player++;
+				console.log('Player 1 Scored !');
 				enemy_consec_touch = 0;
+				if (turn_ball == 1)
+					turn_ball *= -1;
+				if (multi_online)
+				{
+					const matchData =
+					{
+						type: "match_update",
+						matchId: matchId,
+						hostId: player1Id,
+						inviteeId: player2Id,
+						score_player1: score_player,
+						enemy_consec_touch: enemy_consec_touch
+					};
+					sendMessage(matchData)
+				}
 			}
 			else
 			{
 				player_consec_touch = 0;
 				score_enemy++;
+				if (turn_ball == -1)
+					turn_ball *= -1;
+				if (multi_online)
+				{
+					const matchData =
+					{
+						type: "match_update",
+						matchId: matchId,
+						hostId: player1Id,
+						inviteeId: player2Id,
+						score_player2: score_enemy,
+						player_consec_touch: player_consec_touch
+					};
+					sendMessage(matchData)
+				}
 			}
 			if (score_player >= 3 || score_enemy >= 3)
 			{
@@ -794,9 +844,50 @@ function pongHTML()
 			<div id="bg"></div>`
 }
 
-function handlingSocketEvents()
+function enemyPowersRender()
 {
-	socket = getWebSocket();
+	const powerEnemySpeed = document.getElementById('enemy_speed');
+	const powerEnemyBallSpeed = document.getElementById('enemy_ball_speed');
+
+	if (power && enemy_consec_touch >= 2)
+	{
+		powerEnemySpeed.style.backgroundColor = "red";
+		powerEnemySpeed.style.color = "white";
+	}
+	if (power && enemy_consec_touch >= 4)
+	{
+		powerEnemyBallSpeed.style.backgroundColor = "red";
+		powerEnemyBallSpeed.style.color = "white";
+	}
+	if (power && enemy_consec_touch < 4)
+	{
+		powerEnemyBallSpeed.style.backgroundColor = "rgba(128, 128, 128, 0.3)";
+		powerEnemyBallSpeed.style.color = "rgba(255, 255, 255, 0.3)";
+	}
+	if (power && enemy_consec_touch < 2)
+	{
+		powerEnemySpeed.style.backgroundColor = "rgba(128, 128, 128, 0.3)";
+		powerEnemySpeed.style.color = "rgba(255, 255, 255, 0.3)";
+	}
+}
+
+async function handlingSocketEvents()
+{
+	const powerPlayerSpeed = document.getElementById('player_speed');
+	const powerPlayerBallSpeed = document.getElementById('ball_speed');
+	const powerEnemySpeed = document.getElementById('enemy_speed');
+	const powerEnemyBallSpeed = document.getElementById('enemy_ball_speed');
+	const player = document.getElementById("player");
+	const enemy = document.getElementById("enemy");
+	const movingSquare = document.getElementById("moving-square");
+	if (userInfo.id  == player1Id)
+	{
+		powerEnemySpeed.style.backgroundColor = "red";
+		powerEnemySpeed.style.color = "white";
+		powerEnemyBallSpeed.style.backgroundColor = "red";
+		powerEnemyBallSpeed.style.color = "white";
+	}
+	socket = await getWebSocket();
 	socket.addEventListener('message', async function(event)
 	{
 		const message = JSON.parse(event.data);
@@ -806,12 +897,100 @@ function handlingSocketEvents()
 				player.style.top = message.player1Position + "px";
 			if (message.player2Position !== undefined)
 				enemy.style.top = message.player2Position + "px";
+			if (userInfo.id == player2Id && message.ball_left !== undefined)
+			{
+				movingSquare.style.display = 'block';
+				movingSquare.style.left = `${message.ball_left}px`;
+				movingSquare.style.top = `${message.ball_top}px`;
+				player_consec_touch = message.player_consec_touch;
+				enemy_consec_touch = message.enemy_consec_touch;
+				if (power && enemy_consec_touch >= 2)
+				{
+					powerEnemySpeed.style.backgroundColor = "red";
+					powerEnemySpeed.style.color = "white";
+				}
+				if (power && enemy_consec_touch >= 4)
+				{
+					powerEnemyBallSpeed.style.backgroundColor = "red";
+					powerEnemyBallSpeed.style.color = "white";
+				}
+				
+				if (power && player_consec_touch >= 2)
+				{
+					powerPlayerSpeed.style.backgroundColor = "red";
+					powerPlayerSpeed.style.color = "white";
+				}
+				if (power && player_consec_touch >= 4)
+				{
+					powerPlayerBallSpeed.style.backgroundColor = "red";
+					powerPlayerBallSpeed.style.color = "white";
+				}
+				if (power && enemy_consec_touch < 4)
+				{
+					powerEnemyBallSpeed.style.backgroundColor = "rgba(128, 128, 128, 0.3)";
+					powerEnemyBallSpeed.style.color = "rgba(255, 255, 255, 0.3)";
+				}
+				if (power && enemy_consec_touch < 2)
+				{
+					powerEnemySpeed.style.backgroundColor = "rgba(128, 128, 128, 0.3)";
+					powerEnemySpeed.style.color = "rgba(255, 255, 255, 0.3)";
+				}
+				if (power && player_consec_touch < 4)
+				{
+					powerPlayerBallSpeed.style.backgroundColor = "rgba(128, 128, 128, 0.3)";
+					powerPlayerBallSpeed.style.color = "rgba(255, 255, 255, 0.3)";
+				}
+				if (power && player_consec_touch < 2)
+				{
+					powerPlayerSpeed.style.backgroundColor = "rgba(128, 128, 128, 0.3)";
+					powerPlayerSpeed.style.color = "rgba(255, 255, 255, 0.3)";
+				}
+			}
 			if (message.ball_powered !== undefined)
 			{
 				if (message.player_used_ball_power !== undefined)
+				{
 					player_used_ball_power = true;
+					if (userInfo.id == player2Id)
+					{
+						powerPlayerBallSpeed.style.backgroundColor = "rgba(128, 128, 128, 0.3)";
+						powerPlayerBallSpeed.style.color = "rgba(255, 255, 255, 0.3)";
+					}
+				}
 				else
+				{
 					enemy_used_ball_power = true;
+					if (userInfo.id == player1Id)
+					{
+						powerEnemyBallSpeed.style.backgroundColor = "rgba(128, 128, 128, 0.3)";
+						powerEnemyBallSpeed.style.color = "rgba(255, 255, 255, 0.3)";
+						enemy_consec_touch -= 4;
+					}
+				}
+				ball_powered = true;
+			}
+			if (message.player2UsedPower1 !== undefined && userInfo.id == player1Id)
+			{
+				powerEnemySpeed.style.backgroundColor = "rgba(128, 128, 128, 0.3)";
+				powerEnemySpeed.style.color = "rgba(255, 255, 255, 0.3)";
+				enemy_consec_touch -= 2;
+			}
+			if (message.player1UsedPower1 !== undefined && userInfo.id == player2Id)
+			{
+				powerPlayerSpeed.style.backgroundColor = "rgba(128, 128, 128, 0.3)";
+				powerPlayerSpeed.style.color = "rgba(255, 255, 255, 0.3)";
+			}
+			if (message.score_player1 !== undefined && userInfo.id == player2Id)
+			{
+				score_player = message.score_player1;
+				enemy_consec_touch = message.enemy_consec_touch;
+				document.getElementById("score").textContent = score_player + " : " + score_enemy;
+			}
+			if (message.score_player2 !== undefined && userInfo.id == player2Id)
+			{
+				score_enemy = message.score_player2;
+				player_consec_touch = message.player_consec_touch;
+				document.getElementById("score").textContent = score_player + " : " + score_enemy;
 			}
 		}	
 	});
