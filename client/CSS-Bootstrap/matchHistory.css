@@ -1,0 +1,75 @@
+/* styles.css */
+
+.container-fluidMH {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+.allMatches {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 100%;
+	max-width: 1000px;
+}
+
+.unfinishedMatches, .finishedMatches {
+    width: 100%;
+    max-width: 1000px;
+    margin-bottom: 20px;
+}
+
+.unfinishedMatch, .finishedMatch {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+	background-color: rgba(0, 0, 0, 0.5); /* Darker black with transparency */
+    color: white; /* Ensure text is readable on dark background */
+}
+
+.unfinishedMatch p, .finishedMatch p {
+    margin: 0 10px;
+    flex: 1;
+    text-align: center;
+}
+
+.unfinishedMatch button, .finishedMatch button {
+    flex: 0 0 auto;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+}
+
+.unfinishedMatch button:hover, .finishedMatch button:hover {
+    background-color: #0056b3;
+}
+
+#matchHistoryTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#matchHistoryTable th, #matchHistoryTable td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: center;
+}
+
+#matchHistoryTable th {
+    background-color: #f2f2f2;
+}
+
+.resultImage {
+    width: 25px;  
+    height: 25px; 
+}

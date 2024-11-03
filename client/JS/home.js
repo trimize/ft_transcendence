@@ -9,6 +9,7 @@ let gameChosen;
 let isPowerEnabled;
 let matchmakingClicked = false;
 let offline = true;
+let socket;
 
 
 function closeInviteListener(inviteDiv, inviteInput)
@@ -243,14 +244,15 @@ const addEventListeners = () => {
                             player2: (invitee ? invitee.id : null),
                             match_type: (multiClicked == true ? 'local_multiplayer' : 'singleplayer'),
                             powers: isPowerEnabled,
-                            start_time: new Date().toISOString()
+                            ai: (multiClicked ? null : (ballSlider.value < 19 ? 'easy' : 'hard')),
+                            start_time: new Date()
                         };
                         matchId = await createGame(requestBody);
                         params.append('matchId', matchId);
                         params.append('host', actualUser.id);
                     }
                     params.append('powers', isPowerEnabled);
-                    params.append('type', (multiClicked == true ? 'multi' : 'single'));
+                    params.append('type', (multiClicked == true ? 'local_multiplayer' : 'singleplayer'));
                     if (singleClicked == true) {
                         params.append('ai', (ballSlider.value < 2 ? 'easy' : 'hard'));
                     }
@@ -294,7 +296,7 @@ const addEventListeners = () => {
                     params.append('ballAcc', ballAcc.checked);
                     params.append('ballSpeed', theBallSpeed);
                     params.append('powers', isPowerEnabled);
-                    params.append('type', (multiClicked == true ? 'multi' : 'single'));
+                    params.append('type', (multiClicked == true ? 'local_multiplayer' : 'singleplayer'));
                     window.location.href = `/pong?${params.toString()}`;
                 }
             });
@@ -568,7 +570,7 @@ async function showChat() {
                 }
                 messages[currentChatUser.id].push(messageData);
                 console.log('Sending message:', messageData);
-                socket.send(JSON.stringify(messageData));
+                sendMessage(messageData);
             }
         }
     });
@@ -964,7 +966,7 @@ export const renderBaseHomePage = async () =>
         renderFriendsList(friends, friendNotifications, pendingRequests);
 
         // showChat();
-        const socket = getWebSocket();
+        socket = await getWebSocket();
         socket.addEventListener('message', function(event)
         {
             const message = JSON.parse(event.data);

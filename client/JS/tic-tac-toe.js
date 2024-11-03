@@ -453,27 +453,50 @@ function tttHtml()
 }
 
 export const renderTTT = async () => {
-    socket = await getWebSocket();
-    actualUser = await fetchUserData();
     const urlParams = new URLSearchParams(window.location.search);
-    host = urlParams.get('host');
-    invitee = urlParams.get('invitee');
-    hasPowers = urlParams.get('powers');
-    isOffline = urlParams.get('offline');
-    type = urlParams.get('type');
-    AIDifficulty = urlParams.get('ai');
-    matchId = urlParams.get('matchId');
-    if (AIDifficulty === 'easy' || AIDifficulty === 'hard') {
+    if (urlParams.has('matchId')) {
+        socket = await getWebSocket();
+        actualUser = await fetchUserData();
+        matchId = urlParams.get('matchId');
+        matchData = await fetchMatch(matchId);
+        console.log('Match data:');
+        console.log(matchData);
+        console.log('Actual user:');
+        console.log(actualUser);
+        host = matchData.player1;
+        invitee = matchData.player2;
+        hasPowers = matchData.powers;
+        type = matchData.match_type;
+        isOffline = false;
+        AIDifficulty = matchData.ai;
+    } else {
+        host = urlParams.get('host');
+        invitee = urlParams.get('invitee');
+        hasPowers = urlParams.get('powers');
+        isOffline = urlParams.get('offline');
+        type = urlParams.get('type');
+        AIDifficulty = urlParams.get('ai');
+    }
+
+    if (AIDifficulty == 'easy' || AIDifficulty == 'hard') {
         ai = true;
     }
+
 	document.getElementById('content').innerHTML = tttHtml();
     cells = document.querySelectorAll('.cell');
     resetButton = document.getElementById('reset');
     player1 = document.getElementById('player1');
     player2 = document.getElementById('player2');
 
-
-    if (isOffline || (type === 'multi' || type === 'single')) {
+    if (!isOffline) {
+        player1score = matchData.player1_score;
+        player2score = matchData.player2_score;
+    }
+    
+    const scoreDiv = document.getElementById('score');
+    scoreDiv.textContent = `${player1score}:${player2score}`;
+    
+    if (isOffline || (type == 'local_multiplayer' || type == 'singleplayer')) {
         cells.forEach(cell => {
             cell.addEventListener('click', handleCellClick);
             cell.addEventListener('dragstart', handleDragStart);
@@ -481,17 +504,6 @@ export const renderTTT = async () => {
             cell.addEventListener('drop', handleDrop);
         });
     } else {
-        matchData = await fetchMatch(matchId);
-        console.log('Match data:');
-        console.log(matchData);
-
-        player1score = matchData.player1_score;
-        player2score = matchData.player2_score;
-
-        hasPowers = matchData.powers;
-
-        const scoreDiv = document.getElementById('score');
-        scoreDiv.textContent = `${player1score}:${player2score}`;
 
         if (!actualUser) {
             alert('You are not logged in!');
@@ -505,10 +517,12 @@ export const renderTTT = async () => {
         console.log(matchData);
 
         if (actualUser.id != host && actualUser.id != invitee) {
+            console.log('You got here because actualUser.id is' + actualUser.id + ' and host is ' + host + ' and invitee is ' + invitee);
             alert('You are not part of this match!');
             document.getElementById('content').innerHTML = '';
             return;
         } else if (actualUser.id != matchData.player1 && actualUser.id != matchData.player2) {
+            console.log('You got here because actualUser.id is' + actualUser.id + ' and player1 is ' + matchData.player1 + ' and player2 is ' + matchData.player2);
             alert('You are not part of this match!');
             document.getElementById('content').innerHTML = '';
             return;

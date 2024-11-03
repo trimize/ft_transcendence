@@ -95,6 +95,7 @@ class Match_Record(models.Model):
 	ball_speed = models.IntegerField(default=20)
 	ball_acc = models.BooleanField(default=False)
 	powers = models.BooleanField(default=False)
+	ai = models.CharField(max_length=20, null=True)
 	start_time = models.DateTimeField(null=True)
 	end_time = models.DateTimeField(null=True)
 

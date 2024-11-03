@@ -1,71 +1,102 @@
 import { fetchUserData, fetchMatches, fetchUserById } from './fetchFunctions.js';
 
+let userData;
+
+function formatDate(date) {
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${day}/${month} ${hours}:${minutes}`;
+}
+
 async function populateMatchesHistory(userData) {
     const matches = await fetchMatches('finished');
-    const tbody = document.getElementById('matchHistoryTable');
-    tbody.innerHTML = '';
+    const table = document.getElementById('finishedMatches');
     if (matches.length === 0) {
-        showEmptyLine();
+        table.textContent = '';
         return;
     }
-    let i = 1;
     matches.forEach(async (match) => {
-        const tr = document.createElement('tr');
-        const date = new Date(match.start_time);
+        const element = document.createElement('div');
+        element.classList.add('finishedMatch');
+        const date = new Date(match.end_time);
+        const myUsername = userData.username;
+        const game = match.game == 'tic-tac-toe' ? 'Tic Tac Toe' : 'Pong';
+        const myScore = match.player1 === userData.id ? match.player1_score : match.player2_score;
+        const opponentScore = match.player1 === userData.id ? match.player2_score : match.player1_score;
         const opponent = await getOpponent(match, userData);
-        const result = getMatchResult(match, userData);
-        tr.innerHTML = `
-            <td>${date.toDateString()}</td>
-            <td>${match.game}</td>
-            <td>${match.match_type}</td>
-            <td>${opponent}</td>
-            <td>${result}</td>
+        const params = new URLSearchParams();
+        const result = getMatchResult(match, userData) === "Victory" ? "../Assets/victory.svg" : "../Assets/loss.png";
+        params.append('matchId', match.id);
+        params.append('game', match.game);
+        params.append('match_type', match.match_type);
+        params.append('host', match.player1);
+        params.append('invitee', match.player2);
+        let gameUrl = 'lobby?' + params;
+        if (opponent === "AI Agent" || opponent === "Local player" || opponent === "Anonymous user") {
+            gameUrl = match.game + '?' + params;
+        }
+        element.innerHTML = `
+            <p>${formatDate(date)}</p>
+            <p>${game}</p>
+            <p>${myUsername}</p>
+            <p>${myScore} - ${opponentScore}</p>
+            <p>${opponent}</p>
+            <img src="${result}" alt="Result" class="resultImage">
         `;
-        tbody.appendChild(tr);
-        i++;
+        table.appendChild(element);
     });
 }
 
 async function populateUnfinishedMatches(userData) {
     const matches = await fetchMatches('unfinished');
-    const tbody = document.getElementById('unfinishedMatchesTable');
-    tbody.innerHTML = '';
+    const table = document.getElementById('unfinishedMatches');
     if (matches.length === 0) {
-        showEmptyLine();
+        table.textContent = '';
         return;
     }
-    let i = 1;
     matches.forEach(async (match) => {
-        const tr = document.createElement('tr');
+        const element = document.createElement('div');
+        element.classList.add('unfinishedMatch');
         const date = new Date(match.start_time);
+        const myUsername = userData.username;
+        const game = match.game == 'tic-tac-toe' ? 'Tic Tac Toe' : 'Pong';
+        const myScore = match.player1 === userData.id ? match.player1_score : match.player2_score;
+        const opponentScore = match.player1 === userData.id ? match.player2_score : match.player1_score;
         const opponent = await getOpponent(match, userData);
         const params = new URLSearchParams();
         params.append('matchId', match.id);
         params.append('game', match.game);
         params.append('match_type', match.match_type);
-        params.append('player1', match.player1);
-        params.append('player2', match.player2);
-        params.append('powers', match.powers);
-        tr.innerHTML = `
-            <td>${date.toDateString()}</td>
-            <td>${match.game}</td>
-            <td>${match.match_type}</td>
-            <td>${opponent}</td>
-            <td><a href="/lobby?${params}">Play</a></td>
+        params.append('host', match.player1);
+        params.append('invitee', match.player2);
+        let gameUrl = 'lobby?' + params;
+        if (opponent === "AI Agent" || opponent === "Local player" || opponent === "Anonymous user") {
+            gameUrl = match.game + '?' + params;
+        }
+        element.innerHTML = `
+            <p>${formatDate(date)}</p>
+            <p>${game}</p>
+            <p>${myUsername}</p>
+            <p>${myScore} - ${opponentScore}</p>
+            <p>${opponent}</p>
+            <button class="btn btn-primary" onclick="window.location.href='/${gameUrl}'">Continue</button>
         `;
-        tbody.appendChild(tr);
-        i++;
+        table.appendChild(element);
     });
 }
 
 async function getOpponent(match, userData) {
     let opponent = match.player1 == userData.id ? match.player2 : match.player1;
-    if (opponent === null && match.type == 'singleplayer') {
+    console.log("Opponent ID:");
+    console.log(opponent);
+    if (opponent === null && match.match_type == 'singleplayer') {
         return "AI Agent";
     }
-    else if (opponent === null && match.type == 'local_multiplayer') {
+    else if (opponent === null && match.match_type == 'local_multiplayer') {
         return "Local player";}
-        else if (opponent === null && match.type == 'online_multiplayer') {
+        else if (opponent === null && match.match_type == 'online_multiplayer') {
             return "Anonymous user";
         } else {
         opponent = await fetchUserById(opponent);
@@ -91,10 +122,10 @@ export const showEmptyLine = () => {
 }
 
 const matchHistoryHTML = () => {
-    return `<div class="container-fluid">
+    return `<div class="container-fluidMH">
       <a id="backButtonEdit" href="/profile"></a>
                   <h1 class="text-center mt-5">Match History</h1>
-                  <div class="container mt-5">
+                  <div class="allMatches">
                         <div class="unfinishedMatches" id="unfinishedMatches">
                             <h2>Unfinished Matches</h2>
                         </div>
@@ -117,7 +148,7 @@ const attachMatchHistoryEventListeners = () => {
 
 export async function renderMatchHistory() {
     document.getElementById('content').innerHTML = matchHistoryHTML();
-    const userData = await fetchUserData();
+    userData = await fetchUserData();
     populateUnfinishedMatches(userData);
     populateMatchesHistory(userData);
     attachMatchHistoryEventListeners();
