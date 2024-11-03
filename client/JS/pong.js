@@ -841,6 +841,10 @@ function pongHTML()
 					<div class="bottom-right" id="enemy_ball_speed">Ball Speed</div>
 				</div>
 			</div>
+			<div id="endPongDiv">
+				<div id="winnerPongPlayer">Player</div>
+				<div id="pongMainMenu">Go back home</div>
+			</div>
 			<div id="bg"></div>`
 }
 
@@ -891,7 +895,7 @@ async function handlingSocketEvents()
 	socket.addEventListener('message', async function(event)
 	{
 		const message = JSON.parse(event.data);
-		if (message.type = "match_update")
+		if (message.type == "match_update")
 		{
 			if (message.player1Position !== undefined)
 				player.style.top = message.player1Position + "px";
@@ -992,6 +996,18 @@ async function handlingSocketEvents()
 				player_consec_touch = message.player_consec_touch;
 				document.getElementById("score").textContent = score_player + " : " + score_enemy;
 			}
-		}	
+		}
+		else if (message.type == "friend_disconnected")
+		{
+			if (message.userId == player1Id || message.userId == player2Id)
+			{
+				const params = new URLSearchParams();
+				params.append('matchId', matchId);
+				params.append('host', player1Id);
+				params.append('invitee', player2Id);
+				params.append('game', 'pong');
+				window.location.href = `/lobby?${params.toString()}`;
+			}
+		}
 	});
 }
