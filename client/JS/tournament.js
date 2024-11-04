@@ -3,6 +3,7 @@ import { fetchUserData, getUser, createTournament , getTournamentById, fetchUser
 
 let socket;
 const params = new URLSearchParams(window.location.search);
+let players = [];
 
 const renderTournamentPageHost = (host) => {
 	return `
@@ -104,14 +105,14 @@ const renderTournamentPageInvitee = (host) => {
 const addEventListeners = async () => {
     try {
         const usersListElement = document.getElementById('friendsListDivTournament');
-        // replace with fetchFriends(), fetching users for testing
-		const profileData = await fetchUsers();
-        if (profileData && profileData.length > 0) {
-            profileData.forEach(friend => {
+		const profileData = await fetchUserData();
+        if (profileData && profileData.friends.length > 0) {
+            profileData.friends.forEach(async (friend) => {
                 const listItem = document.createElement('li');
                 listItem.classList.add('friendItemTournament');
-				let username = friend.username;
-				if (friend.username.length > 5)
+				let friendInfo = await fetchUserById(friend);
+				let username = friendInfo.username;
+				if (friendInfo.username.length > 6)
 					username = friend.username.substring(0, 4) + "...";
                 listItem.textContent = username;
                 const inviteButton = document.createElement('div');
@@ -137,7 +138,7 @@ const addEventListeners = async () => {
 			// needs to be updated according to the logic when game and tournament is created
 			// const tournamentData = await getTournaments();
 			const message = {
-                "type": "tournament_invite",
+                "type": "tournament_invite", // needs to be displayed together with friends nofitications
                 "game": params.get('game'),
                 "hostId": params.get('hostId'),
                 "inviteeId": inviteeInfo.id,
@@ -153,32 +154,47 @@ const addEventListeners = async () => {
     });
 }
 
-// const setupPlayers = (players) => {
-// 	//add match making logic here
-//     const playerElements = document.querySelectorAll('.player-name');
-//     for (let i = 0; i < players.length; i++) {
-//         playerElements[i].textContent = players[i].username;
-//     }
-// };
+const setupPlayers = (players) => {
+	//add match making logic here
+    const playerElements = document.querySelectorAll('.player-name');
+    for (let i = 0; i < players.length; i++) {
+        playerElements[i].textContent = players[i];
+    }
+};
 
 const renderPlayButtons = () => {
-	console.log('Rendering play buttons');
-	const playButtons = document.querySelectorAll('.playButton');
-	//need to change the logic for passing players to lobby
-	const player1 = document.getElementById('player1');
-	const player2 = document.getElementById('player2');
-	playButtons.forEach(playButton => {
-		console.log('Adding event listener to play button');
-		playButton.style.display = 'block';
-		playButton.addEventListener('click', () => {
-			const matchParams = new URLSearchParams();
-			matchParams.append('player1', player1.textContent);
-			matchParams.append('player2', player2.textContent);
-			matchParams.append('game', params.get('game'));
-			matchParams.append('matchId', params.get('matchId'));
-			window.location.href = `/lobby?${matchParams.toString()}`;
-		});
-	});
+	const playButtonMatch1 = document.getElementById('playButtonMatch1');
+    const playButtonMatch2 = document.getElementById('playButtonMatch2');
+    const player1 = document.getElementById('player1');
+    const player2 = document.getElementById('player2');
+    const player3 = document.getElementById('player3');
+    const player4 = document.getElementById('player4');
+
+    if (playButtonMatch1) {
+        console.log('Adding event listener to playButtonMatch1');
+        playButtonMatch1.style.display = 'block';
+        playButtonMatch1.addEventListener('click', () => {
+            const matchParams = new URLSearchParams();
+            matchParams.append('player1', player1.textContent);
+            matchParams.append('player2', player2.textContent);
+            matchParams.append('game', params.get('game'));
+            matchParams.append('matchId', params.get('matchId'));
+            window.location.href = `/lobby?${matchParams.toString()}`;
+        });
+    }
+
+    if (playButtonMatch2) {
+        console.log('Adding event listener to playButtonMatch2');
+        playButtonMatch2.style.display = 'block';
+        playButtonMatch2.addEventListener('click', () => {
+            const matchParams = new URLSearchParams();
+            matchParams.append('player1', player3.textContent);
+            matchParams.append('player2', player4.textContent);
+            matchParams.append('game', params.get('game'));
+            matchParams.append('matchId', params.get('matchId'));
+            window.location.href = `/lobby?${matchParams.toString()}`;
+        });
+    }
 }     
 
 const receiveInfoFromSocket = (socket) => {
@@ -189,7 +205,7 @@ const receiveInfoFromSocket = (socket) => {
 			console.log('Invitation response received:', msg);
 			if (msg.status == 'accepted') {
 				const message = {
-					"type": "tournament_invite_accepted",
+					"type": "tournament_invite_accepted",  // accepted or reject in chat notifications
 					"tournamentId": params.get('tournamentId'),
 					"inviteeId": inviteeInfo.id,
 					"newPlayerId": msg.invitee,
@@ -208,6 +224,12 @@ const receiveInfoFromSocket = (socket) => {
 			}
 		} else if (msg.type === 'tournament_invite_accepted') {
 			//rerender players names in the grid after they accept the invitation by fetching tournament info
+			players.push(msg.inviteeName);
+			if (players.length == 4) {
+				setupPlayers(players);
+				renderPlayButtons();
+			}
+			
 		}
     });
 }
@@ -215,13 +237,15 @@ const receiveInfoFromSocket = (socket) => {
 export const renderTournament = async () => {
 	const user = await fetchUserData();
 	const tournament = await getTournamentById(params.get('tournamentId'));
-	const host = await getUser(tournament.player1.id); //proper tournament needs to be created
-	if (!user || !tournament) {
+	console.log(tournament);
+	const host = await getUser(tournament.player1.username); //proper tournament needs to be created
+	players.push(host.username);
+	if (!user || !tournament || !host) {
 		document.getElementById('content').innerHTML = '<div>Failed to load tournament</div>';
 		return;
 	}
 	if (user.id == tournament.player1) {
-		document.getElementById('content').innerHTML = renderTournamentPageHost(host);
+		document.getElementById('content').innerHTML = renderTournamentPageHost();
 		addEventListeners();
 	} else {
 		document.getElementById('content').innerHTML = renderTournamentPageInvitee(host);

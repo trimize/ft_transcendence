@@ -10,7 +10,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'username', 'email', 'password', 'profile_pic',
             'pong_ball', 'pong_slider', 'tic_tac_toe_sign', 'tic_tac_toe_background',
-            'wins', 'losses'
+            'wins', 'losses', 'friends'
         ]
         extra_kwargs = {'password': {'write_only': True, 'required': False}}
 
