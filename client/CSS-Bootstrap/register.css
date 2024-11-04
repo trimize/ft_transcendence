@@ -29,8 +29,7 @@
 }
 
 
-#registerButton
-{
+#registerButton {
     position: absolute;
     width: 80px;
     top: 470px;
@@ -39,6 +38,8 @@
     background-color: rgba(114, 116, 117, 0.384);
     transition: background-color ease 0.3s;
     color: aliceblue;
+    display: flex;
+    justify-content: center;
 }
 
 #registerButton:hover
