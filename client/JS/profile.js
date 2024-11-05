@@ -89,8 +89,8 @@ const renderEditProfileForm = (userData) => {
 };
 
 const loadProfilePage = async () => {
+  document.getElementById("content").innerHTML = renderProfilePage();
   try {
-    document.getElementById("content").innerHTML = renderProfilePage();
     const winsText = document.getElementById('winsText');
     const lossesText = document.getElementById('lossesText');
     const username = document.getElementById('username');
