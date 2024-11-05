@@ -239,7 +239,7 @@ export const renderPong = async () =>
 		{
 			if (player1_info.pong_slider != 0)
 			{
-				let expansion = "svg";
+				let expansion = "jpg";
 				if (player1_info.pong_slider == 8)
 					expansion = "gif";
 				else if (player1_info.pong_slider == 9)
@@ -254,7 +254,7 @@ export const renderPong = async () =>
 		{
 			if (player2_info.pong_slider != 0)
 			{
-				let expansion = "svg";
+				let expansion = "jpg";
 				if (player2_info.pong_slider == 8)
 					expansion = "gif";
 				else if (player2_info.pong_slider == 9)
