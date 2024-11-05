@@ -72,6 +72,8 @@ export const renderPong = async () =>
 		matchId = urlParams.get('matchId');
 		userInfo = await fetchUserData();
 		matchData = await fetchMatch(matchId);
+		if (matchData.end_time != null)
+			window.location = "/";
 		socket = await getWebSocket();
 		if (matchData.match_type == "singleplayer")
 			single = true;
@@ -1193,7 +1195,7 @@ async function handlingSocketEvents()
 			{
 				console.log('trying to finish game');
 				matchData = await fetchMatch(matchId);
-				document.getElementById('winnerPongPlayer').textContent = matchData.player1_score > matchData.player2_score ? matchData.player1_info.username : matchData.player2_info.username;
+				document.getElementById('winnerPongPlayer').textContent = matchData.player1_score > matchData.player2_score ? player1_info.username : player2_info.username;
 				finish = true;
 				const endPongDiv = document.getElementById("endPongDiv");
 				endPongDiv.style.display = 'block';
