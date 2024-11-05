@@ -29,6 +29,10 @@ let cells;
 let player1;
 let player2;
 
+const skins = ['€', '$', '#', '💀', '🙈', '💃', '🕺', '💩', '42'];
+
+const winnerCelebrations = [];
+
 const winningCombinations = [
     [0, 1, 2],
     [3, 4, 5],

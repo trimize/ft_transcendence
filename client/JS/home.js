@@ -876,7 +876,6 @@ function renderFriendRequestNotif(jsonMessage)
         cross.addEventListener('click', () => refuseGameInvite(jsonMessage));
     }
 
-    // showChat();
 }
 
 async function acceptGameInvite(jsonMessage) {
