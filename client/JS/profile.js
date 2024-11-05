@@ -14,7 +14,7 @@ import {
 import { DEFAULT_PROFILE_PIC, BACKEND_URL } from "./appconfig.js";
 import { closeWebSocket } from "./singletonSocket.js";
 
-const renderProfilePage = (userData) => {
+const renderProfilePage = () => {
   return `
     <a id="backButtonEdit"></a>
         <div id="pfpDiv">
@@ -272,6 +272,6 @@ const attachEditFormEventListeners = () => {
 };
 
 export const renderProfile = () => {
-  document.getElementById("content").innerHTML = loadProfilePage();
+  loadProfilePage();
   // attachEventListeners();
 };
