@@ -101,8 +101,7 @@
     background-image: url('../Assets/contact.svg');
 }
 
-.profileButtons
-{
+.profileButtons {
     outline: none;
     color: white;
     background-color: rgba(129, 130, 131, 0.171);
@@ -110,6 +109,9 @@
     font-family: "Roboto", sans-serif;
     font-size: 17px;
     transition: background-color ease 0.2s;
+    justify-content: center;
+    display: flex;
+    align-items: center;
 }
 
 .profileButtons:hover

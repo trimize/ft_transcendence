@@ -1,37 +1,48 @@
+ import { WEBSOCKET_URL } from "./appconfig.js";
 import { fetchUserData } from "./fetchFunctions.js";
 
 let socket = null;
 
 export async function getWebSocket() {
-	if (!socket || socket.readyState === WebSocket.CLOSED) {
-        // If there's no existing connection or it's closed, create a new WebSocket
+    if (!socket || socket.readyState === WebSocket.CLOSED) {
         socket = new WebSocket(localStorage.getItem('websocket_url'));
-        // Set up event listeners
-        socket.addEventListener('open', async () => {
-            console.log('WebSocket connection established'); 
-            try {
-                const userInfo = await fetchUserData();
-                console.log('Sending to WebSocket:', JSON.stringify({ type: "new_connection", userId: userInfo.id }));
-                // Send userId to the WebSocket server
-                socket.send(JSON.stringify({ type: "new_connection" , userId: userInfo.id }));
-            } catch (error) {
-                console.error('Failed to fetch user info:', error);
-            }
-        });
-        socket.addEventListener('message', (event) => {
-           console.log('Message received:', event.data);
-        });
 
-        socket.addEventListener('close', () => {
-            console.log('WebSocket connection closed');
-            socket = null; // Reset the socket so a new one can be created if needed
-        });
+        return new Promise((resolve, reject) => {
+            socket.addEventListener('open', async () => {
+                console.log('WebSocket connection established');
+                try {
+                    const userInfo = await fetchUserData();
+                    console.log('Sending to WebSocket:', JSON.stringify({ type: "new_connection", userId: userInfo.id }));
+                    socket.send(JSON.stringify({ type: "new_connection", userId: userInfo.id }));
+                    resolve(socket); // Resolve the promise when the connection is established
+                } catch (error) {
+                    console.error('Failed to fetch user info:', error);
+                    reject(error); // Reject the promise if there is an error
+                }
+            });
 
-        socket.addEventListener('error', (error) => {
-            console.error('WebSocket error:', error);
+            socket.addEventListener('close', () => {
+                console.log('WebSocket connection closed');
+                socket = null;
+            });
+
+            socket.addEventListener('error', (error) => {
+                console.error('WebSocket error:', error);
+                reject(error); // Reject the promise if there is an error
+            });
         });
+    } else {
+        return Promise.resolve(socket); // Return the existing socket if it's already open
     }
-    return socket;
+}
+
+export function closeWebSocket()
+{
+    if (socket && socket.readyState === WebSocket.OPEN)
+    {
+        socket.close();
+        console.log('WebSocket connection closing...');
+    }
 }
 
 export async function sendMessage(message)
@@ -40,7 +51,6 @@ export async function sendMessage(message)
 	{
 		let json_message = JSON.stringify(message);
 		await socket.send(json_message);
-		console.log("message sent " + json_message);
 	}
 	else
 	{

@@ -16,6 +16,8 @@ def get_matches(request):
 @permission_classes([IsAuthenticated])
 def create_match(request):
 	serializer = MatchSerializer(data=request.data)
+	print("request.data")
+	print(request.data)
 	if serializer.is_valid():
 		serializer.save()
 		return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -52,7 +54,19 @@ def get_match(request, pk):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_match_by_player(request, player_id):
-	matches = Match_Record.objects.filter(player1_id=player_id) | Match_Record.objects.filter(player2_id=player_id)
+def get_matches_by_player(request):
+	user = request.user
+	# Get the type parameter from the url
+	requestType = request.GET.get('type', 'finished')
+
+	if requestType == 'all':
+		matches = Match_Record.objects.filter(player1_id=user.id) | Match_Record.objects.filter(player2_id=user.id)
+	elif requestType == 'finished':
+		matches = (Match_Record.objects.filter(player1_id=user.id) | Match_Record.objects.filter(player2_id=user.id)).filter(start_time__isnull=False, end_time__isnull=False)
+	elif requestType == 'unfinished':
+		matches = (Match_Record.objects.filter(player1_id=user.id) | Match_Record.objects.filter(player2_id=user.id)).filter(start_time__isnull=False, end_time__isnull=True)
+	else:
+		return Response({'error': 'Invalid type'}, status=status.HTTP_400_BAD_REQUEST)
+	
 	serializer = MatchSerializer(matches, many=True)
 	return Response(serializer.data)

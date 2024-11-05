@@ -41,11 +41,11 @@ urlpatterns = [
 	path('verify_2fa/', tf_views.verify_2fa, name='verify_2fa'),
 
 	# Match urls
-	path('matches/', match_views.get_matches, name='get_matches'),
+	path('all_matches/', match_views.get_matches, name='get_matches'),
 	path('create_match/', match_views.create_match, name='create_match'),
 	path('update_match/', match_views.update_match, name='update_match'),
 	path('matches/<int:pk>/', match_views.get_match, name='get_match'),
-	path('matches/player/<int:player_id>/', match_views.get_match_by_player, name='get_match_by_player'),
+	path('matches', match_views.get_matches_by_player, name='get_matches_by_player'),
 	# # Tournament urls
 	path('get_tournaments/', tournament_views.get_tournaments, name='get_tournaments'),
 	path('create_tournament/', tournament_views.create_tournament, name='create_tournament'),

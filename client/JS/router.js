@@ -3,8 +3,11 @@ import { renderLogin } from "./login.js"
 import { renderRegister } from "./register.js"
 import { renderProfile } from "./profile.js"
 import { renderLobby } from "./lobby.js"
+import { renderTTT } from "./tic-tac-toe.js"
+import { renderPong } from "./pong.js"
 import { getWebSocket } from "./singletonSocket.js";
 import { renderTournament } from "./tournament.js";
+import { renderMatchHistory } from "./matchHistory.js";
 
 const router = () => {
     const path = window.location.pathname.replace('/', '');
@@ -19,11 +22,17 @@ const router = () => {
         case 'profile':
             renderProfile();
             break;
+        case 'match-history':
+            renderMatchHistory();
+            break;
         case 'lobby':
             renderLobby();
             break;
         case 'tic-tac-toe':
             renderTTT();
+            break;
+        case 'pong':
+            renderPong();
             break;
         case '/':
             renderBaseHomePage();

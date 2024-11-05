@@ -223,7 +223,7 @@ html, body
     display: none;
     left: -40vw;
     background-color: rgba(42, 35, 48, 0.87);
-    transition: left 0.5s ease;
+    transition: left 0.2s ease;
     text-align: center;
     align-items: center;
     color: aliceblue;
@@ -242,7 +242,7 @@ html, body
     backdrop-filter: blur(15px);
     background-color: rgba(57, 16, 92, 0.13);
     right: -60vw;
-    transition: right 0.5s ease;
+    transition: right 0.2s ease;
     text-align: center;
     align-items: center;
     flex-direction: column;

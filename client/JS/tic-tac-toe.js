@@ -1,15 +1,32 @@
-const cells = document.querySelectorAll('.cell');
-const resetButton = document.getElementById('reset');
-const player1 = document.getElementById('player1');
-const player2 = document.getElementById('player2');
-const ai = false;
-let firstMove = true;
+import { getWebSocket } from "./singletonSocket.js";
+import { fetchUserData, fetchMatch, updateGame, fetchUserById } from "./fetchFunctions.js";
 
+let socket;
+let firstMove = true;
 let currentPlayer = 'X';
 let gameState = Array(9).fill(null);
 let draggedCellIndex = null;
 let player1hasSwitch = true;
 let player2hasSwitch = true;
+let ai = false;
+let actualUser;
+let matchData;
+
+let player1score = 0;
+let player2score = 0;
+
+let matchId;
+let host;
+let invitee;
+let hasPowers;
+let isOffline;
+let type;
+let AIDifficulty;
+
+let cells;
+let resetButton;
+let player1;
+let player2;
 
 const winningCombinations = [
     [0, 1, 2],
@@ -21,15 +38,6 @@ const winningCombinations = [
     [0, 4, 8],
     [2, 4, 6]
 ];
-
-cells.forEach(cell => {
-    cell.addEventListener('click', handleCellClick);
-    cell.addEventListener('dragstart', handleDragStart);
-    cell.addEventListener('dragover', handleDragOver);
-    cell.addEventListener('drop', handleDrop);
-});
-
-resetButton.addEventListener('click', resetGame);
 
 function handleCellClick(event) {
     const cell = event.target.closest('.cell');
@@ -43,8 +51,34 @@ function handleCellClick(event) {
     checkers(true);
 
     if (currentPlayer === 'O' && ai) {
-        setTimeout(makeAIMove_hard, 500);
+        if (AIDifficulty === 'easy') {
+            setTimeout(makeAIMove_easy, 500);
+        } else {
+            setTimeout(makeAIMove_hard, 500);
+        }
     }
+}
+
+function handleCellClickOnline(event) {
+    const cell = event.target.closest('.cell');
+    let index = cell.getAttribute('data-index');
+
+    if (gameState[index] || checkWinner() || (currentPlayer === 'X' && actualUser.id != host) || (currentPlayer === 'O' && actualUser.id != invitee)) {
+        return;
+    }
+    
+    const game_update_message = {
+        type: 'match_update',
+        game: 'tic-tac-toe',
+        movement: 'place',
+        index: index,
+        player: currentPlayer,
+        matchId: matchId,
+        hostId: host,
+        inviteeId: invitee
+    };
+
+    socket.send(JSON.stringify(game_update_message));
 }
 
 function placeCell(index, value) {
@@ -70,15 +104,51 @@ function placeCell(index, value) {
     gameState[index] = value;
 }
 
+function endGame() {
+    window.location.href = '/';
+}
+
 function checkers(change) {
     const gameMessageElement = document.getElementById('game-message');
+    const scoreDiv = document.getElementById('score');
 
-    if (checkWinner()) {
-        gameMessageElement.textContent = `${currentPlayer} wins!`;
+    const winner = checkWinner();
+
+    if (winner && winner !== 'D') {
+        gameMessageElement.textContent = `${winner} wins!`;
         gameMessageElement.style.display = 'block';
-    } else if (gameState.every(cell => cell)) {
+        if (winner === 'X') {
+            player1score++;
+        } else {
+            player2score++;
+        }
+
+        scoreDiv.textContent = `${player1score}:${player2score}`;
+
+        const isEnd = (player1score >= 3 || player2score >= 3);
+
+        if (actualUser.id == host && !isOffline) {
+            console.log('Updating game');
+            const game_update_body = {
+                id: matchId,
+                player1_score: player1score,
+                player2_score: player2score,
+                end_time: (isEnd ? new Date() : null)
+            };
+
+            updateGame(game_update_body);
+        }
+
+        if (isEnd) {
+            setTimeout(endGame, 5000);
+        } else {
+            setTimeout(resetGame, 2000);
+        }
+
+    } else if (winner === 'D' || gameState.every(cell => cell)) {
         gameMessageElement.textContent = 'Draw!';
         gameMessageElement.style.display = 'block';
+        setTimeout(resetGame, 2000);
     } else {
         if (firstMove) {
             firstMove = false;
@@ -112,6 +182,12 @@ function makeAIMove_hard() {
 
         return acc;
     }, []);
+
+    if (availableCells.includes(4)) {
+        placeCell(4, currentPlayer);
+        checkers(true);
+        return;
+    }
     
     const AI_almostWinningCombinations = winningCombinations.filter(combination => {
         const cells = combination.map(index => gameState[index]);
@@ -194,6 +270,10 @@ function handleDragOver(event) {
 }
 
 function handleDrop(event) {
+    if (!hasPowers) {
+        alert('Powers are not enabled for this match!');
+        return;
+    }
 	if ((currentPlayer === 'X' && !player1hasSwitch) || (currentPlayer === 'O' && !player2hasSwitch)) {
 		alert('You have already switched on this match!');
 		return;
@@ -204,6 +284,33 @@ function handleDrop(event) {
     if (currentPlayer === 'O' && ai) {
         setTimeout(makeAIMove_hard, 500);
     }
+}
+
+function handleDropOnline(event) {
+    if (!hasPowers) {
+        alert('Powers are not enabled for this match!');
+        return;
+    }
+	if ((currentPlayer === 'X' && !player1hasSwitch) || (currentPlayer === 'O' && !player2hasSwitch)) {
+		alert('You have already switched on this match!');
+		return;
+	}
+
+    const cell = event.target.closest('.cell');
+    const targetCellIndex = cell.getAttribute('data-index');
+
+    const game_update_message = {
+        type: 'match_update',
+        game: 'tic-tac-toe',
+        movement: 'switch',
+        index1: draggedCellIndex,
+        index2: targetCellIndex,
+        player: currentPlayer,
+        matchId: matchId,
+        hostId: host,
+        inviteeId: invitee
+    };
+    socket.send(JSON.stringify(game_update_message));
 }
 
 function switchCells(currentCellIndex, targetCellIndex) {
@@ -237,17 +344,35 @@ function swapCells(index1, index2) {
 }
 
 function checkWinner() {
-    return winningCombinations.some(combination => {
-        return combination.every(index => {
-            return gameState[index] === currentPlayer;
+    const players = ['X', 'O'];
+    let winners = [];
+
+    players.forEach(player => {
+        const isWinner = winningCombinations.some(combination => {
+            return combination.every(index => {
+                return gameState[index] === player;
+            });
         });
+        if (isWinner) {
+            winners.push(player);
+        }
     });
+
+    if (winners.length === 2) {
+        return 'D'; // Draw
+    } else if (winners.length === 1) {
+        return winners[0]; // Return the winner ('X' or 'O')
+    } else {
+        return null; // No winners
+    }
 }
 
 function resetGame() {
+    const gameMessageElement = document.getElementById('game-message');
+
+    gameMessageElement.style.display = 'none';
     gameState.fill(null);
     cells.forEach(cell => {
-        // cell.textContent = '';
         cell.querySelector('.front').textContent = '';
         cell.querySelector('.back').textContent = '';
     });
@@ -255,8 +380,10 @@ function resetGame() {
 	player1.classList.add('flame');
 	player2.classList.remove('flame');
 	firstMove = true;
-	player1hasSwitch = true;
-	player2hasSwitch = true;
+    if (hasPowers) {
+        player1hasSwitch = true;
+        player2hasSwitch = true;
+    }
 }
 
 function changeTurn() {
@@ -274,32 +401,168 @@ function changeTurn() {
 	}
 }
 
-// Initialize flame effect for Player 1
-changeTurn();
-
-
 function tttHtml()
 {
 	return `
-		<div id="lobbyDiv">
-			<div id="lobbyPlayer1">
-				<div class="lobbyPlayerPfp" id="lobbyPlayer1Pfp"></div>
-				<div class="lobbyPlayerUsername" id="lobbyPlayer1Username">toto</div>
-			</div>
-			<div id="lobbyPlayer2">
-				<div class="lobbyPlayerPfp" id="lobbyPlayer2Pfp"></div>
-				<div class="lobbyPlayerUsername" id="lobbyPlayer2Username">to</div>
-			</div>
-			<div id="lobbyStatusText">Game Starting ..</div>
-		</div>
-		<div id="bg"></div>
+            <div class="container">
+                <div class="player" id="player1">Player 1</div>
+                <div class="grid">
+                    <div id="score" class="score">0:0</div>
+                    <div id="game-message" class="game-message"></div>
+                    <div class="cell" data-index="0" draggable="true">
+                        <div class="front"></div>
+                        <div class="back"></div>
+                    </div>
+                    <div class="cell" data-index="1" draggable="true">
+                        <div class="front"></div>
+                        <div class="back"></div>
+                    </div>
+                    <div class="cell" data-index="2" draggable="true">
+                        <div class="front"></div>
+                        <div class="back"></div>
+                    </div>
+                    <div class="cell" data-index="3" draggable="true">
+                        <div class="front"></div>
+                        <div class="back"></div>
+                    </div>
+                    <div class="cell" data-index="4" draggable="true">
+                        <div class="front"></div>
+                        <div class="back"></div>
+                    </div>
+                    <div class="cell" data-index="5" draggable="true">
+                        <div class="front"></div>
+                        <div class="back"></div>
+                    </div>
+                    <div class="cell" data-index="6" draggable="true">
+                        <div class="front"></div>
+                        <div class="back"></div>
+                    </div>
+                    <div class="cell" data-index="7" draggable="true">
+                        <div class="front"></div>
+                        <div class="back"></div>
+                    </div>
+                    <div class="cell" data-index="8" draggable="true">
+                        <div class="front"></div>
+                        <div class="back"></div>
+                    </div>
+                </div>
+                <div class="player" id="player2">Player 2</div>
+            </div>
+            <div id="bg"></div>
 	`;
 }
 
-export function renderTTT()
-{
+export const renderTTT = async () => {
     const urlParams = new URLSearchParams(window.location.search);
-    const host = urlParams.get('host');
-    const invitee = urlParams.get('invitee');
+    if (urlParams.has('matchId')) {
+        socket = await getWebSocket();
+        actualUser = await fetchUserData();
+        matchId = urlParams.get('matchId');
+        matchData = await fetchMatch(matchId);
+        console.log('Match data:');
+        console.log(matchData);
+        console.log('Actual user:');
+        console.log(actualUser);
+        host = matchData.player1;
+        invitee = matchData.player2;
+        hasPowers = matchData.powers;
+        type = matchData.match_type;
+        isOffline = false;
+        AIDifficulty = matchData.ai;
+    } else {
+        host = urlParams.get('host');
+        invitee = urlParams.get('invitee');
+        hasPowers = urlParams.get('powers');
+        isOffline = urlParams.get('offline');
+        type = urlParams.get('type');
+        AIDifficulty = urlParams.get('ai');
+    }
+
+    if (AIDifficulty == 'easy' || AIDifficulty == 'hard') {
+        ai = true;
+    }
+
 	document.getElementById('content').innerHTML = tttHtml();
-}
+    cells = document.querySelectorAll('.cell');
+    resetButton = document.getElementById('reset');
+    player1 = document.getElementById('player1');
+    player2 = document.getElementById('player2');
+
+    if (!isOffline) {
+        player1score = matchData.player1_score;
+        player2score = matchData.player2_score;
+    }
+
+    if (type == 'singleplayer') {
+        player2.textContent = 'AI';
+    } else if (type == 'online_multiplayer') {
+        player1.textContent = actualUser.id == host ? 'You' : await fetchUserById(host).username;
+        player2.textContent = actualUser.id == invitee ? 'You' : await fetchUserById(invitee).username;
+    }
+    
+    const scoreDiv = document.getElementById('score');
+    scoreDiv.textContent = `${player1score}:${player2score}`;
+    
+    if (isOffline || (type == 'local_multiplayer' || type == 'singleplayer')) {
+        cells.forEach(cell => {
+            cell.addEventListener('click', handleCellClick);
+            cell.addEventListener('dragstart', handleDragStart);
+            cell.addEventListener('dragover', handleDragOver);
+            cell.addEventListener('drop', handleDrop);
+        });
+    } else {
+
+        if (!actualUser) {
+            alert('You are not logged in!');
+            document.getElementById('content').innerHTML = '';
+            return;
+        }
+
+        console.log('Actual user:');
+        console.log(actualUser);
+        console.log('Match data:');
+        console.log(matchData);
+
+        if (actualUser.id != host && actualUser.id != invitee) {
+            console.log('You got here because actualUser.id is' + actualUser.id + ' and host is ' + host + ' and invitee is ' + invitee);
+            alert('You are not part of this match!');
+            document.getElementById('content').innerHTML = '';
+            return;
+        } else if (actualUser.id != matchData.player1 && actualUser.id != matchData.player2) {
+            console.log('You got here because actualUser.id is' + actualUser.id + ' and player1 is ' + matchData.player1 + ' and player2 is ' + matchData.player2);
+            alert('You are not part of this match!');
+            document.getElementById('content').innerHTML = '';
+            return;
+        }
+
+        cells.forEach(cell => {
+            cell.addEventListener('click', handleCellClickOnline);
+            cell.addEventListener('dragstart', handleDragStart);
+            cell.addEventListener('dragover', handleDragOver);
+            cell.addEventListener('drop', handleDropOnline);
+        });
+        socket.addEventListener('message', function(event) {
+            const message = JSON.parse(event.data);
+            if (message.type === 'match_update') {
+                if (message.movement === 'place') {
+                    placeCell(message.index, message.player);
+                    checkers(true);
+                } else if (message.movement === 'switch') {
+                    switchCells(message.index1, message.index2);
+                }
+            } else if (message.type === 'friend_disconnected') {
+                if (message.userId == host || message.userId == invitee) {
+                    const lobbyParams = new URLSearchParams();
+                    lobbyParams.append('matchId', matchId);
+                    lobbyParams.append('host', host);
+                    lobbyParams.append('invitee', invitee);
+                    lobbyParams.append('powers', hasPowers);
+                    lobbyParams.append('game', 'tic-tac-toe');
+                    window.location.href = `/lobby?${lobbyParams.toString()}`;
+                }
+            }
+        });
+    }
+
+    changeTurn();
+};

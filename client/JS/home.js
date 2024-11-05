@@ -1,14 +1,16 @@
-import { fetchUserData, getUser, sendFriendRequest, getFriendNotifications, refuseFriendRequest, addFriend, getFriends, getPendingRequest, createGame } from "./fetchFunctions.js";
-import { BACKEND_URL, DEFAULT_PROFILE_PIC /* getUserInfo */ } from "./appconfig.js";
-import { getWebSocket } from "./singletonSocket.js";
+import { fetchUserData, fetchMatch, getUser, sendFriendRequest, getFriendNotifications, refuseFriendRequest, addFriend, getFriends, getPendingRequest, createGame } from "./fetchFunctions.js";
+import { BACKEND_URL,  } from "./appconfig.js";
+import { sendMessage, getWebSocket } from "./singletonSocket.js";
 
 let currentChatUser;
-let socket;
 let actualUser;
 let messages = {};
 let gameChosen;
-let isPowerEnabled;
+let matchmakingClicked = false;
 let offline = true;
+let theBallSpeed;
+let socket;
+
 
 function closeInviteListener(inviteDiv, inviteInput)
 {
@@ -30,13 +32,11 @@ const addEventListeners = () => {
     const ballSpeedDiv = document.getElementById('inputRangeDiv');
     const AITitle = document.getElementById('ballSpeedText');
     const ballAccDiv = document.getElementById('ballAccDiv');
+    const ballAcc = document.getElementById('ballAcc');
+    const powers = document.getElementById('powers');
     AITitle.style.display = "none";
     ballSlider.style.display = "none";
     let invitee;
-
-    document.getElementById('powers').addEventListener('change', function() {
-        isPowerEnabled = this.checked;
-    });
     
 
     // Iterate over the NodeList and add an event listener to each element
@@ -129,6 +129,26 @@ const addEventListeners = () => {
                             ballSlider.style.display = "none";
                             ballSpeedComment.textContent = " ";
                         }
+                        const matchmaking = document.getElementById('matchmaking');
+                        const inviteInput = document.getElementById('inviteInput');
+                        matchmaking.addEventListener('click', function()
+                        {
+                            if (matchmakingClicked == false)
+                            {
+                                inviteInput.value = "";
+                                inviteInput.disabled = true;
+                                inviteInput.placeholder = "Matchmaking chosen";
+                                matchmaking.style.textShadow = "0 0 15px rgb(255, 255, 255)";
+                                matchmakingClicked = true;
+                            }
+                            else
+                            {
+                                matchmaking.style.textShadow = "0 0 0px rgb(255, 255, 255)";
+                                inviteInput.placeholder = "Enter a username";
+                                inviteInput.disabled = false;
+                                matchmakingClicked = false;
+                            }
+                        });
                     }
                     else if (onlineClicked == true)
                     {
@@ -142,12 +162,12 @@ const addEventListeners = () => {
             const backButtonGameMenu = document.getElementById('backButtonGameMenu');
             const leftDiv = document.getElementsByClassName('left')[0];
             const rightDiv = document.getElementsByClassName('right')[0];
-            leftDiv.style.display = 'flex';
-            rightDiv.style.display = 'flex';
             setTimeout(() => {
                 rightDiv.style.right = '0';
                 leftDiv.style.left = '0';
-            }, 10);
+            }, 5);
+            leftDiv.style.display = 'flex';
+            rightDiv.style.display = 'flex';
             if (face.classList.contains('pongFace'))
             {
                 ballAccDiv.style.display = "block";
@@ -165,16 +185,12 @@ const addEventListeners = () => {
                 gameChosen = "pong";
                 ballSlider.addEventListener('input', function()
                 {
-                    if (ballSlider.value < 10)
-                        ballSpeedComment.textContent = "Very Slow!";
-                    else if (ballSlider.value < 20)
+                    if (ballSlider.value == 1)
                         ballSpeedComment.textContent = "Slow!";
-                    else if (ballSlider.value >= 20 && ballSlider.value < 30)
-                        ballSpeedComment.textContent = "Normal Speed!";
-                    else if (ballSlider.value > 30 && ballSlider.value <= 35)
+                    else if (ballSlider.value == 2)
+                        ballSpeedComment.textContent = "Normal!";
+                    else if (ballSlider.value == 3)
                         ballSpeedComment.textContent = "Fast!";
-                    else if (ballSlider.value > 35)
-                        ballSpeedComment.textContent = "Very fast!";
                 });
             }
             else if (face.classList.contains('tttFace')) 
@@ -190,7 +206,7 @@ const addEventListeners = () => {
                 const gameText = document.getElementById('gameText');
                 gameText.textContent = 'Tic-tac-toe game is cool';
                 AITitle.textContent = "AI Difficulty";
-                gameChosen = "ttt";
+                gameChosen = "tic-tac-toe";
                 if (multiClicked == true)
                 {
                     ballSlider.style.display = "none";
@@ -218,16 +234,66 @@ const addEventListeners = () => {
                     params.append('offline', offline);
                     let matchId = null;
                     if (!offline) {
-                        matchId = await createGame(actualUser.id, null, 'tic-tac-toe', isPowerEnabled);
+                        const requestBody = {
+                            host: actualUser.id,
+                            game: 'tic-tac-toe',
+                            player1: actualUser.id,
+                            player2: (invitee ? invitee.id : null),
+                            match_type: (multiClicked == true ? 'local_multiplayer' : 'singleplayer'),
+                            powers: powers.checked,
+                            ai: (multiClicked ? null : (ballSlider.value < 19 ? 'easy' : 'hard')),
+                            start_time: new Date()
+                        };
+                        matchId = await createGame(requestBody);
                         params.append('matchId', matchId);
+                        params.append('host', actualUser.id);
                     }
-                    params.append('powers', isPowerEnabled);
-                    params.append('host', actualUser.id);
-                    params.append('type', (multiClicked == true ? 'multi' : 'single'));
+                    params.append('powers', powers.checked);
+                    params.append('type', (multiClicked == true ? 'local_multiplayer' : 'singleplayer'));
                     if (singleClicked == true) {
-                        params.append('ai', (ballSlider.value < 19 ? 'easy' : 'hard'));
+                        params.append('ai', (ballSlider.value < 2 ? 'easy' : 'hard'));
                     }
                     window.location.href = `/tic-tac-toe?${params.toString()}`;
+                }
+                else if (face.classList.contains('pongFace') && (multiClicked == true || singleClicked == true)) {
+                    switch(ballSlider.value)
+                    {
+                        case 1:
+                            theBallSpeed = 3;
+                            break;
+                        case 2:
+                            theBallSpeed = 5;
+                            break;
+                        case 3:
+                            theBallSpeed = 7;
+                            break;
+                        default:
+                            theBallSpeed = 5;
+                    }
+                    const params = new URLSearchParams();
+                    params.append('offline', offline);
+                    let matchId = null;
+                    if (!offline) {
+                        const requestBody = {
+                            host: actualUser.id,
+                            game: 'pong',
+                            player1: actualUser.id,
+                            player2: (invitee ? invitee.id : null),
+                            match_type: (multiClicked == true ? 'local_multiplayer' : 'singleplayer'),
+                            powers: powers.checked,
+                            ball_speed: theBallSpeed,
+                            ball_acc: ballAcc.checked,
+                            start_time: new Date().toISOString()
+                        };
+                        matchId = await createGame(requestBody);
+                        params.append('matchId', matchId);
+                        params.append('host', actualUser.id);
+                    }
+                    params.append('ballAcc', ballAcc.checked);
+                    params.append('ballSpeed', theBallSpeed);
+                    params.append('powers', powers.checked);
+                    params.append('type', (multiClicked == true ? 'local_multiplayer' : 'singleplayer'));
+                    window.location.href = `/pong?${params.toString()}`;
                 }
             });
 
@@ -236,7 +302,7 @@ const addEventListeners = () => {
                 setTimeout(() => {
                     rightDiv.style.right = '-60vw';
                     leftDiv.style.left = '-40vw';
-                }, 10);
+                }, 5);
                 if (rightDiv.style.right == '-60vw')
                 {
                     leftDiv.style.display = 'none';
@@ -259,13 +325,14 @@ function renderBaseHomeBlock()
                 </div>
                 <div id="gamePicture"></div>
                 <text id="gameText"></text>
+                <button class="button-85" role="button" id="buttonPlay">Play</button>
             </div>
             <div class="half right">
                 <span class= "gameMenuText" id="singleplayer">Singleplayer</span>
                 <span class= "gameMenuText" id="multiplayer">Multiplayer</span>
                 <div class="align-items-center justify-content-between" id="inputRangeDiv">
                     <label for="ballSpeed" id="ballSpeedText" class="customizeGameTitles">Ball Speed</label>
-                    <input type="range" id="ballSpeed" class="form-control w-50" min="5" max="40">
+                    <input type="range" id="ballSpeed" class="form-control w-50" min="1" max="3">
                 </div>
                 <span id="inputRangeText">&nbsp;</span>
                 <div class="align-items-center justify-content-between" id="powersDiv">
@@ -282,7 +349,6 @@ function renderBaseHomeBlock()
                         <span class="slider round"></span>
                     </label>
                 </div>
-                <button class="button-85" role="button" id="buttonPlay">Play</button>
             </div>
             <a id="loginBtn" href="/login">Login</a>
             <div id="bg"></div>
@@ -296,9 +362,6 @@ function renderBaseHomeBlock()
             </div>`;
 }
 
-// addEventListeners();
-//        showChat();
-
 function renderBaseHomeConnected()
 {
     return `<div class="half left">
@@ -308,6 +371,8 @@ function renderBaseHomeConnected()
                 </div>
                 <div id="gamePicture"></div>
                 <text id="gameText"></text>
+                <button class="button-85" role="button" id="buttonPlay">Play</button>
+                <a id="colorWheel"></a>
             </div>
             <div class="half right">
                 <span class= "gameMenuText" id="singleplayer">Singleplayer</span>
@@ -316,11 +381,14 @@ function renderBaseHomeConnected()
                 <div id="inviteContainer">
                     <input type="text" id="inviteInput" placeholder="Enter username" />
                     <button id="inviteButton">Go to lobby</button>
+                    <button id="matchmaking">Matchmaking</button>
+                    <div id="pipe">||</div>
+                    <div id="inviteTextToLobby">Invite a friend</div>
                     <button id="cancelInviteButton">Cancel</button>
                 </div>
                 <div class="align-items-center justify-content-between" id="inputRangeDiv">
                     <label for="ballSpeed" id="ballSpeedText" class="customizeGameTitles">Ball Speed</label>
-                    <input type="range" id="ballSpeed" class="form-control w-50" min="5" max="40">
+                    <input type="range" id="ballSpeed" class="form-control w-50" min="1" max="3">
                 </div>
                 <span id="inputRangeText">&nbsp;</span>
                 <div class="align-items-center justify-content-between" id="powersDiv">
@@ -337,7 +405,6 @@ function renderBaseHomeConnected()
                         <span class="slider round"></span>
                     </label>
                 </div>
-                <button class="button-85" role="button" id="buttonPlay">Play</button>
             </div>
             <a id="profileDiv" href="/profile">
                 <div id="profilePicture"></div>
@@ -394,7 +461,6 @@ function renderConversationBalloon(message, isSender) {
 async function showChat() {
     let showFriendBool = false;
     let isFriendClicked = false;
-    const friendNotifications = await getFriendNotifications();
     const chatRoom = document.getElementById('chatRoom');
     const conversationDiv = document.getElementById('conversation');
     const showChatRoom = document.getElementById('showChatRoom');
@@ -408,22 +474,89 @@ async function showChat() {
     const inviteInput = document.getElementById('inviteInput');
     const inviteButton = document.getElementById('inviteButton');
     const inviteContainer = document.getElementById('inviteContainer');
+    const ballAcc = document.getElementById('ballAcc');
+    const ballSlider = document.getElementById('ballSpeed');
+    const powers = document.getElementById('powers');
 
     inviteButton.addEventListener('click', async () => {
-
         console.log('Invite button clicked');
+
+        if (matchmakingClicked) {
+            console.log('Matchmaking chosen');
+            const params = new URLSearchParams();
+            params.append('matchmaking', 'true');
+            params.append('game', gameChosen);
+            window.location.href = `/lobby?${params.toString()}`;
+            return;
+        }
+
         const username = inviteInput.value.trim();
         let invitee = await getUser(username);
         if (invitee && invitee.id !== actualUser.id) {
             console.log('Invitee already set:', invitee);
             const params = new URLSearchParams();
-            if (gameChosen == "ttt")
-                params.append('game', 'ttt');
+            params.append('game', gameChosen);
+            let body;
+            if (gameChosen == 'tic-tac-toe')
+            {
+                body =
+                {
+                    "game": gameChosen,
+                    "player1": actualUser.id,
+                    "player2": invitee.id,
+                    "match_type": "online_multiplayer",
+                    "powers": powers.checked
+                }
+            }
             else
-                params.append('game', 'pong');
-            params.append('powers', isPowerEnabled);
+            {
+                switch(ballSlider.value)
+                {
+                    case 1:
+                        theBallSpeed = 3;
+                        break;
+                    case 2:
+                        theBallSpeed = 5;
+                        break;
+                    case 3:
+                        theBallSpeed = 7;
+                        break;
+                    default:
+                        theBallSpeed = 5;
+                }
+                body =
+                {
+                    "game": gameChosen,
+                    "player1": actualUser.id,
+                    "player2": invitee.id,
+                    "match_type": "online_multiplayer",
+                    "powers": powers.checked,
+                    "ball_speed": theBallSpeed,
+                    "ball_acc": ballAcc.checked
+                }
+            }
+            const match_id = await createGame(body);
+            // const onlineMatchData =
+            // {
+            //     type: "new_match",
+            //     game: gameType,
+            //     matchId: matchId,
+            // };
+            // await sendMessage(onlineMatchData);
+            const message = {
+                "type": "send_invite",
+                "game": gameChosen,
+                "hostId": actualUser.id,
+                "inviteeId": invitee.id,
+                "matchId": match_id
+            }
+        
+            await sendMessage(message);
+            params.append('matchId', match_id);
             params.append('host', actualUser.id);
             params.append('invitee', invitee.id);
+            params.append('powers', powers.checked);
+            params.append('firstInvite', true);
             window.location.href = `/lobby?${params.toString()}`;
         } else {
             console.log('User not found');
@@ -466,7 +599,7 @@ async function showChat() {
                 }
                 messages[currentChatUser.id].push(messageData);
                 console.log('Sending message:', messageData);
-                socket.send(JSON.stringify(messageData));
+                sendMessage(messageData);
             }
         }
     });
@@ -485,8 +618,7 @@ async function showChat() {
                 chatInput.placeholder = "You need to be friends";
                 notFriendMessage.style.display = 'block';
             }
-            const friendrequests = await getFriendNotifications();
-            renderFriendRequestNotif(friendrequests);
+            friendItem.querySelector('.redDot').style.display = 'none';
             console.log('Clicked!');
             document.documentElement.style.setProperty('--cube-size', '10vmax');
             showFriends.style.display = 'none';
@@ -501,13 +633,24 @@ async function showChat() {
                 friendItem.style.backgroundColor = "";
             });
             friendItem.style.backgroundColor = "rgba(130, 132, 134, 0.356)";
-
+            conversationDiv.innerHTML = '';
             // Check if the friend is in the list of friend notifications
+
             const friendUsername = friendItem.textContent.trim();
             currentChatUser = await getUser(friendUsername); //May cause issues with async
-            if (messages[friendUsername]) {
-                messages[friendUsername].forEach(msg => {
-                    renderConversationBalloon(msg.message, msg.sender === actualUser.username);
+            const friendrequests = await getFriendNotifications();
+            for (let i = 0; i < friendrequests.length; i++) {
+                if (friendrequests[i].sender.username == currentChatUser.username) {
+                    renderFriendRequestNotif(friendrequests[i]);
+                }
+            }
+            if (messages[currentChatUser.id]) {
+                messages[currentChatUser.id].forEach(msg => {
+                    if (msg.type === 'chat_message') {
+                        renderConversationBalloon(msg.message, msg.senderId === actualUser.id);
+                    } else if (msg.type === 'send_invite' || msg.type === 'waiting_state') {
+                        renderFriendRequestNotif(msg);
+                    }
                 });
             }
         });
@@ -573,6 +716,7 @@ async function addFriendButton()
             await sendFriendRequest(friendName);
             const pendingRequests = await getPendingRequest();
             renderPendingRequest(pendingRequests);
+            showChat();
         }
         friendAddStatus.style.display = "block";
         friendAddStatus.addEventListener('animationend', () => {
@@ -586,14 +730,16 @@ async function acceptFriendNotif(friend)
 {
     await addFriend(friend.id);
     const friends = await getFriends();
-    console.log(friends);
     const friendNotifications = await getFriendNotifications();
-    console.log(friendNotifications);
     const pendingRequests = await getPendingRequest();
-    console.log(pendingRequests);
     renderFriendRequestNotif(friendNotifications);
     renderFriendRequest(friendNotifications);
     renderFriendsList(friends, friendNotifications, pendingRequests);
+    const chatInput = document.getElementById('chatInput');
+    const notFriendMessage = document.getElementById('notFriendMessage');
+    chatInput.disabled = false;
+    chatInput.placeholder = "Type away..";
+    notFriendMessage.style.display = 'none';
 }
 
 async function refuseFriendNotif(friend)
@@ -605,6 +751,20 @@ async function refuseFriendNotif(friend)
     renderFriendRequestNotif(friendNotifications);
     renderFriendRequest(friendNotifications);
     renderFriendsList(friends, friendNotifications, pendingRequests);
+    const chatRoom = document.getElementById('chatRoom');
+    const showChatRoom = document.getElementById('showChatRoom');
+    const cube = document.getElementsByClassName('Cube');
+    const showFriends = document.getElementById('showFriends');
+    const faces = document.querySelectorAll('.Face');
+    showFriends.style.display = 'block';
+    document.documentElement.style.setProperty('--cube-size', '20vmax');
+    cube[0].style.top = "40vh";
+    cube[0].style.left = "40vw";
+    chatRoom.style.bottom = "calc(-1 * (100% - 300px))";
+    showChatRoom.style.bottom = "-20px";
+    faces.forEach((face) => {
+        face.style.fontSize = "100px";
+    });
 }
 
 function renderPendingRequest(pendingRequests)
@@ -624,6 +784,18 @@ function renderPendingRequest(pendingRequests)
     // showChat();
 }
 
+function showRedDot(friendId)
+{
+    const friendsList = document.getElementById('friendsList');
+    const allFriendsElements = friendsList.querySelectorAll('.friendItem');
+    allFriendsElements.forEach(child => {
+        if (child.classList.contains('friend' + friendId))
+        {
+            child.querySelector('.redDot').style.display = 'block';
+        }
+    });
+}
+
 function renderFriendRequest(friendNotifications)
 {
     const friendsList = document.getElementById('friendsList');
@@ -636,44 +808,116 @@ function renderFriendRequest(friendNotifications)
         friendRequest.classList.add('friendItem');
         friendRequest.textContent = friendNotifications[i].sender.username;
         friendRequest.style.color = "grey";
-        friendRequest.classList.add('friendRequest')
+        friendRequest.classList.add('friendRequest');
+        friendRequest.classList.add('friend' + friendNotifications[i].sender.id)
+        const redDot = document.createElement('div');
+        redDot.classList.add('redDot');
+        redDot.style.display = 'block';
+        friendRequest.appendChild(redDot);
         friendsList.appendChild(friendRequest);
     };
     // showChat();
 }
 
-function renderFriendRequestNotif(friendNotifications)
+function renderFriendRequestNotif(jsonMessage)
 {
+    console.log(jsonMessage);
     const invitationList = document.getElementById('invitationList');
     const childsToRemove = invitationList.querySelectorAll('.friendInvitationElement');
     childsToRemove.forEach(child => child.remove());
-    for(let i = 0; i < friendNotifications.length; i++)
-    {
-        console.log(friendNotifications[i]);
-        const friendRequest = document.createElement('li');
-        friendRequest.classList.add('friendItemNotif');
-        friendRequest.textContent = "New friend request!"
-        friendRequest.style.color = "aliceblue";
-        friendRequest.classList.add('friendInvitationElement');
-        const correct = document.createElement('div');
-        correct.classList.add('correctDiv');
-        friendRequest.appendChild(correct);
-        const cross = document.createElement('div');
-        cross.classList.add('crossDiv');
-        friendRequest.appendChild(cross);
-        const requestUsername = document.createElement('div');
-        requestUsername.classList.add('requestUsername');
-        requestUsername.textContent = friendNotifications[i].sender.username;
-        friendRequest.appendChild(requestUsername);
-        const requestPfp = document.createElement('div');
-        requestPfp.classList.add('requestPfp');
-        requestPfp.style.backgroundImage = `url(${BACKEND_URL}${friendNotifications[i].sender.profile_pic})`;
-        friendRequest.appendChild(requestPfp);
-        invitationList.appendChild(friendRequest);
-        correct.addEventListener('click', () => acceptFriendNotif(friendNotifications[i].sender));
-        cross.addEventListener('click', () => refuseFriendNotif(friendNotifications[i].sender));
-    };
+
+    const friendRequest = document.createElement('li');
+    friendRequest.classList.add('friendItemNotif');
+    friendRequest.style.color = "aliceblue";
+    friendRequest.classList.add('friendInvitationElement');
+
+    const correct = document.createElement('div');
+    correct.classList.add('correctDiv');
+    friendRequest.appendChild(correct);
+
+    const cross = document.createElement('div');
+    cross.classList.add('crossDiv');
+    friendRequest.appendChild(cross);
+
+    const requestUsername = document.createElement('div');
+    requestUsername.classList.add('requestUsername');
+    requestUsername.textContent = currentChatUser.username;
+    friendRequest.appendChild(requestUsername);
+
+    const requestPfp = document.createElement('div');
+    requestPfp.classList.add('requestPfp');
+    requestPfp.style.backgroundImage = `url(${BACKEND_URL}${currentChatUser.profile_pic})`;
+    friendRequest.appendChild(requestPfp);
+
+    const messageText = document.createElement('div');
+    messageText.classList.add('messageText');
+    friendRequest.appendChild(messageText);
+
+    invitationList.appendChild(friendRequest);
+
+    if (!('type' in jsonMessage)) {
+        console.log('No type');
+        messageText.textContent = "New friend request!"
+        correct.addEventListener('click', () => acceptFriendNotif(jsonMessage.sender));
+        cross.addEventListener('click', () => refuseFriendNotif(jsonMessage.sender));
+    } else if (jsonMessage.type == 'send_invite') {
+        console.log('Game invite being rendered:', jsonMessage);
+        messageText.textContent = "New game invite!"
+        correct.addEventListener('click', () => acceptGameInvite(jsonMessage));
+        cross.addEventListener('click', () => refuseGameInvite(jsonMessage));
+    } else if (jsonMessage.type == 'waiting_state') {
+        console.log('Waiting state being rendered:', jsonMessage);
+        messageText.textContent = "Finish the game!"
+        correct.addEventListener('click', () => acceptGameInvite(jsonMessage));
+        cross.style.display = 'none';
+    } else if (jsonMessage.type == 'tournament_invite') {
+        messageText.textContent = "New game invite!"
+        correct.addEventListener('click', () => acceptGameInvite(jsonMessage));
+        cross.addEventListener('click', () => refuseGameInvite(jsonMessage));
+    }
+
     // showChat();
+}
+
+async function acceptGameInvite(jsonMessage) {
+    console.log('Accepting game invite:', jsonMessage);
+    const matchData = await fetchMatch(jsonMessage.matchId);
+    if (!matchData) {
+        console.error('Failed to fetch match data');
+        return;
+    }
+    const params = new URLSearchParams();
+    if (gameChosen == "tic-tac-toe")
+        params.append('game', 'tic-tac-toe');
+    else
+        params.append('game', 'pong');
+    params.append('matchId', matchData.id);
+    params.append('host', matchData.player1);
+    params.append('invitee', matchData.player2);
+    params.append('powers', matchData.powers);
+    window.location.href = `/lobby?${params.toString()}`;
+    messages[jsonMessage.hostId].forEach(msg => {
+        if ((msg.type === 'send_invite' && msg.matchId === jsonMessage.matchId) || (msg.type === 'waiting_state' && msg.matchId === jsonMessage.matchId)) {
+            messages[jsonMessage.hostId].splice(messages[jsonMessage.hostId].indexOf(msg), 1);
+        }
+    });
+}
+
+function refuseGameInvite(jsonMessage) {
+    console.log('Refusing game invite:', jsonMessage);
+    const messageData = {
+        type: 'refuse_invite',
+        hostId: jsonMessage.hostId,
+        inviteeId: jsonMessage.inviteeId,
+        matchId: jsonMessage.matchId
+    };
+    socket.send(JSON.stringify(messageData));
+    messages[jsonMessage.hostId].forEach(msg => {
+        if ((msg.type === 'send_invite' && msg.matchId === jsonMessage.matchId)) {
+            messages[jsonMessage.hostId].splice(messages[jsonMessage.hostId].indexOf(msg), 1);
+        }
+    });
+    // TODO hide the notification
 }
 
 function renderFriendsList(friends, friendNotifications, pendingRequests)
@@ -692,6 +936,11 @@ function renderFriendsList(friends, friendNotifications, pendingRequests)
         friendElement.textContent = friends[i].username;
         friendElement.style.color = "cyan";
         friendElement.classList.add('friend');
+        friendElement.classList.add('friend' + friends[i].id);
+        const redDot = document.createElement('div');
+        redDot.classList.add('redDot');
+        redDot.style.display = 'none';
+        friendElement.appendChild(redDot);
         friendsList.appendChild(friendElement);
     };
     showChat();
@@ -736,7 +985,6 @@ export const renderBaseHomePage = async () =>
     {
         offline = false;
         document.getElementById('content').innerHTML = renderBaseHomeConnected();
-        socket = await getWebSocket();
         actualUser = await fetchUserData();
         const friends = await getFriends();
         const friendNotifications = await getFriendNotifications();
@@ -747,6 +995,7 @@ export const renderBaseHomePage = async () =>
         renderFriendsList(friends, friendNotifications, pendingRequests);
 
         // showChat();
+        socket = await getWebSocket();
         socket.addEventListener('message', function(event)
         {
             const message = JSON.parse(event.data);
@@ -762,22 +1011,42 @@ export const renderBaseHomePage = async () =>
                 {
                     renderConversationBalloon(message.message, false);
                 }
-            } else if (message.type === 'send_invite') {
+                else
+                {
+                    showRedDot(message.senderId);
+                    //console.log('red dot should show now');
+                }   
+            } else if (message.type === 'send_invite' || message.firstInvite == 'true') {
                 console.log('Received game invite:', message);
                 if (!messages[message.hostId]) {
                     messages[message.hostId] = [];
                 }
+                if (messages[message.userId].some(msg => (msg.type === 'waiting_state' && msg.matchId == message.matchId) || (msg.type === 'send_invite' && msg.matchId == message.matchId))) {
+                    return;
+                }
                 messages[message.hostId].push(message);
-                if (currentChatUser && message.hostId === currentChatUser.id) {
-                    renderFriendRequestNotification(message.hostId, true, message.game);
+                if (currentChatUser && message.hostId == currentChatUser.id) {
+                    renderFriendRequestNotif(message);
+                }
+            } else if (message.type === 'waiting_state') {
+                console.log('Received waiting state:', message);
+                if (!messages[message.userId]) {
+                    messages[message.userId] = [];
+                }
+                if (messages[message.userId].some(msg => (msg.type === 'waiting_state' && msg.matchId == message.matchId) || (msg.type === 'send_invite' && msg.matchId == message.matchId))) {
+                    return;
+                }
+                messages[message.userId].push(message);
+                if (currentChatUser && message.userId == currentChatUser.id) {
+                    renderFriendRequestNotif(message);
                 }
             }
         });
     }
     else
     {
-        offline = true;
         document.getElementById('content').innerHTML = renderBaseHomeBlock();
+        offline = true;
         addEventListeners();
     }
     

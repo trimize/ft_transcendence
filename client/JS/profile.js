@@ -3,14 +3,16 @@ import {
   updateUserData,
   fetchMatches,
 } from "./fetchFunctions.js";
+
 import {
   deleteUser,
   anonymizeUser,
   setup2FA,
   verify2FA,
 } from "./fetchFunctionsUsers.js";
-import { populateMatchesHistory } from "./matchHistory.js";
+
 import { DEFAULT_PROFILE_PIC, BACKEND_URL } from "./appconfig.js";
+import { closeWebSocket } from "./singletonSocket.js";
 
 const renderProfilePage = (userData) => {
   return `
@@ -93,29 +95,6 @@ const renderEditProfileForm = (userData) => {
             <div id="bg"></div>`;
 };
 
-const renderMatchHistory = () => {
-  return `<div class="container-fluid">
-    <a id="backButtonEdit" href="/profile"></a>
-				<h1 class="text-center mt-5">Match History</h1>
-				<div class="container mt-5">
-					<table class="table table-dark table-striped">
-                        <thead>
-                            <tr>
-                                <th scope="col">N</th>
-                                <th scope="col">Date</th>
-                                <th scope="col">Game</th>
-                                <th scope="col">Game type</th>
-                                <th scope="col">Opponent</th>
-                                <th scope="col">Result</th>
-                            </tr>
-                        </thead>
-                        <tbody id="matchHistoryTable">
-                        </tbody>
-                    </table>
-				</div>
-			</div><div id="bg"></div>`;
-};
-
 const loadProfilePage = async () => {
   try {
     const userData = await fetchUserData();
@@ -160,29 +139,13 @@ const attachEventListeners = () => {
 
   logoutButton.addEventListener("click", function () {
     localStorage.clear();
+    closeWebSocket();
     window.location.href = "/";
   });
 
   matchButton.addEventListener("click", async function () {
-    document.getElementById("content").innerHTML = renderMatchHistory();
-    attachMatchHistoryEventListeners();
-    try {
-      const userData = await fetchUserData();
-      const matches = await fetchMatches(userData.id);
-      populateMatchesHistory(matches, userData);
-    } catch (error) {
-      console.error("Failed to fetch user data:", error);
-    }
+    window.location.href = "/match-history";
   });
-};
-
-const attachMatchHistoryEventListeners = () => {
-  document
-    .getElementById("backButtonEdit")
-    .addEventListener("click", function () {
-      document.getElementById("content").innerHTML = renderProfilePage();
-      attachEventListeners();
-    });
 };
 
 const attachEditFormEventListeners = () => {

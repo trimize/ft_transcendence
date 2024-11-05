@@ -117,6 +117,10 @@ export async function createGame(body) {
     });
     if (!response.ok) throw new Error("Failed to create game");
     const gameData = await response.json();
+	console.log("Body is");
+	console.log(JSON.stringify(body));
+	console.log("Response is");
+	console.log(gameData);
     return gameData.id;
   } catch (error) {
     console.error(error.message);
@@ -188,11 +192,16 @@ export async function addFriend(userId) {
   }
 }
 
-export async function fetchMatches(userId) {
+export async function fetchMatches(type, userId = null) {
   const accessToken = await securelyGetAccessToken();
   try {
+	const params = new URLSearchParams();
+	params.append("type", type);
+	if (userId) {
+		params.append("user_id", userId);
+	}
     let response = await fetch(
-      `${BACKEND_URL}/api/matches/player/${userId}/`,
+      `${BACKEND_URL}/api/matches?${params}`,
       {
         method: "GET",
         headers: {
@@ -300,7 +309,7 @@ export async function refuseFriendRequest(friend_id) {
 	const accessToken = await securelyGetAccessToken();
 	try {
 	  let response = await fetch(
-	    `${BACKEND_URL}/api/refuse_friend_request/${friend_id}`,
+	    `${BACKEND_URL}/api/refuse_friend_request/${friend_id}/`,
 	    {
 	      method: "PUT",
 	      headers: {

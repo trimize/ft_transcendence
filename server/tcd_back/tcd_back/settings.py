@@ -28,6 +28,21 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+SECURE_SSL_REDIRECT = False
+
+# Use secure cookies
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
+# HSTS settings
+SECURE_HSTS_SECONDS = 31536000  # 1 year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+
+# Additional security settings
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
 
 # Application definition
 
@@ -77,6 +92,12 @@ CORS_ALLOW_CREDENTIALS = True
 
 # Allow all origins (not recommended for production)
 CORS_ALLOW_ALL_ORIGINS = True
+
+CORS_ALLOWED_ORIGINS = [
+    "https://localhost:4443",
+    "https://10.24.105.8:4443",
+    "https://10.24.105.8:8443",
+]
 
 ROOT_URLCONF = 'tcd_back.urls'
 

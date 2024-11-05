@@ -1,9 +1,12 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
-from .models import User
+from .models import User, Match_Record
+from django.utils import timezone
+from asgiref.sync import sync_to_async
 
 user_channels = {}
+matchmaking = []
 
 class SocketConsumer(AsyncWebsocketConsumer):
 	async def connect(self):
@@ -33,6 +36,7 @@ class SocketConsumer(AsyncWebsocketConsumer):
 			print("User does not exist")
 			return
 
+		print(f"User {user_id} disconnected")
 		# Iterate through friends and send a message to connected friends
 		for friend in friends:
 			friend_id = str(friend.id)
@@ -41,13 +45,19 @@ class SocketConsumer(AsyncWebsocketConsumer):
 					'type': 'friend_disconnected',
 					'userId': user_id,
 				}
+				print(f"Sending disconnect message to user {friend_id}")
 				await self.channel_layer.send(
-					user_channels[friend_id],
+					user_channels.get(friend_id),
 					{
 					'type': 'send_message',
 					'message': message
 					}
 				)
+
+		for match in matchmaking:
+			if match.get('playerId') == user_id:
+				matchmaking.remove(match)
+				break
 
 	async def receive(self, text_data):
 		try:
@@ -85,7 +95,7 @@ class SocketConsumer(AsyncWebsocketConsumer):
 							'userId': user_id
 						}
 						await self.channel_layer.send(
-							user_channels[friend_id],
+							user_channels.get(friend_id),
 							{
 							'type': 'send_message',
 							'message': message
@@ -183,7 +193,7 @@ class SocketConsumer(AsyncWebsocketConsumer):
 					await self.channel_layer.send(
 						host_channel_name,
 						{
-							'type': 'invite_refused',
+							'type': 'send_message',
 							'message': text_data_json
 						}
 					)
@@ -265,7 +275,108 @@ class SocketConsumer(AsyncWebsocketConsumer):
 						'type': 'send_message',
 						'message': text_data_json
 					}
+				)			
+			elif text_data_json['type'] == 'waiting_state':
+				opponent_id = str(text_data_json.get('opponentId'))
+				match_id = text_data_json.get('matchId')
+				if not match_id:
+					print("Match ID not provided")
+					return
+				opponent_channel_name = user_channels.get(opponent_id)
+				if not opponent_channel_name:
+					print(f"Opponent {opponent_id} not connected")
+					return
+				print(f"Sending waiting state to user {opponent_id} on channel {opponent_channel_name}")
+				await self.channel_layer.send(
+					opponent_channel_name,
+					{
+						'type': 'send_message',
+						'message': text_data_json
+					}
 				)
+			elif text_data_json['type'] == 'allons-y':
+				player1_id = str(text_data_json.get('player1'))
+				player2_id = str(text_data_json.get('player2'))
+				player1_channel_name = user_channels.get(player1_id)
+				player2_channel_name = user_channels.get(player2_id)
+				if not player1_channel_name:
+					print(f"Player 1 {player1_id} not connected")
+					return
+				if not player2_channel_name:
+					print(f"Player 2 {player2_id} not connected")
+					return
+				await self.channel_layer.send(
+					player1_channel_name,
+					{
+						'type': 'send_message',
+						'message': text_data_json
+					}
+				)
+				await self.channel_layer.send(
+					player2_channel_name,
+					{
+						'type': 'send_message',
+						'message': text_data_json
+					}
+				)
+			elif text_data_json['type'] == 'matchmaking':
+				player_id = str(text_data_json.get('playerId'))
+				game = text_data_json.get('game')
+				print(f"Player {player_id} is matchmaking")
+				print(f"Matchmaking: {matchmaking}")
+				
+				match_found = None
+				for match in matchmaking:
+					if match.get('game') == game:
+						match_found = match
+						break
+
+				if match_found:
+					print(f"Found a match for game {game}: {match_found}")
+		
+					game = 'tic-tac-toe' if game == 'ttt' else game
+					# Create a new match record and save to the database
+					match = await sync_to_async(Match_Record.objects.create)(
+						game=game,
+						player1_id=player_id,
+						player2_id=match_found.get('playerId'),
+						match_type='online_multiplayer',
+						start_time=timezone.now()
+					)
+					await sync_to_async(match.save)()
+					matchmaking.remove(match_found)
+					# Send message to both players
+					player1_channel_name = user_channels.get(player_id)
+					player2_channel_name = user_channels.get(str(match_found.get('playerId')))
+					message = {
+								'type': 'allons-y',
+								'player1': player_id,
+								'player2': match_found.get('playerId'),
+								'matchId': match.id
+					}
+					await self.channel_layer.send(
+						player1_channel_name,
+						{
+							'type': 'send_message',
+							'message': message
+						}
+					)
+					await self.channel_layer.send(
+						player2_channel_name,
+						{
+							'type': 'send_message',
+							'message': message
+						}
+					)
+				else:
+					print(f"No match found for game {game}")
+					matchmaking.append(text_data_json)
+
+
+				
+				
+			
+
 
 	async def send_message(self, event):
 		message = event['message']
