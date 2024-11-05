@@ -14,7 +14,7 @@ import {
 import { DEFAULT_PROFILE_PIC, BACKEND_URL } from "./appconfig.js";
 import { closeWebSocket } from "./singletonSocket.js";
 
-const renderProfilePage = (userData) => {
+const renderProfilePage = () => {
   return `
     <a id="backButtonEdit"></a>
         <div id="pfpDiv">
@@ -27,21 +27,13 @@ const renderProfilePage = (userData) => {
                 </div>
                 <div>
                     <div class="profileLogos" id="wins"></div>
-                    <p id="winsText" class="profileNumbers">${
-                          userData.wins || ""
-                        }</p>
+                    <p id="winsText" class="profileNumbers"></p>
                     <div class="profileLogos" id="losses"></div>
-                    <p id="lossesText" class="profileNumbers">${
-                          userData.losses || ""
-                        }</p>
+                    <p id="lossesText" class="profileNumbers"></p>
                     <button type="button" class="profileButtons" id="matchBtn">Match History</button>
                     <div id="matchDivProfile"></div>
-                    <h2 id="username" class="text-pf">${
-                      userData.username || "username"
-                    }</h2>
-                    <p id="email" class="text-pf text-info">${
-                      userData.email || "email"
-                    }</p>
+                    <h2 id="username" class="text-pf"></h2>
+                    <p id="email" class="text-pf text-info"></p>
                     <!--<div class="profileLogos" id="friends"></div>-->
                     <button type="button" class="profileButtons" id="editBtn">Edit profile</button>
                     <button type="button" class="profileButtons" id="customizeBtn">Customize games</button>
@@ -97,9 +89,17 @@ const renderEditProfileForm = (userData) => {
 };
 
 const loadProfilePage = async () => {
+  document.getElementById("content").innerHTML = renderProfilePage();
   try {
+    const winsText = document.getElementById('winsText');
+    const lossesText = document.getElementById('lossesText');
+    const username = document.getElementById('username');
+    const email = document.getElementById('email');
     const userData = await fetchUserData();
-    document.getElementById("content").innerHTML = renderProfilePage(userData);
+    winsText.textContent = userData.wins;
+    lossesText.textContent = userData.losses;
+    username.textContent = userData.username;
+    email.textContent = userData.email;
     attachEventListeners();
   } catch (error) {
     console.error("Failed to load profile data:", error);
@@ -272,6 +272,6 @@ const attachEditFormEventListeners = () => {
 };
 
 export const renderProfile = () => {
-  document.getElementById("content").innerHTML = loadProfilePage();
+  loadProfilePage();
   // attachEventListeners();
 };

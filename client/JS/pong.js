@@ -55,38 +55,45 @@ let turn_ball = 1;
 
 export const renderPong = async () =>
 {
+	document.getElementById('content').innerHTML = pongHTML();
 	const urlParams = new URLSearchParams(window.location.search);
-	offline = urlParams.get('offline') == 'true' ? true : false;
-	ball_step = parseInt(urlParams.get('ballSpeed'), 10);
-	power = urlParams.get('powers') == 'true' ? true : false;
-	ball_acc = urlParams.get('ballAcc') == 'true' ? true : false;
-	defaultBallSpeed = parseInt(urlParams.get('ballSpeed'), 10);
-	multi = urlParams.get('type') == 'local_multiplayer' ? true : false;
-	single = urlParams.get('type') == 'singleplayer' ? true : false;
-	multi_online = urlParams.get('type') == 'multiplayer_online' ? true : false;	
-	if (!offline)
+	if (!urlParams.has('matchId'))
 	{
-		socket = await getWebSocket();
+		offline = urlParams.get('offline') == 'true' ? true : false;
+		ball_step = parseInt(urlParams.get('ballSpeed'), 10);
+		power = urlParams.get('powers') == 'true' ? true : false;
+		ball_acc = urlParams.get('ballAcc') == 'true' ? true : false;
+		defaultBallSpeed = parseInt(urlParams.get('ballSpeed'), 10);
+		multi = urlParams.get('type') == 'local_multiplayer' ? true : false;
+		single = urlParams.get('type') == 'singleplayer' ? true : false;
+	}
+	else
+	{
 		matchId = urlParams.get('matchId');
 		userInfo = await fetchUserData();
+		matchData = await fetchMatch(matchId);
+		if (matchData.end_time != null)
+			window.location = "/";
+		socket = await getWebSocket();
+		if (matchData.match_type == "singleplayer")
+			single = true;
+		else if (matchData.match_type == "local_multiplayer")
+			multi = true;
+		else if (matchData.match_type == "online_multiplayer")
+			multi_online = true;
 	}
 	if (!offline && multi_online)
 	{
-		player1Id = urlParams.get('host');
-		player2Id = urlParams.get('invitee');
+		player1Id = matchData.player1;
+		player2Id = matchData.player2;
 		player1_info = await fetchUserById(player1Id);
 		player2_info = await fetchUserById(player2Id);
-		matchData = await fetchMatch(matchId);
-		console.log(matchData);
 		ball_step = parseInt(matchData.ball_speed, 10);
 		defaultBallSpeed = ball_step;
 		ball_acc = matchData.ball_acc;
 		power = matchData.powers;
-		console.log("this is power" + power);
-		console.log("this is ball_acc" + ball_acc);
 	}
 
-	document.getElementById('content').innerHTML = pongHTML();
 	const contentArea = document.getElementById('contentArea');
 	const computedStyle = getComputedStyle(contentArea);
 	const leftValue = computedStyle.left;
@@ -219,9 +226,9 @@ export const renderPong = async () =>
 			movingSquare.style.backgroundImage = `url(../Assets/ball${userInfo.pong_ball}.svg)`
 			movingSquare.style.backgroundSize = "cover";
 		}
-		if (userInfo.pong_slider != 0)
+		if (userInfo.pong_slider != 0 && userInfo.id == player1Id)
 		{
-			let expansion = "svg";
+			let expansion = "jpg";
 			if (userInfo.pong_slider == 8)
 				expansion = "gif";
 			else if (userInfo.pong_slider == 9)
@@ -230,7 +237,19 @@ export const renderPong = async () =>
 			player.style.backgroundColor = "transparent";
 			player.style.backgroundImage = `url(../Assets/slider${userInfo.pong_slider}.${expansion})`
 			player.style.backgroundSize = "cover";
-		}	
+		}
+		else if (userInfo.pong_slider != 0 && multi_online && userInfo.id == player2Id)
+		{
+			let expansion = "jpg";
+			if (userInfo.pong_slider == 8)
+				expansion = "gif";
+			else if (userInfo.pong_slider == 9)
+				expansion = "webp";
+			const enemy = document.getElementById("enemy");
+			enemy.style.backgroundColor = "transparent";
+			enemy.style.backgroundImage = `url(../Assets/slider${userInfo.pong_slider}.${expansion})`
+			enemy.style.backgroundSize = "cover";
+		}
 	}
 
 	if(!offline && multi_online)
@@ -638,7 +657,13 @@ async function startMovingSquare()
 	const contentArea = player.parentElement;
 
 	let bounce_bool = true;
-	document.getElementById("score").textContent = score_player + " : " + score_enemy;
+	if (offline)
+		document.getElementById("score").textContent = score_player + " : " + score_enemy;
+	else
+	{
+		matchData = await fetchMatch(matchId);
+		document.getElementById("score").textContent = matchData.player1_score + " : " + matchData.player2_score;
+	}
 	const contentWidth = contentArea.clientWidth;
 	const contentHeight = contentArea.clientHeight;
 	const centerX = contentWidth / 2;
@@ -927,6 +952,18 @@ async function startMovingSquare()
 						end_time: currentTime,
 					};
 					updateGame(matchData);
+					if (multi_online)
+					{
+						const matchData =
+						{
+							type: "match_update",
+							matchId: matchId,
+							hostId: player1Id,
+							inviteeId: player2Id,
+							finish: "true"
+						};
+						sendMessage(matchData)
+					}
 				}
 				finish = true;
 				if (score_enemy == 3)
@@ -946,13 +983,6 @@ async function startMovingSquare()
 						document.getElementById('winnerPongPlayer').textContent = "Player 1";
 				}
 				clearInterval(moveInterval);
-				//const retryButton = document.getElementById('retry-button');
-				//retryButton.addEventListener('click', function()
-				//{
-				//	clearInterval(retryButton);
-				//	retry();
-				//	//reset = true;
-				//});
 				return ;
 			}
 			if (!offline)
@@ -969,6 +999,7 @@ async function startMovingSquare()
 					fastest_ball_speed: maxBallSpeed,
 				};
 				updateGame(matchData);
+
 			}
 			clearInterval(moveInterval);
 			movingSquare.style.display = 'none';
@@ -1159,6 +1190,23 @@ async function handlingSocketEvents()
 				score_enemy = message.score_player2;
 				player_consec_touch = message.player_consec_touch;
 				document.getElementById("score").textContent = score_player + " : " + score_enemy;
+			}
+			if (message.finish !== undefined && userInfo.id == player2Id)
+			{
+				console.log('trying to finish game');
+				matchData = await fetchMatch(matchId);
+				document.getElementById('winnerPongPlayer').textContent = matchData.player1_score > matchData.player2_score ? player1_info.username : player2_info.username;
+				finish = true;
+				const endPongDiv = document.getElementById("endPongDiv");
+				endPongDiv.style.display = 'block';
+				let opacity = 0;
+				let endDivAnim = setInterval(function()
+				{
+					endPongDiv.style.opacity = opacity;
+					opacity += 0.008;
+					if (opacity >= 1)
+						clearInterval(endDivAnim);
+				}, 5);
 			}
 		}
 		else if (message.type == "friend_disconnected")
