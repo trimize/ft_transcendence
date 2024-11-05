@@ -98,8 +98,8 @@ const renderEditProfileForm = (userData) => {
 
 const loadProfilePage = async () => {
   try {
-    const userData = await fetchUserData();
     document.getElementById("content").innerHTML = renderProfilePage(userData);
+    const userData = await fetchUserData();
     attachEventListeners();
   } catch (error) {
     console.error("Failed to load profile data:", error);
