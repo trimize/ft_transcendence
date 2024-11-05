@@ -918,7 +918,7 @@ async function renderFriendRequestNotif(jsonMessage, chatUserId)
         messageText.textContent = "New friend request!"
         correct.addEventListener('click', () => acceptFriendNotif(jsonMessage.sender, friendRequest));
         cross.addEventListener('click', () => refuseFriendNotif(jsonMessage.sender, friendRequest));
-    } else if (jsonMessage.type == 'send_invite') {
+    } else if (jsonMessage.type == 'send_invite' || (jsonMessage.type == 'waiting_state' && jsonMessage.firstInvite == 'true')) {
         console.log('Game invite being rendered:', jsonMessage);
         messageText.textContent = "New game invite!"
         correct.addEventListener('click', () => acceptGameInvite(jsonMessage, friendRequest));
@@ -954,9 +954,10 @@ async function acceptGameInvite(jsonMessage, element) {
     params.append('host', matchData.player1);
     params.append('invitee', matchData.player2);
     params.append('powers', matchData.powers);
-    messages[jsonMessage.hostId].forEach(msg => {
+    const sender = jsonMessage.type == 'send_invite' ? jsonMessage.hostId : jsonMessage.userId;
+    messages[sender].forEach(msg => {
         if ((msg.type === 'send_invite' && msg.matchId === jsonMessage.matchId) || (msg.type === 'waiting_state' && msg.matchId === jsonMessage.matchId)) {
-            messages[jsonMessage.hostId].splice(messages[jsonMessage.hostId].indexOf(msg), 1);
+            messages[sender].splice(messages[sender].indexOf(msg), 1);
         }
     });
     window.location.href = `/lobby?${params.toString()}`;
