@@ -226,7 +226,7 @@ export const renderPong = async () =>
 		}
 		if (userInfo.pong_slider != 0)
 		{
-			let expansion = "png";
+			let expansion = "jpg";
 			if (userInfo.pong_slider == 8)
 				expansion = "gif";
 			else if (userInfo.pong_slider == 9)
