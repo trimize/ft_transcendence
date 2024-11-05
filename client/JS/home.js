@@ -1,6 +1,7 @@
-import { fetchUserData, fetchMatch, getUser, sendFriendRequest, getFriendNotifications, refuseFriendRequest, addFriend, getFriends, getPendingRequest, createGame } from "./fetchFunctions.js";
+import { fetchUserData, getTournamentById, fetchMatch, getUser, sendFriendRequest, updateTournament, getFriendNotifications, refuseFriendRequest, addFriend, getFriends, getPendingRequest, createGame, createTournament } from "./fetchFunctions.js";
 import { BACKEND_URL,  } from "./appconfig.js";
 import { sendMessage, getWebSocket } from "./singletonSocket.js";
+import { getCurrentTime } from "./utils.js";
 
 let currentChatUser;
 let actualUser;
@@ -156,6 +157,25 @@ const addEventListeners = () => {
                         onlineClicked = false;
                     }
                 });
+
+                document.getElementById('tournament').addEventListener('click', async () => {
+                    let tournamentBody = {
+                        player1: actualUser.id,
+                        start_time: getCurrentTime(),
+                    };
+                    const newTournament = await createTournament(tournamentBody);
+                    const params = new URLSearchParams();
+                    params.append('tournamentId', newTournament.id);
+                    params.append('game', gameChosen);
+                    if (gameChosen == 'pong') {
+                        params.append('powers', powers.checked);
+                        params.append('ballAcc', ballAcc.checked);
+                        params.append('ballSpeed', theBallSpeed); // is undefined
+                    } else {
+                        params.append('powers', powers.checked);
+                    }
+                    window.location.href = `/tournament?${params.toString()}`;
+                })
             }
 
 
@@ -378,6 +398,7 @@ function renderBaseHomeConnected()
                 <span class= "gameMenuText" id="singleplayer">Singleplayer</span>
                 <span class= "gameMenuText" id="multiplayer">Local Multiplayer</span>
                 <span class= "gameMenuText" id="online_multiplayer">Online Multiplayer</span>
+                <span class= "gameMenuText" id="tournament">Tournament</span>
                 <div id="inviteContainer">
                     <input type="text" id="inviteInput" placeholder="Enter username" />
                     <button id="inviteButton">Go to lobby</button>
@@ -871,14 +892,34 @@ function renderFriendRequestNotif(jsonMessage)
         correct.addEventListener('click', () => acceptGameInvite(jsonMessage));
         cross.style.display = 'none';
     } else if (jsonMessage.type == 'tournament_invite') {
-        messageText.textContent = "New game invite!"
-        correct.addEventListener('click', () => acceptGameInvite(jsonMessage));
-        cross.addEventListener('click', () => refuseGameInvite(jsonMessage));
+        console.log('Tournament invite being rendered:', jsonMessage);
+        messageText.textContent = "New tournament invite!"
+        let params = new URLSearchParams();
+        params.append('tournamentId', jsonMessage.tournamentId);
+        params.append('game', jsonMessage.game);
+        correct.addEventListener('click', async () => {
+            sendMessage({type: 'tournament_invite_response', tournamentId: jsonMessage.tournamentId, status: 'accepted', hostId: jsonMessage.hostId, inviteeId: actualUser.id, inviteeName: actualUser.username});
+            const tournamentData = await getTournamentById(jsonMessage.tournamentId);
+            if (!tournamentData.player2) {
+                await updateTournament({tournamentId: jsonMessage.tournamentId, player2: actualUser.id});
+                window.location.href = `/tournament?${params.toString()}`;
+            }
+            if (tournamentData.player1 && tournamentData.player2 && !tournamentData.player3) {
+            await updateTournament({tournamentId: jsonMessage.tournamentId, player3: actualUser.id});
+            window.location.href = `/tournament?${params.toString()}`
+            }
+            if (tournamentData.player1 && tournamentData.player2 && tournamentData.player3 && !tournamentData.player4) {
+                await updateTournament({tournamentId: jsonMessage.tournamentId, player4: actualUser.id});
+                window.location.href = `/tournament?${params.toString()}`;
+                }
+            })
+        cross.addEventListener('click', () => {
+            sendMessage({type: 'tournament_invite_response', tournamentId: jsonMessage.tournamentId, status: 'declined', hostId: jsonMessage.hostId, inviteeId: actualUser.id, inviteeName: actualUser.username});
+        });
     }
 
     // showChat();
 }
-
 async function acceptGameInvite(jsonMessage) {
     console.log('Accepting game invite:', jsonMessage);
     const matchData = await fetchMatch(jsonMessage.matchId);
@@ -1040,6 +1081,9 @@ export const renderBaseHomePage = async () =>
                 if (currentChatUser && message.userId == currentChatUser.id) {
                     renderFriendRequestNotif(message);
                 }
+            } else if (message.type === 'tournament_invite') {
+                console.log('Received tournament invite:', message);
+                renderFriendRequestNotif(message);
             }
         });
     }

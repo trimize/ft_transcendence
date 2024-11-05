@@ -24,7 +24,7 @@ def create_tournament(request):
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def update_tournament(request):
-	tournament_id = request.data.get('id')
+	tournament_id = request.data.get('tournamentId')
 	if not tournament_id:
 		return Response({'error': 'ID is required'}, status=status.HTTP_400_BAD_REQUEST)
 

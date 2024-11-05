@@ -45,12 +45,12 @@ export function closeWebSocket()
     }
 }
 
-export async function sendMessage(message)
+export function sendMessage(message)
 {
 	if (socket.readyState === WebSocket.OPEN)
 	{
 		let json_message = JSON.stringify(message);
-		await socket.send(json_message);
+		socket.send(json_message);
 	}
 	else
 	{
