@@ -1081,15 +1081,12 @@ export const renderBaseHomePage = async () =>
                 if (!messages[sender]) {
                     messages[sender] = [];
                 }
-                if (messages[message.userId])
-                {
-                    if (messages[message.userId].some(msg => (msg.type === 'waiting_state' && msg.matchId == message.matchId) || (msg.type === 'send_invite' && msg.matchId == message.matchId))) {
-                        return;
-                    }
+                if (messages[sender].some(msg => (msg.type == 'waiting_state' && msg.matchId == message.matchId) || (msg.type == 'send_invite' && msg.matchId == message.matchId))) {
+                    return;
                 }
-                messages[message.hostId].push(message);
-                if (currentChatUser && message.hostId == currentChatUser.id) {
-                    renderFriendRequestNotif(message, currentChatUser.id);
+                messages[sender].push(message);
+                if (currentChatUser != null && (message.type == 'send_invite' && message.hostId == currentChatUser.id) || (message.type == 'waiting_state' && message.userId == currentChatUser.id)) {
+                    renderFriendRequestNotif(message);
                 }
             } else if (message.type === 'waiting_state') {
                 console.log('Received waiting state:', message);
@@ -1101,7 +1098,7 @@ export const renderBaseHomePage = async () =>
                 }
                 messages[message.userId].push(message);
                 if (currentChatUser && message.userId == currentChatUser.id) {
-                    renderFriendRequestNotif(message, currentChatUser.id);
+                    renderFriendRequestNotif(message);
                 }
             }
             else if (message.type === 'friendRequest')
