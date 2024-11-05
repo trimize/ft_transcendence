@@ -43,7 +43,8 @@ const renderProfilePage = (userData) => {
                       userData.email || "email"
                     }</p>
                     <!--<div class="profileLogos" id="friends"></div>-->
-                    <button type="button" class="profileButtons" id="editBtn">Edit</button>
+                    <button type="button" class="profileButtons" id="editBtn">Edit profile</button>
+                    <button type="button" class="profileButtons" id="customizeBtn">Customize games</button>
                     <!--<button type="button" class="profileButtons" id="anonymizeBtn">Anonymize</button>-->
                     <!--<button type="button" class="profileButtons" id="deleteBtn">Delete Account</button>-->
                     <button type="button" class="profileButtons" id="logoutBtn">Log out</button>
@@ -110,6 +111,8 @@ const attachEventListeners = () => {
   const logoutButton = document.getElementById("logoutBtn");
   const editButton = document.getElementById("editBtn");
   const matchButton = document.getElementById("matchBtn");
+  const customizeBtn = document.getElementById('customizeBtn');
+
   fetchUserData()
     .then((profileData) => {
       if (profileData.profile_pic !== null)
@@ -145,6 +148,10 @@ const attachEventListeners = () => {
 
   matchButton.addEventListener("click", async function () {
     window.location.href = "/match-history";
+  });
+
+  customizeBtn.addEventListener("click", async function () {
+    window.location.href = "/customize";
   });
 };
 

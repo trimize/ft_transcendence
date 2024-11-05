@@ -6,8 +6,6 @@ let currentChatUser = null;
 let actualUser;
 let messages = {};
 let gameChosen;
-let isPowerEnabled = false;
-let isBallAccEnabled = false;
 let matchmakingClicked = false;
 let offline = true;
 let theBallSpeed;
@@ -35,13 +33,10 @@ const addEventListeners = () => {
     const AITitle = document.getElementById('ballSpeedText');
     const ballAccDiv = document.getElementById('ballAccDiv');
     const ballAcc = document.getElementById('ballAcc');
+    const powers = document.getElementById('powers');
     AITitle.style.display = "none";
     ballSlider.style.display = "none";
     let invitee;
-
-    document.getElementById('powers').addEventListener('change', function() {
-        isPowerEnabled = this.checked;
-    });
     
 
     // Iterate over the NodeList and add an event listener to each element
@@ -167,12 +162,12 @@ const addEventListeners = () => {
             const backButtonGameMenu = document.getElementById('backButtonGameMenu');
             const leftDiv = document.getElementsByClassName('left')[0];
             const rightDiv = document.getElementsByClassName('right')[0];
-            leftDiv.style.display = 'flex';
-            rightDiv.style.display = 'flex';
             setTimeout(() => {
                 rightDiv.style.right = '0';
                 leftDiv.style.left = '0';
-            }, 10);
+            }, 5);
+            leftDiv.style.display = 'flex';
+            rightDiv.style.display = 'flex';
             if (face.classList.contains('pongFace'))
             {
                 ballAccDiv.style.display = "block";
@@ -245,7 +240,7 @@ const addEventListeners = () => {
                             player1: actualUser.id,
                             player2: (invitee ? invitee.id : null),
                             match_type: (multiClicked == true ? 'local_multiplayer' : 'singleplayer'),
-                            powers: isPowerEnabled,
+                            powers: powers.checked,
                             ai: (multiClicked ? null : (ballSlider.value < 19 ? 'easy' : 'hard')),
                             start_time: new Date()
                         };
@@ -253,7 +248,7 @@ const addEventListeners = () => {
                         params.append('matchId', matchId);
                         params.append('host', actualUser.id);
                     }
-                    params.append('powers', isPowerEnabled);
+                    params.append('powers', powers.checked);
                     params.append('type', (multiClicked == true ? 'local_multiplayer' : 'singleplayer'));
                     if (singleClicked == true) {
                         params.append('ai', (ballSlider.value < 2 ? 'easy' : 'hard'));
@@ -264,16 +259,16 @@ const addEventListeners = () => {
                     switch(ballSlider.value)
                     {
                         case 1:
-                            theBallSpeed = 10;
+                            theBallSpeed = 3;
                             break;
                         case 2:
-                            theBallSpeed = 20;
+                            theBallSpeed = 5;
                             break;
                         case 3:
-                            theBallSpeed = 30;
+                            theBallSpeed = 7;
                             break;
                         default:
-                            theBallSpeed = 20;
+                            theBallSpeed = 5;
                     }
                     const params = new URLSearchParams();
                     params.append('offline', offline);
@@ -285,7 +280,7 @@ const addEventListeners = () => {
                             player1: actualUser.id,
                             player2: (invitee ? invitee.id : null),
                             match_type: (multiClicked == true ? 'local_multiplayer' : 'singleplayer'),
-                            powers: isPowerEnabled,
+                            powers: powers.checked,
                             ball_speed: theBallSpeed,
                             ball_acc: ballAcc.checked,
                             start_time: new Date().toISOString()
@@ -296,7 +291,7 @@ const addEventListeners = () => {
                     }
                     params.append('ballAcc', ballAcc.checked);
                     params.append('ballSpeed', theBallSpeed);
-                    params.append('powers', isPowerEnabled);
+                    params.append('powers', powers.checked);
                     params.append('type', (multiClicked == true ? 'local_multiplayer' : 'singleplayer'));
                     window.location.href = `/pong?${params.toString()}`;
                 }
@@ -307,7 +302,7 @@ const addEventListeners = () => {
                 setTimeout(() => {
                     rightDiv.style.right = '-60vw';
                     leftDiv.style.left = '-40vw';
-                }, 10);
+                }, 5);
                 if (rightDiv.style.right == '-60vw')
                 {
                     leftDiv.style.display = 'none';
@@ -330,6 +325,7 @@ function renderBaseHomeBlock()
                 </div>
                 <div id="gamePicture"></div>
                 <text id="gameText"></text>
+                <button class="button-85" role="button" id="buttonPlay">Play</button>
             </div>
             <div class="half right">
                 <span class= "gameMenuText" id="singleplayer">Singleplayer</span>
@@ -353,7 +349,6 @@ function renderBaseHomeBlock()
                         <span class="slider round"></span>
                     </label>
                 </div>
-                <button class="button-85" role="button" id="buttonPlay">Play</button>
             </div>
             <a id="loginBtn" href="/login">Login</a>
             <div id="bg"></div>
@@ -376,6 +371,8 @@ function renderBaseHomeConnected()
                 </div>
                 <div id="gamePicture"></div>
                 <text id="gameText"></text>
+                <button class="button-85" role="button" id="buttonPlay">Play</button>
+                <a id="colorWheel"></a>
             </div>
             <div class="half right">
                 <span class= "gameMenuText" id="singleplayer">Singleplayer</span>
@@ -408,7 +405,6 @@ function renderBaseHomeConnected()
                         <span class="slider round"></span>
                     </label>
                 </div>
-                <button class="button-85" role="button" id="buttonPlay">Play</button>
             </div>
             <a id="profileDiv" href="/profile">
                 <div id="profilePicture"></div>
@@ -480,6 +476,7 @@ async function showChat() {
     const inviteContainer = document.getElementById('inviteContainer');
     const ballAcc = document.getElementById('ballAcc');
     const ballSlider = document.getElementById('ballSpeed');
+    const powers = document.getElementById('powers');
 
     inviteButton.addEventListener('click', async () => {
         console.log('Invite button clicked');
@@ -508,7 +505,7 @@ async function showChat() {
                     "player1": actualUser.id,
                     "player2": invitee.id,
                     "match_type": "online_multiplayer",
-                    "powers": isPowerEnabled
+                    "powers": powers.checked
                 }
             }
             else
@@ -516,16 +513,16 @@ async function showChat() {
                 switch(ballSlider.value)
                 {
                     case 1:
-                        theBallSpeed = 10;
+                        theBallSpeed = 3;
                         break;
                     case 2:
-                        theBallSpeed = 20;
+                        theBallSpeed = 5;
                         break;
                     case 3:
-                        theBallSpeed = 30;
+                        theBallSpeed = 7;
                         break;
                     default:
-                        theBallSpeed = 20;
+                        theBallSpeed = 5;
                 }
                 body =
                 {
@@ -533,7 +530,7 @@ async function showChat() {
                     "player1": actualUser.id,
                     "player2": invitee.id,
                     "match_type": "online_multiplayer",
-                    "powers": isPowerEnabled,
+                    "powers": powers.checked,
                     "ball_speed": theBallSpeed,
                     "ball_acc": ballAcc.checked
                 }
@@ -558,7 +555,7 @@ async function showChat() {
             params.append('matchId', match_id);
             params.append('host', actualUser.id);
             params.append('invitee', invitee.id);
-            params.append('powers', isPowerEnabled);
+            params.append('powers', powers.checked);
             params.append('firstInvite', true);
             window.location.href = `/lobby?${params.toString()}`;
         } else {

@@ -1,0 +1,438 @@
+#chooseGameCustom {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    width: 100vw;
+    top: 28vh;
+}
+
+.choiceTitle {
+    font-family: 'Roboto Condensed';
+    font-weight: 800;
+    font-size: 40px;
+    display: flex;
+    text-align: center;
+    width: 400px;
+    height: 400px;
+    border: 10px rgba(255, 255, 255, 0.466) solid;
+    background-size: cover;
+    color: rgba(255, 255, 255, 0.466);
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    cursor: pointer;
+}
+
+.choiceTitle:hover
+{
+    border-color: aliceblue;
+    color: aliceblue;
+}
+
+#pongChoice
+{
+    background-image: url("../Assets/pong-customize.png");
+    margin-right: 200px;
+}
+
+#tttChoice
+{
+    background-image: url("../Assets/ttt-customize.png");
+}
+
+#customizeContainerPong
+{
+    position: absolute;
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+}
+
+.customForm
+{
+    width: 50vw;
+    height: 100vh;
+    border: 4px solid rgba(240, 248, 255, 0.384);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Create 3 equal columns */
+    grid-template-rows: repeat(3, 1fr);
+}
+
+#sliderCustomForm
+{
+    border-right: none;
+}
+
+.boxCustom {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    cursor: pointer;
+    transition: border-color ease 0.3s, border-width ease 0.3s;
+    text-align: center;
+    font-size: 150px;
+    color: aliceblue;
+    /*border: 1px solid rgba(145, 145, 145, 0.438);*/
+}
+
+.boxCustom::before {
+    content: '';
+    position: absolute;
+    top: 19%;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 60%;
+    border-left: 1px solid rgba(240, 248, 255, 0.384);
+    border-right: 1px solid rgba(240, 248, 255, 0.384);
+    transition: height ease 0.3s, top ease 0.3s;
+    z-index: -1;
+}
+
+.boxCustom::after
+{
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 19%;
+    right: 0;
+    bottom: 0;
+    width: 60%;
+    height: 100%;
+    border-bottom: 1px solid rgba(240, 248, 255, 0.384);
+    z-index: -1;
+    transition: width ease 0.3s, left ease 0.3s;
+}
+
+.boxCustom:hover::after
+{
+    width: 100%;
+    left: 0;
+}
+
+.boxCustom:hover::before
+{
+    height: 100%;
+    top: 0;
+}
+
+.box1::before
+{
+    border-left: none;
+    left: 1px;
+}
+
+.box3::before
+{
+    border-right: none;
+    left: -1px;
+}
+
+.box4::before
+{
+    border-left: none;
+}
+
+.box4::after
+{
+    border-top: 1px solid rgba(240, 248, 255, 0.384);
+    margin-top: -1px;
+}
+
+.box5::after
+{
+    border-top: 1px solid rgba(240, 248, 255, 0.384);
+    margin-top: -1px;
+}
+
+.box5::before
+{
+    left: -1px;
+}
+
+.box6::before
+{
+    border-right: none;
+    left: -2px;
+}
+
+.box6::after
+{
+    border-top: 1px solid rgba(240, 248, 255, 0.384);
+    height: 100%;
+    margin-top: -1px;
+    /*top: -1px;*/
+}
+
+.box7::before
+{
+    border-left: none;
+    left: 1px;
+}
+
+.box7::after
+{
+    border-top: 1px solid rgba(240, 248, 255, 0.384);
+    margin-top: -2px;
+    border-bottom: none;
+}
+
+.box8::before
+{
+    left: 0px;
+}
+
+.box8::after
+{
+    border-top: 1px solid rgba(240, 248, 255, 0.384);
+    margin-top: -2px;
+    border-bottom: none;
+}
+
+.box9::before
+{
+    left: -1px;
+    border-right: none;
+}
+
+.box9::after
+{
+    border-top: 1px solid rgba(240, 248, 255, 0.384);
+    margin-top: -2px;
+    border-bottom: none;
+}
+
+
+
+.imageSliderBox {
+    /* background-image: url('../Assets/slider1.jpg'); */
+    background-size: cover;
+    width: 40px;
+    height: 200px;
+    /*margin-bottom: 50px;*/
+}
+
+#imageSlider1
+{
+    background-image: url('../Assets/slider1.jpg');
+}
+
+#imageSlider2
+{
+    background-image: url('../Assets/slider2.jpg');
+}
+
+#imageSlider3
+{
+    background-image: url('../Assets/slider3.jpg');
+}
+
+#imageSlider4
+{
+    background-image: url('../Assets/slider4.jpg');
+}
+
+#imageSlider5
+{
+    background-image: url('../Assets/slider5.jpg');
+}
+
+#imageSlider6
+{
+    background-image: url('../Assets/slider6.jpg');
+}
+
+#imageSlider7
+{
+    background-image: url('../Assets/slider7.jpg');
+}
+
+#imageSlider8
+{
+    background-image: url('../Assets/slider8.gif');
+}
+
+#imageSlider9
+{
+    background-image: url('../Assets/slider9.webp');
+}
+
+.imageBallBox
+{
+    background-size: cover;
+    width: 200px;
+    height: 200px;
+    animation: rotate 5s linear infinite;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg); /* Start at 0 degrees */
+    }
+    to {
+        transform: rotate(360deg); /* End at 360 degrees */
+    }
+}
+
+#imageBall1
+{
+    background-image: url('../Assets/ball1.svg');
+}
+
+#imageBall2
+{
+    background-image: url('../Assets/ball2.svg');
+}
+
+#imageBall3
+{
+    background-image: url('../Assets/ball3.svg');
+}
+
+#imageBall4
+{
+    background-image: url('../Assets/ball4.svg');
+}
+
+#imageBall5
+{
+    background-image: url('../Assets/ball5.svg');
+}
+
+#imageBall6
+{
+    background-image: url('../Assets/ball6.svg');
+}
+
+#imageBall7
+{
+    background-image: url('../Assets/ball7.svg');
+}
+
+#imageBall8
+{
+    background-image: url('../Assets/ball8.svg');
+}
+
+#imageBall9
+{
+    background-image: url('../Assets/ball9.svg');
+}
+
+#backButtonCustom
+{
+    z-index: 10;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background-size: 30px;
+    width: 30px;
+    height: 30px;
+    background-image: url('../Assets/arrowUp.svg');
+    transform: rotate(-90deg);
+}
+
+#saveButtonCustom {
+    position: absolute;
+    display: none;
+    z-index: 10;
+    width: 100px;
+    height: 50px;
+    border-radius: 20px;
+    background-color: #8786866b;
+    color: aliceblue;
+    font-family: 'Roboto';
+    font-weight: 500;
+    font-size: 30px;
+    left: calc(100% - 50vw - 50px);
+    bottom: 50px;
+    cursor: pointer;
+    text-align: center;
+    transition: background-color ease 0.3s, color ease 0.3s;
+}
+
+#saveButtonCustom:hover
+{
+    background-color: #ffffff;
+    color: black;
+}
+
+.imageSignBox {
+    /* background-image: url('../Assets/slider1.jpg'); */
+    /* background-size: cover; */
+    width: 170px;
+    height: 200px;
+    /* margin-bottom: 50px; */
+}
+
+#customizeContainerttt
+{
+    position: absolute;
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+}
+
+.imageVictoryBox {
+    /* background-image: url('../Assets/slider1.jpg'); */
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 300px;
+    height: 300px;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    /*margin-bottom: 50px;*/
+}
+
+#imageVictory1
+{
+    background-image: url('../Assets/victory1.gif');
+}
+
+#imageVictory2
+{
+    background-image: url('../Assets/victory2.gif');
+}
+
+#imageVictory3
+{
+    background-image: url('../Assets/victory3.webp');
+}
+
+#imageVictory4
+{
+    background-image: url('../Assets/victory4.gif');
+}
+
+#imageVictory5
+{
+    background-image: url('../Assets/victory5.gif');
+}
+
+#imageVictory6
+{
+    background-image: url('../Assets/victory6.gif');
+}
+
+#imageVictory7
+{
+    background-image: url('../Assets/victory7.gif');
+}
+
+#imageVictory8
+{
+    background-image: url('../Assets/victory8.webp');
+}
+
+#imageVictory9
+{
+    background-image: url('../Assets/victory9.gif');
+}
+

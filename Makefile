@@ -16,6 +16,7 @@ clean:
 	@if [ ! -z "$(shell docker images -q)" ]; then docker rmi -f $(shell docker images -q); else echo "No images to remove"; fi
 	
 compose-up:
+	@$(shell sed -i "s/^HOST_IP=.*/HOST_IP=${HOST_IP}/" .env)
 	docker compose up --build -d
 
 compose-down:
