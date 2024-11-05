@@ -432,3 +432,63 @@ export async function updateTournament(body) {
 	  console.error(error.message);
 	}
 }
+
+export async function updateSliderSkin(slider) {
+	const accessToken = await securelyGetAccessToken();
+	try {
+	  let response = await fetch(`${BACKEND_URL}/api/update_pong_slider/${slider}`, {
+		method: "PUT",
+		headers: {
+		  Authorization: `Bearer ${accessToken}`,
+		},
+		//body: formData,
+	  });
+	} catch (error) {
+	  console.error("Error updating user data:", error);
+	}
+}
+
+export async function updateBallSkin(ball) {
+	const accessToken = await securelyGetAccessToken();
+	try {
+	  let response = await fetch(`${BACKEND_URL}/api/update_pong_ball/${ball}`, {
+		method: "PUT",
+		headers: {
+		  Authorization: `Bearer ${accessToken}`,
+		},
+		//body: formData,
+	  });
+	} catch (error) {
+	  console.error("Error updating user data:", error);
+	}
+}
+
+export async function updateSignSkin(sign) {
+	const accessToken = await securelyGetAccessToken();
+	try {
+	  let response = await fetch(`${BACKEND_URL}/api/update_tic_tac_toe_sign/${sign}`, {
+		method: "PUT",
+		headers: {
+		  Authorization: `Bearer ${accessToken}`,
+		},
+		//body: formData,
+	  });
+	} catch (error) {
+	  console.error("Error updating user data:", error);
+	}
+}
+
+export async function updateVictorySkin(victory) {
+	const accessToken = await securelyGetAccessToken();
+	try {
+	  let response = await fetch(`${BACKEND_URL}/api/update_tic_tac_toe_background/${victory}`, {
+		method: "PUT",
+		headers: {
+		  Authorization: `Bearer ${accessToken}`,
+		},
+		//body: formData,
+	  });
+	} catch (error) {
+	  console.error("Error updating user data:", error);
+	}
+}

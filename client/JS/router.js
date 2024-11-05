@@ -7,6 +7,7 @@ import { renderTTT } from "./tic-tac-toe.js"
 import { renderPong } from "./pong.js"
 import { getWebSocket } from "./singletonSocket.js";
 import { renderMatchHistory } from "./matchHistory.js"
+import { renderCustomize } from "./customize.js"
 
 const router = () => {
     const path = window.location.pathname.replace('/', '');
@@ -32,6 +33,9 @@ const router = () => {
             break;
         case 'pong':
             renderPong();
+            break;
+        case 'customize':
+            renderCustomize();
             break;
         case '/':
             renderBaseHomePage();

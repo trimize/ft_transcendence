@@ -209,10 +209,60 @@ export const renderPong = async () =>
 		}, 100);
 	}
 
+	if (!offline)
+	{
+		if (userInfo.pong_ball != 0)
+		{
+			const movingSquare = document.getElementById("moving-square");
+			movingSquare.style.backgroundColor = "transparent";
+			movingSquare.style.backgroundImage = `url(../Assets/ball${userInfo.pong_ball}.svg)`
+			movingSquare.style.backgroundSize = "cover";
+		}
+		if (userInfo.pong_slider != 0)
+		{
+			let expansion = "svg";
+			if (userInfo.pong_slider == 8)
+				expansion = "gif";
+			else if (userInfo.pong_slider == 9)
+				expansion = "webp";
+			const player = document.getElementById("player");
+			player.style.backgroundColor = "transparent";
+			player.style.backgroundImage = `url(../Assets/slider${userInfo.pong_slider}.${expansion})`
+			player.style.backgroundSize = "cover";
+		}	
+	}
+
 	if(!offline && multi_online)
 	{
-		if (userInfo.id == player1Id)
+		if (userInfo.id == player2Id)
 		{
+			if (player1_info.pong_slider != 0)
+			{
+				let expansion = "svg";
+				if (player1_info.pong_slider == 8)
+					expansion = "gif";
+				else if (player1_info.pong_slider == 9)
+					expansion = "webp";
+				const player = document.getElementById("player");
+				player.style.backgroundColor = "transparent";
+				player.style.backgroundImage = `url(../Assets/slider${player1_info.pong_slider}.${expansion})`
+				player.style.backgroundSize = "cover";
+			}	
+		}
+		else if (userInfo.id == player1Id)
+		{
+			if (player2_info.pong_slider != 0)
+			{
+				let expansion = "svg";
+				if (player2_info.pong_slider == 8)
+					expansion = "gif";
+				else if (player2_info.pong_slider == 9)
+					expansion = "webp";
+				const enemy = document.getElementById("enemy");
+				enemy.style.backgroundColor = "transparent";
+				enemy.style.backgroundImage = `url(../Assets/slider${player2_info.pong_slider}.${expansion})`
+				enemy.style.backgroundSize = "cover";
+			}	
 			let checkValue = setInterval(function()
 			{
 				setTimeout(startMovingSquare, 1000);

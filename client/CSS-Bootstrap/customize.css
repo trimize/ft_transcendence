@@ -1,46 +1,3 @@
-html
-{
-    overflow: hidden;
-}
-
-#bg {
-    position: absolute;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(216deg, 
-        #022955, /* Dark Blue */
-        #590261, /* Dark Purple */
-        #720236, /* Dark Red */
-        #6d0202, /* Dark Red */
-        #025702, /* Dark Green */
-        #01492d, /* Forest Green */
-        #01435e, /* Dark Teal */
-        #022955, /* Dark Blue (matches the first color for seamlessness) */
-        #590261  /* Repeat the second color to maintain the gradient flow */
-    );
-    background-size: 1600% 1600%;
-    -webkit-animation: playbackground 45s ease infinite;
-    -moz-animation: playbackground 45s ease infinite;
-    animation: playbackground 45s ease infinite;
-    z-index: -10;
-}
-
-@-webkit-keyframes playbackground {
-    0%{background-position:0% 51%}
-    50%{background-position:100% 50%}
-    100%{background-position:0% 51%}
-}
-@-moz-keyframes playbackground {
-    0%{background-position:0% 51%}
-    50%{background-position:100% 50%}
-    100%{background-position:0% 51%}
-}
-@keyframes playbackground {
-    0%{background-position:0% 51%}
-    50%{background-position:100% 50%}
-    100%{background-position:0% 51%}
-}
-
 #chooseGameCustom {
     display: flex;
     flex-direction: row;
@@ -49,7 +6,6 @@ html
     position: absolute;
     width: 100vw;
     top: 28vh;
-    display: none;
 }
 
 .choiceTitle {
@@ -117,6 +73,9 @@ html
     flex-direction: column;
     cursor: pointer;
     transition: border-color ease 0.3s, border-width ease 0.3s;
+    text-align: center;
+    font-size: 150px;
+    color: aliceblue;
     /*border: 1px solid rgba(145, 145, 145, 0.438);*/
 }
 
@@ -402,3 +361,78 @@ html
     background-color: #ffffff;
     color: black;
 }
+
+.imageSignBox {
+    /* background-image: url('../Assets/slider1.jpg'); */
+    /* background-size: cover; */
+    width: 170px;
+    height: 200px;
+    /* margin-bottom: 50px; */
+}
+
+#customizeContainerttt
+{
+    position: absolute;
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+}
+
+.imageVictoryBox {
+    /* background-image: url('../Assets/slider1.jpg'); */
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 300px;
+    height: 300px;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    /*margin-bottom: 50px;*/
+}
+
+#imageVictory1
+{
+    background-image: url('../Assets/victory1.gif');
+}
+
+#imageVictory2
+{
+    background-image: url('../Assets/victory2.gif');
+}
+
+#imageVictory3
+{
+    background-image: url('../Assets/victory3.webp');
+}
+
+#imageVictory4
+{
+    background-image: url('../Assets/victory4.gif');
+}
+
+#imageVictory5
+{
+    background-image: url('../Assets/victory5.gif');
+}
+
+#imageVictory6
+{
+    background-image: url('../Assets/victory6.gif');
+}
+
+#imageVictory7
+{
+    background-image: url('../Assets/victory7.gif');
+}
+
+#imageVictory8
+{
+    background-image: url('../Assets/victory8.webp');
+}
+
+#imageVictory9
+{
+    background-image: url('../Assets/victory9.gif');
+}
+
