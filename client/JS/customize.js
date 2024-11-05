@@ -199,28 +199,28 @@ function customizeHTML()
         <div class="d-none" id="customizeContainerttt">
             <div class="customForm" id="signCustomForm">
                 <div id="boxSign1" class="boxCustom boxSign box1">
-                    <div class="imageSignBox" id="imageSign1">*</div>
+                    <div class="imageSignBox" id="imageSign1">€</div>
                 </div>
                 <div id="boxSign2" class="boxCustom boxSign box2">
-                    <div class="imageSignBox" id="imageSign2">#</div>
+                    <div class="imageSignBox" id="imageSign2">$</div>
                 </div>
                 <div id="boxSign3" class="boxCustom boxSign box3">
-                    <div class="imageSignBox" id="imageSign3">$</div>
+                    <div class="imageSignBox" id="imageSign3">#</div>
                 </div>
                 <div id="boxSign4" class="boxCustom boxSign box4">
-                    <div class="imageSignBox" id="imageSign4">~</div>
+                    <div class="imageSignBox" id="imageSign4">💀</div>
                 </div>
                 <div id="boxSign5" class="boxCustom boxSign box5">
-                    <div class="imageSignBox" id="imageSign5">|</div>
+                    <div class="imageSignBox" id="imageSign5">🙈</div>
                 </div>
                 <div id="boxSign6" class="boxCustom boxSign box6">
-                    <div class="imageSignBox" id="imageSign6">!</div>
+                    <div class="imageSignBox" id="imageSign6">💃</div>
                 </div>
                 <div id="boxSign7" class="boxCustom boxSign box7">
-                    <div class="imageSignBox" id="imageSign7">?</div>
+                    <div class="imageSignBox" id="imageSign7">🕺</div>
                 </div>
                 <div id="boxSign8" class="boxCustom boxSign box8">
-                    <div class="imageSignBox" id="imageSign8">/</div>
+                    <div class="imageSignBox" id="imageSign8">💩</div>
                 </div>
                 <div id="boxSign9" class="boxCustom boxSign box9">
                     <div class="imageSignBox" id="imageSign9">42</div>
