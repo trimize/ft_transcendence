@@ -124,6 +124,8 @@ class SocketConsumer(AsyncWebsocketConsumer):
 					self.channel_name
 				)
 			elif text_data_json['type'] == 'match_update':
+				print("hey im here")
+				print(text_data_json)
 				match_id = text_data_json.get('matchId')
 				self.room_group_name = f'match_{match_id}'
 				player1 = user_channels.get(str(text_data_json.get('hostId')))
@@ -325,6 +327,61 @@ class SocketConsumer(AsyncWebsocketConsumer):
 				else:
 					print(f"No match found for game {game}")
 					matchmaking.append(text_data_json)
+			elif text_data_json['type'] == 'friendRequest':
+				senderId = str(text_data_json.get('senderId'))
+				receiverId = str(text_data_json.get('receiverId'))
+				receiver_channel_name = user_channels.get(receiverId)
+				if not receiver_channel_name:
+					print(f"Receiver {receiverId} not connected")
+					return
+				message = {
+					'type': 'friendRequest',
+					'senderId': senderId,
+				}
+				await self.channel_layer.send(
+					receiver_channel_name,
+					{
+						'type': 'send_message',
+						'message': message
+					}
+				)
+			elif text_data_json['type'] == 'friendRequestAccepted':
+				senderId = str(text_data_json.get('senderId'))
+				receiverId = str(text_data_json.get('receiverId'))
+				receiver_channel_name = user_channels.get(receiverId)
+				if not receiver_channel_name:
+					print(f"Receiver {receiverId} not connected")
+					return
+				message = {
+					'type': 'friendRequestAccepted',
+					'senderId': senderId,
+				}
+				await self.channel_layer.send(
+					receiver_channel_name,
+					{
+						'type': 'send_message',
+						'message': message
+					}
+				)
+			elif text_data_json['type'] == 'friendRequestRefused':
+				senderId = str(text_data_json.get('senderId'))
+				receiverId = str(text_data_json.get('receiverId'))
+				receiver_channel_name = user_channels.get(receiverId)
+				if not receiver_channel_name:
+					print(f"Receiver {receiverId} not connected")
+					return
+				message = {
+					'type': 'friendRequestRefused',
+					'senderId': senderId,
+				}
+				await self.channel_layer.send(
+					receiver_channel_name,
+					{
+						'type': 'send_message',
+						'message': message
+					}
+				)
+
 
 
 				
