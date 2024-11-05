@@ -224,7 +224,7 @@ export const renderPong = async () =>
 			movingSquare.style.backgroundImage = `url(../Assets/ball${userInfo.pong_ball}.svg)`
 			movingSquare.style.backgroundSize = "cover";
 		}
-		if (userInfo.pong_slider != 0)
+		if (userInfo.pong_slider != 0 && userInfo.id == player1Id)
 		{
 			let expansion = "jpg";
 			if (userInfo.pong_slider == 8)
@@ -235,7 +235,19 @@ export const renderPong = async () =>
 			player.style.backgroundColor = "transparent";
 			player.style.backgroundImage = `url(../Assets/slider${userInfo.pong_slider}.${expansion})`
 			player.style.backgroundSize = "cover";
-		}	
+		}
+		else if (userInfo.pong_slider != 0 && multi_online && userInfo.id == player2Id)
+		{
+			let expansion = "jpg";
+			if (userInfo.pong_slider == 8)
+				expansion = "gif";
+			else if (userInfo.pong_slider == 9)
+				expansion = "webp";
+			const enemy = document.getElementById("enemy");
+			enemy.style.backgroundColor = "transparent";
+			enemy.style.backgroundImage = `url(../Assets/slider${userInfo.pong_slider}.${expansion})`
+			enemy.style.backgroundSize = "cover";
+		}
 	}
 
 	if(!offline && multi_online)
@@ -1179,6 +1191,7 @@ async function handlingSocketEvents()
 			}
 			if (message.finish !== undefined && userInfo.id == player2Id)
 			{
+				console.log('trying to finish game');
 				matchData = await fetchMatch(matchId);
 				document.getElementById('winnerPongPlayer').textContent = matchData.player1_score > matchData.player2_score ? matchData.player1_info.username : matchData.player2_info.username;
 				finish = true;
