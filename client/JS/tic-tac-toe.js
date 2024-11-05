@@ -16,6 +16,8 @@ let player1score = 0;
 let player2score = 0;
 let player1Data;
 let player2Data;
+let player1sign;
+let player2sign;
 
 let matchId;
 let host;
@@ -31,7 +33,7 @@ let player2;
 
 const skins = ['€', '$', '#', '💀', '🙈', '💃', '🕺', '💩', '42'];
 
-const winnerCelebrations = [];
+const winnerCelebrations = ['/media/victory1.gif', '/media/victory2.gif', '/media/victory3.webp', '/media/victory4.gif', '/media/victory5.gif', '/media/victory6.gif', '/media/victory7.gif', '/media/victory8.webp', '/media/victory9.gif'];
 
 const winningCombinations = [
     [0, 1, 2],
@@ -95,13 +97,13 @@ function placeCell(index, value) {
         cell = cell.parentElement;
         backElement = cell.querySelector('.back');
     }
-    backElement.textContent = value;
+    backElement.textContent = value === 'X' ? player1sign : player2sign;
     cell.classList.add('flip');
 
     cell.addEventListener('animationend', () => {
         cell.classList.remove('flip');
         cell.classList.add('cell');
-        frontElement.textContent = value;
+        frontElement.textContent = value === 'X' ? player1sign : player2sign;
         backElement.textContent = '';
         // cell.textContent = backElement.textContent;
     }, { once: true });
@@ -481,6 +483,7 @@ function tttHtml()
 
 export const renderTTT = async () => {
     const urlParams = new URLSearchParams(window.location.search);
+    document.getElementById('content').innerHTML = tttHtml();
     if (urlParams.has('matchId')) {
         socket = await getWebSocket();
         actualUser = await fetchUserData();
@@ -488,7 +491,7 @@ export const renderTTT = async () => {
         matchData = await fetchMatch(matchId);
         if (matchData.end_time != null) {
             alert('This match has already ended!');
-            document.getElementById('content').innerHTML = '';
+            window.location.href = '/';
             return;
         }
         console.log('Match data:');
@@ -508,13 +511,14 @@ export const renderTTT = async () => {
         isOffline = urlParams.get('offline');
         type = urlParams.get('type');
         AIDifficulty = urlParams.get('ai');
+        player1sign = 'X';
+        player2sign = 'O';
     }
 
     if (AIDifficulty == 'easy' || AIDifficulty == 'hard') {
         ai = true;
     }
 
-	document.getElementById('content').innerHTML = tttHtml();
     cells = document.querySelectorAll('.cell');
     player1 = document.getElementById('player1');
     player2 = document.getElementById('player2');
@@ -537,6 +541,8 @@ export const renderTTT = async () => {
             player2Data = actualUser;
         }
 
+        
+        
         player1.textContent = actualUser.id == host ? 'You' : player2Data.username;
         player2.textContent = actualUser.id == invitee ? 'You' : player1Data.username;
     }
@@ -550,9 +556,20 @@ export const renderTTT = async () => {
             cell.addEventListener('dragstart', handleDragStart);
             cell.addEventListener('dragover', handleDragOver);
             cell.addEventListener('drop', handleDrop);
+            if (!isOffline) {
+                player1sign = skins[actualUser.tic_tac_toe_sign - 1];
+                player2sign = 'O';
+            }
         });
     } else {
-
+        if (type == 'online_multiplayer') {
+            player1sign = skins[player1Data.tic_tac_toe_sign - 1];
+            player2sign = skins[player2Data.tic_tac_toe_sign - 1];
+            if (player2sign == player1sign) {
+                player2sign = 'O';
+            }
+        }
+            
         if (!actualUser) {
             alert('You are not logged in!');
             document.getElementById('content').innerHTML = '';
