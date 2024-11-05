@@ -14,7 +14,7 @@ async function populateMatchesHistory(userData) {
     const matches = await fetchMatches('finished');
     const table = document.getElementById('finishedMatches');
     if (matches.length === 0) {
-        table.textContent = '';
+        table.textContent = 'No matches found';
         return;
     }
     matches.forEach(async (match) => {
@@ -53,7 +53,7 @@ async function populateUnfinishedMatches(userData) {
     const matches = await fetchMatches('unfinished');
     const table = document.getElementById('unfinishedMatches');
     if (matches.length === 0) {
-        table.textContent = '';
+        table.textContent = 'No unfinished matches found';
         return;
     }
     matches.forEach(async (match) => {
@@ -81,7 +81,7 @@ async function populateUnfinishedMatches(userData) {
             <p>${myUsername}</p>
             <p>${myScore} - ${opponentScore}</p>
             <p>${opponent}</p>
-            <button class="btn btn-primary" onclick="window.location.href='/${gameUrl}'">Continue</button>
+            <button class="profileButtons historyBtn" onclick="window.location.href='/${gameUrl}'">Continue</button>
         `;
         table.appendChild(element);
     });

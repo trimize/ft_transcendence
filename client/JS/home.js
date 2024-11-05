@@ -2,7 +2,7 @@ import { fetchUserData, fetchMatch, getUser, sendFriendRequest, getFriendNotific
 import { BACKEND_URL,  } from "./appconfig.js";
 import { sendMessage, getWebSocket } from "./singletonSocket.js";
 
-let currentChatUser;
+let currentChatUser = null;
 let actualUser;
 let messages = {};
 let gameChosen;
@@ -1077,8 +1077,9 @@ export const renderBaseHomePage = async () =>
                 }   
             } else if (message.type === 'send_invite' || message.firstInvite == 'true') {
                 console.log('Received game invite:', message);
-                if (!messages[message.hostId]) {
-                    messages[message.hostId] = [];
+                const sender = message.type == 'send_invite' ? message.hostId : message.userId;
+                if (!messages[sender]) {
+                    messages[sender] = [];
                 }
                 if (messages[message.userId])
                 {
