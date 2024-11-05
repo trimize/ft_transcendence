@@ -69,10 +69,10 @@ export const renderPong = async () =>
 	}
 	else
 	{
+		matchId = urlParams.get('matchId');
 		userInfo = await fetchUserData();
 		matchData = await fetchMatch(matchId);
 		socket = await getWebSocket();
-		matchId = urlParams.get('matchId');
 		if (matchData.match_type == "singleplayer")
 			single = true;
 		else if (matchData.match_type == "local_multiplayer")
