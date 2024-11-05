@@ -14,6 +14,8 @@ let matchData;
 
 let player1score = 0;
 let player2score = 0;
+let player1Data;
+let player2Data;
 
 let matchId;
 let host;
@@ -24,7 +26,6 @@ let type;
 let AIDifficulty;
 
 let cells;
-let resetButton;
 let player1;
 let player2;
 
@@ -104,8 +105,34 @@ function placeCell(index, value) {
     gameState[index] = value;
 }
 
-function endGame() {
-    window.location.href = '/';
+function endGame(winner) {
+    const containerElement = document.querySelector('.container');
+
+        // Create overlay div
+        const overlay = document.createElement('div');
+        overlay.classList.add('overlay');
+    
+        // Create modal div
+        const modal = document.createElement('div');
+        modal.classList.add('modalTTT');
+    
+        // Create message
+        const message = document.createElement('p');
+        message.textContent = `${winner} won!`;
+    
+        // Append message to modal
+        modal.appendChild(message);
+    
+        // Append modal to overlay
+        overlay.appendChild(modal);
+    
+        // Append overlay to container
+        containerElement.appendChild(overlay);
+    
+        //Redirect to home after a delay
+        setTimeout(() => {
+            window.location.href = '/';
+        }, 5000); // 5 seconds delay
 }
 
 function checkers(change) {
@@ -140,7 +167,7 @@ function checkers(change) {
         }
 
         if (isEnd) {
-            setTimeout(endGame, 5000);
+            setTimeout(endGame(winner), 2000);
         } else {
             setTimeout(resetGame, 2000);
         }
@@ -334,11 +361,7 @@ function switchCells(currentCellIndex, targetCellIndex) {
 
 function swapCells(index1, index2) {
     const temp = gameState[index2];
-    // gameState[index1] = gameState[index2];
-    // gameState[index2] = temp;
 
-    // cells[index1].textContent = gameState[index1];
-    // cells[index2].textContent = gameState[index2];
     placeCell(index2, gameState[index1]);
     placeCell(index1, temp);
 }
@@ -459,6 +482,11 @@ export const renderTTT = async () => {
         actualUser = await fetchUserData();
         matchId = urlParams.get('matchId');
         matchData = await fetchMatch(matchId);
+        if (matchData.end_time != null) {
+            alert('This match has already ended!');
+            document.getElementById('content').innerHTML = '';
+            return;
+        }
         console.log('Match data:');
         console.log(matchData);
         console.log('Actual user:');
@@ -484,7 +512,6 @@ export const renderTTT = async () => {
 
 	document.getElementById('content').innerHTML = tttHtml();
     cells = document.querySelectorAll('.cell');
-    resetButton = document.getElementById('reset');
     player1 = document.getElementById('player1');
     player2 = document.getElementById('player2');
 
@@ -494,10 +521,20 @@ export const renderTTT = async () => {
     }
 
     if (type == 'singleplayer') {
+        player1.textContent = 'You';
         player2.textContent = 'AI';
     } else if (type == 'online_multiplayer') {
-        player1.textContent = actualUser.id == host ? 'You' : await fetchUserById(host).username;
-        player2.textContent = actualUser.id == invitee ? 'You' : await fetchUserById(invitee).username;
+
+        if (actualUser.id == host) {
+            player1Data = actualUser;
+            player2Data = await fetchUserById(invitee);
+        } else {
+            player1Data = await fetchUserById(host);
+            player2Data = actualUser;
+        }
+
+        player1.textContent = actualUser.id == host ? 'You' : player2Data.username;
+        player2.textContent = actualUser.id == invitee ? 'You' : player1Data.username;
     }
     
     const scoreDiv = document.getElementById('score');

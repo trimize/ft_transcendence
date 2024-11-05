@@ -26,13 +26,22 @@
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    padding: 10px;
+    /* padding: 10px; */
     margin-bottom: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
-	background-color: rgba(0, 0, 0, 0.25); /* Darker black with transparency */
-    color: white; /* Ensure text is readable on dark background */
-	width: 800px;
+    background-color: rgba(0, 0, 0, 0.25);
+    color: white;
+    width: 800px;
+    height: 60px;
+}
+
+button.profileButtons.historyBtn {
+    height: 100%;
+}
+
+.historyBtn:hover {
+    background-color: #3b5b078b;
 }
 
 .unfinishedMatch p, .finishedMatch p {
@@ -41,7 +50,10 @@
     text-align: center;
 }
 
-.unfinishedMatch button, .finishedMatch button {
+.finishedMatch {
+    padding-right: 20px;
+}
+/* .unfinishedMatch button, .finishedMatch button {
     flex: 0 0 auto;
     padding: 5px 10px;
     border: none;
@@ -49,7 +61,7 @@
     background-color: #007bff;
     color: white;
     cursor: pointer;
-}
+} */
 
 .unfinishedMatch button:hover, .finishedMatch button:hover {
     background-color: #0056b3;

@@ -2,7 +2,7 @@ import { fetchUserData, fetchMatch, getUser, sendFriendRequest, getFriendNotific
 import { BACKEND_URL,  } from "./appconfig.js";
 import { sendMessage, getWebSocket } from "./singletonSocket.js";
 
-let currentChatUser;
+let currentChatUser = null;
 let actualUser;
 let messages = {};
 let gameChosen;
@@ -863,7 +863,7 @@ function renderFriendRequestNotif(jsonMessage)
         messageText.textContent = "New friend request!"
         correct.addEventListener('click', () => acceptFriendNotif(jsonMessage.sender));
         cross.addEventListener('click', () => refuseFriendNotif(jsonMessage.sender));
-    } else if (jsonMessage.type == 'send_invite') {
+    } else if (jsonMessage.type == 'send_invite' || (jsonMessage.type == 'waiting_state' && jsonMessage.firstInvite)) {
         console.log('Game invite being rendered:', jsonMessage);
         messageText.textContent = "New game invite!"
         correct.addEventListener('click', () => acceptGameInvite(jsonMessage));
@@ -1021,14 +1021,15 @@ export const renderBaseHomePage = async () =>
                 }   
             } else if (message.type === 'send_invite' || message.firstInvite == 'true') {
                 console.log('Received game invite:', message);
-                if (!messages[message.hostId]) {
-                    messages[message.hostId] = [];
+                const sender = message.type == 'send_invite' ? message.hostId : message.userId;
+                if (!messages[sender]) {
+                    messages[sender] = [];
                 }
-                if (messages[message.userId].some(msg => (msg.type === 'waiting_state' && msg.matchId == message.matchId) || (msg.type === 'send_invite' && msg.matchId == message.matchId))) {
+                if (messages[sender].some(msg => (msg.type == 'waiting_state' && msg.matchId == message.matchId) || (msg.type == 'send_invite' && msg.matchId == message.matchId))) {
                     return;
                 }
-                messages[message.hostId].push(message);
-                if (currentChatUser && message.hostId == currentChatUser.id) {
+                messages[sender].push(message);
+                if (currentChatUser != null && (message.type == 'send_invite' && message.hostId == currentChatUser.id) || (message.type == 'waiting_state' && message.userId == currentChatUser.id)) {
                     renderFriendRequestNotif(message);
                 }
             } else if (message.type === 'waiting_state') {
