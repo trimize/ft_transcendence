@@ -66,6 +66,7 @@ export const renderPong = async () =>
 	multi_online = urlParams.get('type') == 'multiplayer_online' ? true : false;	
 	if (!offline)
 	{
+		socket = await getWebSocket();
 		matchId = urlParams.get('matchId');
 		userInfo = await fetchUserData();
 	}
@@ -281,7 +282,8 @@ export const renderPong = async () =>
 		document.getElementById('enemy_speed').style.display = 'none';
 		document.getElementById('enemy_ball_speed').style.display = 'none';
 	}
-	else if(!offline && multi_online)
+	
+	if(!offline && multi_online)
 	{
 		document.getElementById('pongPlayer1').textContent = player1_info.username;
 		document.getElementById('pongPlayer2').textContent = player2_info.username;
@@ -626,7 +628,7 @@ function handleKeyDown(event)
 	}
 }
 
-function startMovingSquare()
+async function startMovingSquare()
 {
 	const player = document.getElementById("player");
 	const enemy = document.getElementById("enemy");
@@ -663,7 +665,7 @@ function startMovingSquare()
 		}
 		else
 			clearInterval(ballSPeed);
-	}, 10);
+	}, 50);
 
 	// This is making sure the AI has info of the trajectory of the ball only every second
 
@@ -1054,7 +1056,6 @@ async function handlingSocketEvents()
 		powerEnemyBallSpeed.style.backgroundColor = "red";
 		powerEnemyBallSpeed.style.color = "white";
 	}
-	socket = await getWebSocket();
 	socket.addEventListener('message', async function(event)
 	{
 		const message = JSON.parse(event.data);

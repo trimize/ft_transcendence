@@ -124,6 +124,8 @@ class SocketConsumer(AsyncWebsocketConsumer):
 					self.channel_name
 				)
 			elif text_data_json['type'] == 'match_update':
+				print("hey im here")
+				print(text_data_json)
 				match_id = text_data_json.get('matchId')
 				self.room_group_name = f'match_{match_id}'
 				player1 = user_channels.get(str(text_data_json.get('hostId')))
