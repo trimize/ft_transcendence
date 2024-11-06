@@ -41,16 +41,64 @@ let player_used_ball_power = false;
 let player1Id = 0;
 let player2Id;
 let margins;
-let player1Position;
-let player2Position;
-let reset = false;
-let data;
-let hasValue;
 let offline;
 let userInfo;
 let player1_info;
 let player2_info;
 let turn_ball = 1;
+const player1Keys = {};
+const player2Keys = {};
+
+// Key mappings for each player
+const player2KeyMap = {
+    moveUp: 'w',
+    moveDown: 's',
+};
+
+const player1KeyMap = {
+    moveUp: 'ArrowUp',
+    moveDown: 'ArrowDown',
+};
+
+function handlePlayer2Actions() {
+	const player = document.getElementById("player");
+	const enemy = document.getElementById("enemy");
+	const currentTop = parseInt(window.getComputedStyle(player).top, 10);
+	const current2pTop = parseInt(window.getComputedStyle(enemy).top, 10);
+	const parentDiv = player.parentElement;
+	const parentHeight = parentDiv.clientHeight;
+	const rectangleHeight = player.clientHeight;
+	const rectangle2pHeight = enemy.clientHeight;
+
+    // Player 1 actions
+    if (player1Keys[player1KeyMap.moveUp]) {
+        let newTop = currentTop - step;
+		if (newTop < 0)
+			newTop = 0;
+		player.style.top = newTop + "px";
+    }
+    if (player1Keys[player1KeyMap.moveDown]) {
+        let newTop = currentTop + step;
+		if (newTop > parentHeight - rectangleHeight)
+			newTop = parentHeight - rectangleHeight;
+		player.style.top = newTop + "px";
+    }
+
+
+    // Player 2 actions
+    if (player2Keys[player2KeyMap.moveUp]) {
+        let newTop2 = current2pTop - enemy_step;
+		if (newTop2 < 0)
+			newTop2 = 0;
+		enemy.style.top = newTop2 + "px";
+    }
+    if (player2Keys[player2KeyMap.moveDown]) {
+        let newTop2 = current2pTop + enemy_step;
+		if (newTop2 > parentHeight - rectangle2pHeight)
+			newTop2 = parentHeight - rectangle2pHeight;
+		enemy.style.top = newTop2 + "px";
+    }
+}
 
 
 export const renderPong = async () =>
@@ -59,6 +107,7 @@ export const renderPong = async () =>
 	const urlParams = new URLSearchParams(window.location.search);
 	if (!urlParams.has('matchId'))
 	{
+		console.log("it is offline");
 		offline = urlParams.get('offline') == 'true' ? true : false;
 		ball_step = parseInt(urlParams.get('ballSpeed'), 10);
 		power = urlParams.get('powers') == 'true' ? true : false;
@@ -69,6 +118,7 @@ export const renderPong = async () =>
 	}
 	else
 	{
+		console.log("it is online");
 		matchId = urlParams.get('matchId');
 		userInfo = await fetchUserData();
 		matchData = await fetchMatch(matchId);
@@ -85,6 +135,10 @@ export const renderPong = async () =>
 			multi = true;
 		else if (matchData.match_type == "online_multiplayer")
 			multi_online = true;
+		power = matchData.powers;
+		ball_acc = matchData.ball_acc;
+		ball_step = matchData.ball_speed;
+		defaultBallSpeed = ball_step;
 	}
 	if (!offline && multi_online)
 	{
@@ -120,19 +174,29 @@ export const renderPong = async () =>
 			// Arrow up/down for player up/down
 			if ((single || multi))
 			{
-				if (event.key === "ArrowUp")
+				if (multi)
 				{
-					let newTop = currentTop - step;
-					if (newTop < 0)
-						newTop = 0;
-					player.style.top = newTop + "px";
+					if (Object.values(player1KeyMap).includes(event.key)) {
+						player1Keys[event.key] = true;
+					}
 				}
-				else if (event.key === "ArrowDown")
-				{
-					let newTop = currentTop + step;
-					if (newTop > parentHeight - rectangleHeight)
-						newTop = parentHeight - rectangleHeight;
-					player.style.top = newTop + "px";
+				else {
+
+					if (event.key === "ArrowUp")
+					{
+	
+						let newTop = currentTop - step;
+						if (newTop < 0)
+							newTop = 0;
+						player.style.top = newTop + "px";
+					}
+					else if (event.key === "ArrowDown")
+					{
+						let newTop = currentTop + step;
+						if (newTop > parentHeight - rectangleHeight)
+							newTop = parentHeight - rectangleHeight;
+						player.style.top = newTop + "px";
+					}
 				}
 			}
 
@@ -140,20 +204,19 @@ export const renderPong = async () =>
 
 			if (multi)
 			{
-				if (event.key === "w")
-				{
-					let newTop2 = current2pTop - enemy_step;
-					if (newTop2 < 0)
-						newTop2 = 0;
-					enemy.style.top = newTop2 + "px";
+				if (Object.values(player2KeyMap).includes(event.key)) {
+					player2Keys[event.key] = true;
 				}
-				else if (event.key === "s")
-				{
-					let newTop2 = current2pTop + enemy_step;
-					if (newTop2 > parentHeight - rectangle2pHeight)
-						newTop2 = parentHeight - rectangle2pHeight;
-					enemy.style.top = newTop2 + "px";
-				}
+				document.addEventListener('keyup', (event) => {
+					if (Object.values(player1KeyMap).includes(event.key)) {
+						player1Keys[event.key] = false;
+					}
+				
+					if (Object.values(player2KeyMap).includes(event.key)) {
+						player2Keys[event.key] = false;
+					}
+				});
+				handlePlayer2Actions();
 			}
 			else if (multi_online && (event.key === "ArrowUp" || event.key === "ArrowDown"))
 			{
