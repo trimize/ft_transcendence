@@ -248,7 +248,7 @@ class SocketConsumer(AsyncWebsocketConsumer):
 				host_id = str(text_data_json.get('hostId'))
 				if host_id in user_channels:
 					host_channel_name = user_channels.get(host_id)
-					print(f"Sending tournament invite response to user {host_id} on channel {host_channel_name}")
+					print(f"Sending tournament invite to user {host_id} on channel {host_channel_name}")
 					await self.channel_layer.send(
 						host_channel_name,
 						{
@@ -258,32 +258,40 @@ class SocketConsumer(AsyncWebsocketConsumer):
 					)
 				else:
 					print(f"User {host_id} is not connected")
-
-			elif text_data_json['type'] == 'tournament_invite_accepted':
-				tournament_id = text_data_json.get('tournamentId')
+			elif text_data_json['type'] == 'tournament_update':
+				tournament_id = str(text_data_json.get('id'))
+				self.room_group_name = f'tournament_{tournament_id}'
+				player1 = user_channels.get(str(text_data_json.get('player1')))
+				player2 = user_channels.get(str(text_data_json.get('player2')))
+				player3 = user_channels.get(str(text_data_json.get('player3')))
+				player4 = user_channels.get(str(text_data_json.get('player4')))
 				if not tournament_id:
 					print("Tournament ID not provided")
 					return
-				players = [
-					text_data_json.get('player1'),
-					text_data_json.get('player2'),
-					text_data_json.get('player3'),
-					text_data_json.get('player4')
-				]
-				for player in players:
-					if player:
-						user_group_name = f'user_{player}'
-						await self.channel_layer.group_add(
-							user_group_name,
-							self.channel_name
-						)
-						await self.channel_layer.group_send(
-							user_group_name,
-							{
-								'type': 'send_message',
-								'message': text_data_json
-							}
-						)
+				await self.channel_layer.group_add(
+					self.room_group_name,
+					player1,
+				)
+				await self.channel_layer.group_add(
+					self.room_group_name,
+					player2,
+				)
+				await self.channel_layer.group_add(
+					self.room_group_name,
+					player3,
+				)
+				await self.channel_layer.group_add(
+					self.room_group_name,
+					player4,
+				)
+
+				await self.channel_layer.group_send(
+					user_group_name,
+					{
+						'type': 'send_message',
+						'message': text_data_json
+					}
+				)
 			elif text_data_json['type'] == 'waiting_state':
 				opponent_id = str(text_data_json.get('opponentId'))
 				match_id = text_data_json.get('matchId')

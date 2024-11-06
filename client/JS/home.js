@@ -898,27 +898,26 @@ function renderFriendRequestNotif(jsonMessage)
         params.append('tournamentId', jsonMessage.tournamentId);
         params.append('game', jsonMessage.game);
         correct.addEventListener('click', async () => {
-            sendMessage({type: 'tournament_invite_response', tournamentId: jsonMessage.tournamentId, status: 'accepted', hostId: jsonMessage.hostId, inviteeId: actualUser.id, inviteeName: actualUser.username});
             const tournamentData = await getTournamentById(jsonMessage.tournamentId);
             if (!tournamentData.player2) {
-                await updateTournament({tournamentId: jsonMessage.tournamentId, player2: actualUser.id});
+                sendMessage({type: 'tournament_invite_response', status: 'accepted', inviteeId: actualUser.id, hostId: jsonMessage.hostId});
                 window.location.href = `/tournament?${params.toString()}`;
             }
-            if (tournamentData.player1 && tournamentData.player2 && !tournamentData.player3) {
-            await updateTournament({tournamentId: jsonMessage.tournamentId, player3: actualUser.id});
-            window.location.href = `/tournament?${params.toString()}`
+            // if (tournamentData.player1 && tournamentData.player2 && !tournamentData.player3) {
+            // sendMessage({...tournamentData, type: 'tournament_invite_response', status: 'accepted'});
+            // window.location.href = `/tournament?${params.toString()}`
+            // }
+            // if (tournamentData.player1 && tournamentData.player2 && tournamentData.player3 && !tournamentData.player4) {
+            //     await updateTournament({tournamentId: jsonMessage.tournamentId, player4: actualUser.id});
+            //     sendMessage({...tournamentData, type: 'tournament_invite_response', status: 'accepted'});
+            //     window.location.href = `/tournament?${params.toString()}`;
+            //     }
             }
-            if (tournamentData.player1 && tournamentData.player2 && tournamentData.player3 && !tournamentData.player4) {
-                await updateTournament({tournamentId: jsonMessage.tournamentId, player4: actualUser.id});
-                window.location.href = `/tournament?${params.toString()}`;
-                }
-            })
+        )
         cross.addEventListener('click', () => {
             sendMessage({type: 'tournament_invite_response', tournamentId: jsonMessage.tournamentId, status: 'declined', hostId: jsonMessage.hostId, inviteeId: actualUser.id, inviteeName: actualUser.username});
         });
     }
-
-    // showChat();
 }
 async function acceptGameInvite(jsonMessage) {
     console.log('Accepting game invite:', jsonMessage);
