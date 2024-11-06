@@ -73,7 +73,11 @@ export const renderPong = async () =>
 		userInfo = await fetchUserData();
 		matchData = await fetchMatch(matchId);
 		if (matchData.end_time != null)
-			window.location = "/";
+		{
+			const errorParam = new URLSearchParams();
+			errorParam.append('alert', 'match_finished');
+			window.location = `/?${lobbyParams.toString()}`;
+		}
 		socket = await getWebSocket();
 		if (matchData.match_type == "singleplayer")
 			single = true;

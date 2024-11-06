@@ -592,3 +592,22 @@ input:checked + .slider:before
 {
     cursor: auto;
 }
+
+.errorMessage
+{
+    opacity: 0;
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(122, 29, 99, 0.356);
+    backdrop-filter: blur(10px);
+    font-family: 'Roboto condensed';
+    font-size: 50px;
+    color: red;
+}

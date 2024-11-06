@@ -1044,6 +1044,7 @@ export const renderBaseHomePage = async () =>
     {
         offline = false;
         document.getElementById('content').innerHTML = renderBaseHomeConnected();
+        renderError();
         actualUser = await fetchUserData();
         const friends = await getFriends();
         const friendNotifications = await getFriendNotifications();
@@ -1119,8 +1120,50 @@ export const renderBaseHomePage = async () =>
     else
     {
         document.getElementById('content').innerHTML = renderBaseHomeBlock();
+        renderError();
         offline = true;
         addEventListeners();
     }
     
+}
+
+function renderError()
+{
+    const urlParams = new URLSearchParams(window.location.search);
+    console.log(window.location.search);
+    console.log("trying to alert");
+    if (urlParams.has('alert'))
+    {
+        if (urlParams.get('alert') == "match_finished")
+        {
+            console.log("Found alert");
+            console.log("This is the correct alert message");
+            const content = document.getElementById('content');
+            const errorDiv = document.createElement('div');
+            errorDiv.classList.add("errorMessage");
+            if (urlParams.get('alert') == "match_finished")
+                errorDiv.textContent = "Match has already ended"; 
+            content.append(errorDiv);
+            let opacity = 0;
+            const interval = setInterval(() =>
+            {
+                opacity += 0.08;
+                errorDiv.style.opacity = `${opacity}`;
+                if (opacity >= 1)
+                    clearInterval(interval);
+            }, 50);
+            setTimeout(() => {
+                const interval = setInterval(() =>
+                {
+                    opacity -= 0.08;
+                    errorDiv.style.opacity = `${opacity}`;
+                    if (opacity <= 0)
+                    {
+                        errorDiv.style.display = "none"
+                        clearInterval(interval);
+                    }
+                }, 50);
+            }, 2000);
+        }
+    }
 }

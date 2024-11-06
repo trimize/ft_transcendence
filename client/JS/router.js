@@ -48,9 +48,10 @@ const router = () => {
 
 // Function to handle button clicks and update history
 const navigate = (page) => {
-    history.pushState(null, '', `/${page}`); // Update the URL without a hash
+    const query = window.location.search; // Keep existing query parameters
+    history.pushState(null, '', `/${page}${query}`);
     console.log('Going here');
-    router();                                // Call the router to render the page
+    router();
 };
 
 // Event listeners for button clicks
