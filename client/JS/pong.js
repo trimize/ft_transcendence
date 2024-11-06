@@ -139,6 +139,8 @@ export const renderPong = async () =>
 		ball_acc = matchData.ball_acc;
 		ball_step = matchData.ball_speed;
 		defaultBallSpeed = ball_step;
+		score_player = matchData.player1_score;
+		score_enemy = matchData.player2_score;
 	}
 	if (!offline && multi_online)
 	{

@@ -126,11 +126,11 @@ const matchHistoryHTML = () => {
       <a id="backButtonEdit" href="/profile"></a>
                   <h1 class="text-center mt-5">Match History</h1>
                   <div class="allMatches">
+                        <h2>Unfinished Matches</h2>
                         <div class="unfinishedMatches" id="unfinishedMatches">
-                            <h2>Unfinished Matches</h2>
                         </div>
+                        <h2>Finished Matches</h2>
                         <div class="finishedMatches" id="finishedMatches">
-                            <h2>Finished Matches</h2>
                         </div>
                   </div>
               </div><div id="bg"></div>`;
