@@ -6,12 +6,13 @@ let accepted = false;
 let declined = false;
 let tournamentId;
 let tournamentData;
-let player1;
-let player2;
-let player3;
-let player4;
+let player1 = null;
+let player2 = null;
+let player3 = null;
+let player4 = null;
 let user;
-const players = [player1, player2, player3, player4];
+let players = [];
+let match_id;
 
 const params = new URLSearchParams(window.location.search);
 
@@ -28,7 +29,7 @@ async function sendData()
 				player3 = await fetchUserById(tournamentData.player3);
 			if (tournamentData.player4)
 				player4 = await fetchUserById(tournamentData.player4);
-			console.log('Sending tournament update');
+			players = [player1, player2, player3, player4];
 			sendMessage({...tournamentData, type: "tournament_update"});
 		}
 	}, 1000);
@@ -187,63 +188,62 @@ const addEventListeners = async () => {
     
 }
 
-const createGameInTournament = async (player1, player2) => {
+const createGameInTournament = async (game_player1, game_player2) => {
 	let game = params.get('game');
-	let match_id;
+	let body;
 	if (game == "pong")
 	{
-		match_id = await createGame({
-			"player1": player1,
-			"player2": player2,
+		body = {
+			"player1": game_player1,
+			"player2": game_player2,
 			"game": "pong",
-			"powers": params.get('powers'),
+			"powers": params.get('powers') == 'true' ? true : false,
 			"match_type": "online_multiplayer",
-			"powers": params.get('powers'),
-			"ball_speed": params.get('ballSpeed'),
-			"ball_acc": params.get('ballAcc')
-		});
+			"ball_speed": parseInt(params.get('ballSpeed'), 10),
+			"ball_acc": params.get('ballAcc') == 'true' ? true : false
+		};
 	}
 	else if (game == "tic-tac-toe") {
-		match_id = await createGame({
-			"player1": player1,
-			"player2": player2,
-			"game": "ttt",
+		body = {
+			"player1": game_player1,
+			"player2": game_player2,
+			"game": "tic_tac_toe",
 			"match_type": "online_multiplayer",
-			"powers": params.get('powers')
-		});
-
+			"powers": params.get('powers') == 'true' ? true : false
+		};
 	}
-	return match_id;
+	match_id = await createGame(body);
 }
 	
 
-const renderPlayButton = async (player1, player2) => {
-	const match_id = await createGameInTournament(player1.id, player2.id);
-			const matchParams = new URLSearchParams();
-			matchParams.append('game', params.get('game'));
-			matchParams.append('matchId', match_id);
-			matchParams.append('powers', params.get('powers'));
-			if (params.get('game') == "pong")
-			{
-				matchParams.append('ballSpeed', params.get('ballSpeed'));
-				matchParams.append('ballAcc', params.get('ballAcc'));
-			}
-            window.location.href = `/lobby?${matchParams.toString()}`;
+const renderPlayButton = async (game_player1, game_player2) => {
+	await createGameInTournament(game_player1, game_player2);
+	const matchParams = new URLSearchParams();
+	matchParams.append('game', params.get('game'));
+	matchParams.append('matchId', match_id);
+	matchParams.append('powers', params.get('powers'));
+	if (params.get('game') == "pong")
+	{
+		matchParams.append('ballSpeed', params.get('ballSpeed'));
+		matchParams.append('ballAcc', params.get('ballAcc'));
+	}
+	window.location.href = `/lobby?${matchParams.toString()}`;
 
 }
+
 const renderPlayButtons = async () => {
 	const playButtonMatch1 = document.getElementById('playButtonMatch1');
     const playButtonMatch2 = document.getElementById('playButtonMatch2');
-    if (playButtonMatch1) {
+    if (user.id == player1.id || user.id == player2.id) {
         playButtonMatch1.style.display = 'block';
         playButtonMatch1.addEventListener('click', async () => {
-			renderPlayButton(player1, player2);
+			renderPlayButton(player1.id, player2.id);
         });
     }
-	if (playButtonMatch2) {
+	else if (user.id == player3.id || user.id == player4.id) {
 		playButtonMatch2.style.display = 'block';
 		playButtonMatch2.addEventListener('click', async () => {
-			renderPlayButton(player3, player4);
+			renderPlayButton(player3.id, player4.id);
 		})}
 }    
 
@@ -256,17 +256,16 @@ const getPlayers = async () => {
 	}
 	return players;
 }
+
 const receiveInfoFromSocket = (socket) => {
 	socket.addEventListener('message', async (event) => {
         const msg = JSON.parse(event.data);
-        console.log('Message received:', msg);
+        //console.log('Message received:', msg);
 		if (msg.type === 'tournament_invite_response' ) {
-			console.log('Invitation response received:', msg);
+			//console.log('Invitation response received:', msg);
 			if (msg.status == 'accepted' && user.id == tournamentData.player1) {
 				if (tournamentData.player2 == null)
-				{
 					tournamentData = await updateTournament({id: tournamentId, player2: msg.inviteeId});
-				}
 				else if (tournamentData.player3 == null)
 					tournamentData = await updateTournament({id: tournamentId, player3: msg.inviteeId});
 				else if (tournamentData.player4 == null)
@@ -279,28 +278,28 @@ const receiveInfoFromSocket = (socket) => {
 				return;
 			}
 		} else if (msg.type === 'tournament_update') {
-			console.log('Tournament update received:', msg);
-			// if (user.id != msg.player1) {
-			// 	// delete msg.type;
-			// 	console.log('HHELLO')
-			// 	tournamentData = msg;
-			// 	if (tournamentData.player1)
-			// 		player1 = await fetchUserById(tournamentData.player1);
-			// 	if (tournamentData.player2)
-			// 		player2 = await fetchUserById(tournamentData.player2);
-			// 	if (tournamentData.player3)
-			// 		player3 = await fetchUserById(tournamentData.player3);
-			// 	if (tournamentData.player4)
-			// 		player4 = await fetchUserById(tournamentData.player4);
-			// }
+			//console.log('Tournament update received:', msg);
+			if (user.id != msg.player1) {
+				delete msg.type;
+			 	console.log('Receiving the update');
+			 	tournamentData = msg;
+			 	if (tournamentData.player1)
+					player1 = await fetchUserById(tournamentData.player1);
+			 	if (tournamentData.player2)
+					player2 = await fetchUserById(tournamentData.player2);
+			 	if (tournamentData.player3)
+			 		player3 = await fetchUserById(tournamentData.player3);
+			 	if (tournamentData.player4)
+			 		player4 = await fetchUserById(tournamentData.player4);
+			}
 			const playerElements = document.querySelectorAll('.player-name');
+			players = [player1, player2, player3, player4];
             for (let i = 0; i < players.length; i++) {
                 if (players[i] && playerElements[i].textContent === `Player ${i + 1}`) {
+					console.log("trying to change the name");
                     playerElements[i].textContent = players[i].username;
                 }
             }
-			// if (player1 && player2 && player3 && player4)
-            // 	renderPlayButtons();
 		}
     });
 }
@@ -327,5 +326,15 @@ export const renderTournament = async () => {
 	if (user.id == tournamentData.player1) {
 		sendData();
 	}
+
+	const showButtons = setInterval(() => 
+	{
+		if (player1 && player2 && player3 && player4)
+		{
+			clearInterval(showButtons);
+			renderPlayButtons();
+		}
+	}, 1000);
+
 	receiveInfoFromSocket(socket);
 }

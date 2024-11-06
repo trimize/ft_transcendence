@@ -903,22 +903,21 @@ function renderFriendRequestNotif(jsonMessage)
                 sendMessage({type: 'tournament_invite_response', status: 'accepted', inviteeId: actualUser.id, hostId: jsonMessage.hostId});
                 window.location.href = `/tournament?${params.toString()}`;
             }
-            // if (tournamentData.player1 && tournamentData.player2 && !tournamentData.player3) {
-            // sendMessage({...tournamentData, type: 'tournament_invite_response', status: 'accepted'});
-            // window.location.href = `/tournament?${params.toString()}`
-            // }
-            // if (tournamentData.player1 && tournamentData.player2 && tournamentData.player3 && !tournamentData.player4) {
-            //     await updateTournament({tournamentId: jsonMessage.tournamentId, player4: actualUser.id});
-            //     sendMessage({...tournamentData, type: 'tournament_invite_response', status: 'accepted'});
-            //     window.location.href = `/tournament?${params.toString()}`;
-            //     }
+            else if (!tournamentData.player3) {
+                sendMessage({type: 'tournament_invite_response', status: 'accepted', inviteeId: actualUser.id, hostId: jsonMessage.hostId});
+                window.location.href = `/tournament?${params.toString()}`;
             }
-        )
+            else if (!tournamentData.player4) {
+                sendMessage({type: 'tournament_invite_response', status: 'accepted', inviteeId: actualUser.id, hostId: jsonMessage.hostId});
+                window.location.href = `/tournament?${params.toString()}`;
+            }
+        });
         cross.addEventListener('click', () => {
             sendMessage({type: 'tournament_invite_response', tournamentId: jsonMessage.tournamentId, status: 'declined', hostId: jsonMessage.hostId, inviteeId: actualUser.id, inviteeName: actualUser.username});
         });
     }
 }
+
 async function acceptGameInvite(jsonMessage) {
     console.log('Accepting game invite:', jsonMessage);
     const matchData = await fetchMatch(jsonMessage.matchId);

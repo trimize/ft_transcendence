@@ -143,8 +143,7 @@
     top: 120px;
 }
 
-#playButtonMatch1
-{
+#playButtonMatch1 {
     position: absolute;
     top: 200px;
     left: 47px;
@@ -153,6 +152,9 @@
     transition: background-color ease 0.3s;
     color: aliceblue;
     width: 60px;
+    text-align: center;
+    padding: 0;
+    height: 45px;
 }
 
 #playButtonMatch1:hover
@@ -199,6 +201,9 @@
     transition: background-color ease 0.3s;
     color: aliceblue;
     width: 60px;
+    text-align: center;
+    padding: 0;
+    height: 45px;
 }
 
 #playButtonMatch2:hover
@@ -340,6 +345,9 @@
     transition: background-color ease 0.3s;
     color: aliceblue;
     width: 60px;
+    text-align: center;
+    padding: 0;
+    height: 45px;
 }
 
 #playButtonMatchV1:hover
@@ -356,7 +364,11 @@
     transition: background-color ease 0.3s;
     color: aliceblue;
     width: 60px;
+    text-align: center;
+    padding: 0;
+    height: 45px;
 }
+
 #playButtonLooserMatch:hover
 {
     background-color: rgba(189, 191, 192, 0.452);
