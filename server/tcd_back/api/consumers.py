@@ -268,25 +268,14 @@ class SocketConsumer(AsyncWebsocketConsumer):
 				if not tournament_id:
 					print("Tournament ID not provided")
 					return
-				await self.channel_layer.group_add(
-					self.room_group_name,
-					player1,
-				)
-				await self.channel_layer.group_add(
-					self.room_group_name,
-					player2,
-				)
-				await self.channel_layer.group_add(
-					self.room_group_name,
-					player3,
-				)
-				await self.channel_layer.group_add(
-					self.room_group_name,
-					player4,
-				)
+				players = [player1, player2, player3, player4]
+				for player in players:
+					if player is not None:
+						await self.channel_layer.group_add(self.room_group_name, player)
+
 
 				await self.channel_layer.group_send(
-					user_group_name,
+					self.room_group_name,
 					{
 						'type': 'send_message',
 						'message': text_data_json
