@@ -11,7 +11,7 @@
 {
     height: 500px;
     width: 500px;
-    background-image: url('../Assets/default_user.jpg');
+    /* background-image: url('../Assets/default_user.jpg'); */
     background-size: contain;
     border-radius: 40%;
 }
@@ -128,12 +128,11 @@
     width: 150px;
 }
 
-#editBtn
-{
+#editBtn {
     position: absolute;
-    left: 150px;
+    left: 50px;
     bottom: 50px;
-    width: 80px;
+    width: 130px;
     height: 40px;
 }
 
@@ -160,15 +159,21 @@
     background-color: rgba(255, 0, 0, 0.555);
 }
 
-#logoutBtn
-{
+#logoutBtn {
     position: absolute;
     bottom: 50px;
-    left: 350px;
+    left: 445px;
     width: 100px;
     height: 40px;
 }
 
+#customizeBtn {
+    position: absolute;
+    bottom: 50px;
+    left: calc(((100%) / 2) - 85px);
+    width: 190px;
+    height: 40px;
+}
 #matchDivProfile
 {
     position: absolute;

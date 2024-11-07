@@ -8,6 +8,7 @@ import { renderPong } from "./pong.js"
 import { getWebSocket } from "./singletonSocket.js";
 import { renderTournament } from "./tournament.js";
 import { renderMatchHistory } from "./matchHistory.js";
+import { renderCustomize } from "./customize.js"
 
 const router = () => {
     const path = window.location.pathname.replace('/', '');
@@ -34,6 +35,9 @@ const router = () => {
         case 'pong':
             renderPong();
             break;
+        case 'customize':
+            renderCustomize();
+            break;
         case '/':
             renderBaseHomePage();
             break;
@@ -48,8 +52,10 @@ const router = () => {
 
 // Function to handle button clicks and update history
 const navigate = (page) => {
-    history.pushState(null, '', `/${page}`); // Update the URL without a hash
-    router();                                // Call the router to render the page
+    const query = window.location.search; // Keep existing query parameters
+    history.pushState(null, '', `/${page}${query}`);
+    console.log('Going here');
+    router();
 };
 
 // Event listeners for button clicks

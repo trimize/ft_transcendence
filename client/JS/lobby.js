@@ -75,6 +75,11 @@ export async function renderLobby()
 	
 	if (!matchmaking) {
 		matchData = await fetchMatch(urlParams.get('matchId'));
+		if (matchData.end_time != null) {
+			const homeParams = new URLSearchParams();
+			homeParams.append('alert', 'match_finished');
+			window.location.href = `/?${homeParams.toString()}`;
+		}
 		player2 = await fetchUserById(urlParams.get('invitee'));
 		player2UsernameDiv.textContent = player2.username;
 		player2PfpDiv.style.backgroundImage = `url(${BACKEND_URL}${player2.profile_pic})`;

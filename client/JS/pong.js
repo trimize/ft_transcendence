@@ -41,51 +41,119 @@ let player_used_ball_power = false;
 let player1Id = 0;
 let player2Id;
 let margins;
-let player1Position;
-let player2Position;
-let reset = false;
-let data;
-let hasValue;
 let offline;
 let userInfo;
 let player1_info;
 let player2_info;
 let turn_ball = 1;
+const player1Keys = {};
+const player2Keys = {};
+
+// Key mappings for each player
+const player2KeyMap = {
+    moveUp: 'w',
+    moveDown: 's',
+};
+
+const player1KeyMap = {
+    moveUp: 'ArrowUp',
+    moveDown: 'ArrowDown',
+};
+
+function handlePlayer2Actions() {
+	const player = document.getElementById("player");
+	const enemy = document.getElementById("enemy");
+	const currentTop = parseInt(window.getComputedStyle(player).top, 10);
+	const current2pTop = parseInt(window.getComputedStyle(enemy).top, 10);
+	const parentDiv = player.parentElement;
+	const parentHeight = parentDiv.clientHeight;
+	const rectangleHeight = player.clientHeight;
+	const rectangle2pHeight = enemy.clientHeight;
+
+    // Player 1 actions
+    if (player1Keys[player1KeyMap.moveUp]) {
+        let newTop = currentTop - step;
+		if (newTop < 0)
+			newTop = 0;
+		player.style.top = newTop + "px";
+    }
+    if (player1Keys[player1KeyMap.moveDown]) {
+        let newTop = currentTop + step;
+		if (newTop > parentHeight - rectangleHeight)
+			newTop = parentHeight - rectangleHeight;
+		player.style.top = newTop + "px";
+    }
+
+
+    // Player 2 actions
+    if (player2Keys[player2KeyMap.moveUp]) {
+        let newTop2 = current2pTop - enemy_step;
+		if (newTop2 < 0)
+			newTop2 = 0;
+		enemy.style.top = newTop2 + "px";
+    }
+    if (player2Keys[player2KeyMap.moveDown]) {
+        let newTop2 = current2pTop + enemy_step;
+		if (newTop2 > parentHeight - rectangle2pHeight)
+			newTop2 = parentHeight - rectangle2pHeight;
+		enemy.style.top = newTop2 + "px";
+    }
+}
 
 
 export const renderPong = async () =>
 {
+	document.getElementById('content').innerHTML = pongHTML();
 	const urlParams = new URLSearchParams(window.location.search);
-	offline = urlParams.get('offline') == 'true' ? true : false;
-	ball_step = parseInt(urlParams.get('ballSpeed'), 10);
-	power = urlParams.get('powers') == 'true' ? true : false;
-	ball_acc = urlParams.get('ballAcc') == 'true' ? true : false;
-	defaultBallSpeed = parseInt(urlParams.get('ballSpeed'), 10);
-	multi = urlParams.get('type') == 'local_multiplayer' ? true : false;
-	single = urlParams.get('type') == 'singleplayer' ? true : false;
-	multi_online = urlParams.get('type') == 'multiplayer_online' ? true : false;	
-	if (!offline)
+	if (!urlParams.has('matchId'))
 	{
+		console.log("it is offline");
+		offline = urlParams.get('offline') == 'true' ? true : false;
+		ball_step = parseInt(urlParams.get('ballSpeed'), 10);
+		power = urlParams.get('powers') == 'true' ? true : false;
+		ball_acc = urlParams.get('ballAcc') == 'true' ? true : false;
+		defaultBallSpeed = parseInt(urlParams.get('ballSpeed'), 10);
+		multi = urlParams.get('type') == 'local_multiplayer' ? true : false;
+		single = urlParams.get('type') == 'singleplayer' ? true : false;
+	}
+	else
+	{
+		console.log("it is online");
 		matchId = urlParams.get('matchId');
 		userInfo = await fetchUserData();
+		matchData = await fetchMatch(matchId);
+		if (matchData.end_time != null)
+		{
+			const errorParam = new URLSearchParams();
+			errorParam.append('alert', 'match_finished');
+			window.location = `/?${lobbyParams.toString()}`;
+		}
+		socket = await getWebSocket();
+		if (matchData.match_type == "singleplayer")
+			single = true;
+		else if (matchData.match_type == "local_multiplayer")
+			multi = true;
+		else if (matchData.match_type == "online_multiplayer")
+			multi_online = true;
+		power = matchData.powers;
+		ball_acc = matchData.ball_acc;
+		ball_step = matchData.ball_speed;
+		defaultBallSpeed = ball_step;
+		score_player = matchData.player1_score;
+		score_enemy = matchData.player2_score;
 	}
 	if (!offline && multi_online)
 	{
-		player1Id = urlParams.get('host');
-		player2Id = urlParams.get('invitee');
+		player1Id = matchData.player1;
+		player2Id = matchData.player2;
 		player1_info = await fetchUserById(player1Id);
 		player2_info = await fetchUserById(player2Id);
-		matchData = await fetchMatch(matchId);
-		console.log(matchData);
 		ball_step = parseInt(matchData.ball_speed, 10);
 		defaultBallSpeed = ball_step;
 		ball_acc = matchData.ball_acc;
 		power = matchData.powers;
-		console.log("this is power" + power);
-		console.log("this is ball_acc" + ball_acc);
 	}
 
-	document.getElementById('content').innerHTML = pongHTML();
 	const contentArea = document.getElementById('contentArea');
 	const computedStyle = getComputedStyle(contentArea);
 	const leftValue = computedStyle.left;
@@ -108,19 +176,29 @@ export const renderPong = async () =>
 			// Arrow up/down for player up/down
 			if ((single || multi))
 			{
-				if (event.key === "ArrowUp")
+				if (multi)
 				{
-					let newTop = currentTop - step;
-					if (newTop < 0)
-						newTop = 0;
-					player.style.top = newTop + "px";
+					if (Object.values(player1KeyMap).includes(event.key)) {
+						player1Keys[event.key] = true;
+					}
 				}
-				else if (event.key === "ArrowDown")
-				{
-					let newTop = currentTop + step;
-					if (newTop > parentHeight - rectangleHeight)
-						newTop = parentHeight - rectangleHeight;
-					player.style.top = newTop + "px";
+				else {
+
+					if (event.key === "ArrowUp")
+					{
+	
+						let newTop = currentTop - step;
+						if (newTop < 0)
+							newTop = 0;
+						player.style.top = newTop + "px";
+					}
+					else if (event.key === "ArrowDown")
+					{
+						let newTop = currentTop + step;
+						if (newTop > parentHeight - rectangleHeight)
+							newTop = parentHeight - rectangleHeight;
+						player.style.top = newTop + "px";
+					}
 				}
 			}
 
@@ -128,20 +206,19 @@ export const renderPong = async () =>
 
 			if (multi)
 			{
-				if (event.key === "w")
-				{
-					let newTop2 = current2pTop - enemy_step;
-					if (newTop2 < 0)
-						newTop2 = 0;
-					enemy.style.top = newTop2 + "px";
+				if (Object.values(player2KeyMap).includes(event.key)) {
+					player2Keys[event.key] = true;
 				}
-				else if (event.key === "s")
-				{
-					let newTop2 = current2pTop + enemy_step;
-					if (newTop2 > parentHeight - rectangle2pHeight)
-						newTop2 = parentHeight - rectangle2pHeight;
-					enemy.style.top = newTop2 + "px";
-				}
+				document.addEventListener('keyup', (event) => {
+					if (Object.values(player1KeyMap).includes(event.key)) {
+						player1Keys[event.key] = false;
+					}
+				
+					if (Object.values(player2KeyMap).includes(event.key)) {
+						player2Keys[event.key] = false;
+					}
+				});
+				handlePlayer2Actions();
 			}
 			else if (multi_online && (event.key === "ArrowUp" || event.key === "ArrowDown"))
 			{
@@ -209,10 +286,72 @@ export const renderPong = async () =>
 		}, 100);
 	}
 
+	if (!offline)
+	{
+		if (userInfo.pong_ball != 0)
+		{
+			const movingSquare = document.getElementById("moving-square");
+			movingSquare.style.backgroundColor = "transparent";
+			movingSquare.style.backgroundImage = `url(../Assets/ball${userInfo.pong_ball}.svg)`
+			movingSquare.style.backgroundSize = "cover";
+		}
+		if (userInfo.pong_slider != 0 && userInfo.id == player1Id)
+		{
+			let expansion = "jpg";
+			if (userInfo.pong_slider == 8)
+				expansion = "gif";
+			else if (userInfo.pong_slider == 9)
+				expansion = "webp";
+			const player = document.getElementById("player");
+			player.style.backgroundColor = "transparent";
+			player.style.backgroundImage = `url(../Assets/slider${userInfo.pong_slider}.${expansion})`
+			player.style.backgroundSize = "cover";
+		}
+		else if (userInfo.pong_slider != 0 && multi_online && userInfo.id == player2Id)
+		{
+			let expansion = "jpg";
+			if (userInfo.pong_slider == 8)
+				expansion = "gif";
+			else if (userInfo.pong_slider == 9)
+				expansion = "webp";
+			const enemy = document.getElementById("enemy");
+			enemy.style.backgroundColor = "transparent";
+			enemy.style.backgroundImage = `url(../Assets/slider${userInfo.pong_slider}.${expansion})`
+			enemy.style.backgroundSize = "cover";
+		}
+	}
+
 	if(!offline && multi_online)
 	{
-		if (userInfo.id == player1Id)
+		if (userInfo.id == player2Id)
 		{
+			if (player1_info.pong_slider != 0)
+			{
+				let expansion = "jpg";
+				if (player1_info.pong_slider == 8)
+					expansion = "gif";
+				else if (player1_info.pong_slider == 9)
+					expansion = "webp";
+				const player = document.getElementById("player");
+				player.style.backgroundColor = "transparent";
+				player.style.backgroundImage = `url(../Assets/slider${player1_info.pong_slider}.${expansion})`
+				player.style.backgroundSize = "cover";
+			}	
+		}
+		else if (userInfo.id == player1Id)
+		{
+			if (player2_info.pong_slider != 0)
+			{
+				let expansion = "jpg";
+				if (player2_info.pong_slider == 8)
+					expansion = "gif";
+				else if (player2_info.pong_slider == 9)
+					expansion = "webp";
+				const enemy = document.getElementById("enemy");
+				enemy.style.backgroundColor = "transparent";
+				enemy.style.backgroundImage = `url(../Assets/slider${player2_info.pong_slider}.${expansion})`
+				enemy.style.backgroundSize = "cover";
+			}	
 			let checkValue = setInterval(function()
 			{
 				setTimeout(startMovingSquare, 1000);
@@ -231,7 +370,8 @@ export const renderPong = async () =>
 		document.getElementById('enemy_speed').style.display = 'none';
 		document.getElementById('enemy_ball_speed').style.display = 'none';
 	}
-	else if(!offline && multi_online)
+	
+	if(!offline && multi_online)
 	{
 		document.getElementById('pongPlayer1').textContent = player1_info.username;
 		document.getElementById('pongPlayer2').textContent = player2_info.username;
@@ -576,7 +716,7 @@ function handleKeyDown(event)
 	}
 }
 
-function startMovingSquare()
+async function startMovingSquare()
 {
 	const player = document.getElementById("player");
 	const enemy = document.getElementById("enemy");
@@ -586,7 +726,13 @@ function startMovingSquare()
 	const contentArea = player.parentElement;
 
 	let bounce_bool = true;
-	document.getElementById("score").textContent = score_player + " : " + score_enemy;
+	if (offline)
+		document.getElementById("score").textContent = score_player + " : " + score_enemy;
+	else
+	{
+		matchData = await fetchMatch(matchId);
+		document.getElementById("score").textContent = matchData.player1_score + " : " + matchData.player2_score;
+	}
 	const contentWidth = contentArea.clientWidth;
 	const contentHeight = contentArea.clientHeight;
 	const centerX = contentWidth / 2;
@@ -613,7 +759,7 @@ function startMovingSquare()
 		}
 		else
 			clearInterval(ballSPeed);
-	}, 10);
+	}, 50);
 
 	// This is making sure the AI has info of the trajectory of the ball only every second
 
@@ -875,6 +1021,18 @@ function startMovingSquare()
 						end_time: currentTime,
 					};
 					updateGame(matchData);
+					if (multi_online)
+					{
+						const matchData =
+						{
+							type: "match_update",
+							matchId: matchId,
+							hostId: player1Id,
+							inviteeId: player2Id,
+							finish: "true"
+						};
+						sendMessage(matchData)
+					}
 				}
 				finish = true;
 				if (score_enemy == 3)
@@ -894,13 +1052,6 @@ function startMovingSquare()
 						document.getElementById('winnerPongPlayer').textContent = "Player 1";
 				}
 				clearInterval(moveInterval);
-				//const retryButton = document.getElementById('retry-button');
-				//retryButton.addEventListener('click', function()
-				//{
-				//	clearInterval(retryButton);
-				//	retry();
-				//	//reset = true;
-				//});
 				return ;
 			}
 			if (!offline)
@@ -917,6 +1068,7 @@ function startMovingSquare()
 					fastest_ball_speed: maxBallSpeed,
 				};
 				updateGame(matchData);
+
 			}
 			clearInterval(moveInterval);
 			movingSquare.style.display = 'none';
@@ -1004,7 +1156,6 @@ async function handlingSocketEvents()
 		powerEnemyBallSpeed.style.backgroundColor = "red";
 		powerEnemyBallSpeed.style.color = "white";
 	}
-	socket = await getWebSocket();
 	socket.addEventListener('message', async function(event)
 	{
 		const message = JSON.parse(event.data);
@@ -1108,6 +1259,23 @@ async function handlingSocketEvents()
 				score_enemy = message.score_player2;
 				player_consec_touch = message.player_consec_touch;
 				document.getElementById("score").textContent = score_player + " : " + score_enemy;
+			}
+			if (message.finish !== undefined && userInfo.id == player2Id)
+			{
+				console.log('trying to finish game');
+				matchData = await fetchMatch(matchId);
+				document.getElementById('winnerPongPlayer').textContent = matchData.player1_score > matchData.player2_score ? player1_info.username : player2_info.username;
+				finish = true;
+				const endPongDiv = document.getElementById("endPongDiv");
+				endPongDiv.style.display = 'block';
+				let opacity = 0;
+				let endDivAnim = setInterval(function()
+				{
+					endPongDiv.style.opacity = opacity;
+					opacity += 0.008;
+					if (opacity >= 1)
+						clearInterval(endDivAnim);
+				}, 5);
 			}
 		}
 		else if (message.type == "friend_disconnected")
