@@ -146,6 +146,7 @@ export async function getUser(username) {
     return userData;
   } catch (error) {
     console.error(error.message);
+	return null;
   }
 }
 
