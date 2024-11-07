@@ -414,10 +414,10 @@
     top: 175px;
     left: 50%;
     transform: translateX(-50%);
-    color: white; /* White text color */
+    color: white;
     padding: 16px;
-    z-index: 5000; /* Ensure the notification is above other elements */
-    animation: fadeInOut 3s forwards; /* Animation to fade in and out */
+    z-index: 5000;
+    animation: fadeInOut 3s forwards;
 }
 
 @keyframes fadeInOut {
@@ -433,4 +433,10 @@
     100% {
         opacity: 0;
     }
+}
+
+.friendItemInvite.inactive {
+    background-color: #ccc;
+    color: #666;
+    cursor: not-allowed;
 }

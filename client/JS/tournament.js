@@ -17,6 +17,7 @@ let powers;
 let ball_acc;
 let ball_speed;
 let game;
+const inviteButtonsMap = new Map();
 
 
 const params = new URLSearchParams(window.location.search);
@@ -44,7 +45,7 @@ const renderTournamentPageHost = () => {
 	return `
 	<div id="friendsListDivTournament">
 			<div id="friendsTitle"></div>
-			<ul id="friendsList">
+			<ul id="friendsList" style="display: none;">
 			</ul>
 		</div>
 		<div id="tournamentTitle">TOURNAMENT</div>
@@ -156,10 +157,13 @@ const addEventListeners = async () => {
                 inviteButton.textContent = 'Invite';
                 listItem.appendChild(inviteButton);
                 usersListElement.appendChild(listItem);
+				inviteButtonsMap.set(friend, inviteButton);
 				const inviteButtons = document.querySelectorAll('.friendItemInvite');
     			inviteButtons.forEach(inviteButton => {
-        		inviteButton.addEventListener('click', async (button) => {
-            	console.log('Invite button clicked');
+        		inviteButton.addEventListener('click', async () => {
+				inviteButton.classList.add('inactive');
+            	inviteButton.textContent = 'Waiting...';
+            	inviteButton.disabled = true;
 				const inviteeInfo = await getUser(username);
 				const message = {
 					"type": "tournament_invite",
@@ -275,10 +279,19 @@ const receiveInfoFromSocket = (socket) => {
 				else if (tournamentData.player4 == null)
 					tournamentData = await updateTournament({id: tournamentId, player4: msg.inviteeId});
 				accepted = true;
+				const inviteButton = inviteButtonsMap.get(msg.inviteeId);
+				if (inviteButton) {
+					inviteButton.textContent = 'Joined';
+				}
 			} else if (msg.status == 'declined') {
 				declined = true;
-				//handle declined invitation to tournament
-				console.log(`User #id ${msg.inviteeName} declined the invitation`);
+				showNotification(`User ${msg.inviteeName} declined the invitation`);
+				const inviteButton = inviteButtonsMap.get(msg.inviteeId);
+				if (inviteButton) {
+					inviteButton.classList.remove('inactive');
+					inviteButton.textContent = 'Invite';
+					inviteButton.disabled = false;
+				}
 				return;
 			}
 		} else if (msg.type === 'tournament_update') {
