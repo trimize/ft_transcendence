@@ -12,7 +12,12 @@ let player3 = null;
 let player4 = null;
 let user;
 let players = [];
-let match_id;
+let match_id = 0;
+let powers;
+let ball_acc;
+let ball_speed;
+let game;
+
 
 const params = new URLSearchParams(window.location.search);
 
@@ -142,9 +147,10 @@ const addEventListeners = async () => {
                 listItem.classList.add('friendItemTournament');
 				let friendInfo = await fetchUserById(friend);
 				let username = friendInfo.username;
-				if (friendInfo.username.length > 6)
-					username = friend.username.substring(0, 4) + "...";
-                listItem.textContent = username;
+				if (username.length > 6)
+                	listItem.textContent = username.substring(0, 4) + "...";
+				else
+					listItem.textContent = username;
                 const inviteButton = document.createElement('div');
                 inviteButton.classList.add('friendItemInvite');
                 inviteButton.textContent = 'Invite';
@@ -154,8 +160,7 @@ const addEventListeners = async () => {
     			inviteButtons.forEach(inviteButton => {
         		inviteButton.addEventListener('click', async (button) => {
             	console.log('Invite button clicked');
-				const friendName = button.target.parentElement.textContent.substring(0, button.target.parentElement.textContent.length - 6);
-				const inviteeInfo = await getUser(friendName);
+				const inviteeInfo = await getUser(username);
 				const message = {
 					"type": "tournament_invite",
 					"tournamentId": tournamentId,
@@ -189,45 +194,46 @@ const addEventListeners = async () => {
 }
 
 const createGameInTournament = async (game_player1, game_player2) => {
-	let game = params.get('game');
 	let body;
 	if (game == "pong")
 	{
 		body = {
-			"player1": game_player1,
-			"player2": game_player2,
-			"game": "pong",
-			"powers": params.get('powers') == 'true' ? true : false,
-			"match_type": "online_multiplayer",
-			"ball_speed": parseInt(params.get('ballSpeed'), 10),
-			"ball_acc": params.get('ballAcc') == 'true' ? true : false
+			player1: game_player1,
+			player2: game_player2,
+			game: "pong",
+			powers: powers,
+			match_type: "online_multiplayer",
+			ball_speed: ball_speed,
+			ball_acc: ball_acc
 		};
 	}
 	else if (game == "tic-tac-toe") {
 		body = {
-			"player1": game_player1,
-			"player2": game_player2,
-			"game": "tic_tac_toe",
-			"match_type": "online_multiplayer",
-			"powers": params.get('powers') == 'true' ? true : false
+			player1: game_player1,
+			player2: game_player2,
+			game: "tic_tac_toe",
+			match_type: "online_multiplayer",
+			powers: powers
 		};
 	}
+	console.log(body);
 	match_id = await createGame(body);
 }
-	
 
 const renderPlayButton = async (game_player1, game_player2) => {
-	await createGameInTournament(game_player1, game_player2);
-	const matchParams = new URLSearchParams();
-	matchParams.append('game', params.get('game'));
-	matchParams.append('matchId', match_id);
-	matchParams.append('powers', params.get('powers'));
-	if (params.get('game') == "pong")
+	if (user.id == player1.id || user.id == player3.id)
 	{
-		matchParams.append('ballSpeed', params.get('ballSpeed'));
-		matchParams.append('ballAcc', params.get('ballAcc'));
+		await createGameInTournament(game_player1, game_player2);
+		sendMessage({type: "tournament_match", matchId: match_id, player1: game_player1, player2: game_player2});
 	}
-	window.location.href = `/lobby?${matchParams.toString()}`;
+	if (match_id == 0) {
+		console.log("Match not created"); //change here to show error
+		return;
+	} else {
+		const matchParams = new URLSearchParams();
+		matchParams.append('matchId', match_id);
+		window.location.href = `/lobby?${matchParams.toString()}`;
+	}
 
 }
 
@@ -301,6 +307,10 @@ const receiveInfoFromSocket = (socket) => {
                 }
             }
 		}
+		else if (msg.type === 'tournament_match' && user.id != msg.player1 && user.id != msg.player3)
+		{
+			match_id = msg.matchId;
+		}
     });
 }
 
@@ -309,6 +319,13 @@ export const renderTournament = async () => {
 	tournamentId = params.get('tournamentId');
 	user = await fetchUserData();
 	tournamentData = await getTournamentById(tournamentId);
+	powers = tournamentData.powers;
+	game = tournamentData.game;
+	if (game == "pong")
+	{
+		ball_acc = tournamentData.ball_acc;
+		ball_speed = tournamentData.ball_speed;
+	}
 	const host = await fetchUserById(tournamentData.player1);
 	if (!user || !tournamentData || !host) {
 		console.log('Failed to fetch tournament data');

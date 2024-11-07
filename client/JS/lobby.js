@@ -10,6 +10,10 @@ let player2;
 let opponent;
 let matchData;
 let intervalId;
+let powers;
+let game;
+let ball_speed;
+let ball_acc;
 let matchmaking = false;
 let firstInvite = false;
 
@@ -60,9 +64,19 @@ export async function renderLobby()
 	const urlParams = new URLSearchParams(window.location.search);
 	user = await fetchUserData();
 	socket = await getWebSocket();
+	matchData = await fetchMatch(urlParams.get('matchId'));
 	matchmaking = urlParams.get('matchmaking');
 	firstInvite = urlParams.has('firstInvite') ? urlParams.get('firstInvite') : false;
 	
+	powers = matchData.powers;
+	if (game == 'pong') {
+		ball_speed = matchData.ball_speed;
+		ball_acc = matchData.ball_acc;
+		game = 'pong';
+	}
+	else
+		game = 'tic-tac-toe';
+
 	document.getElementById('content').innerHTML = lobbyHtml();
 	const player1UsernameDiv = document.getElementById('lobbyPlayer1Username');
 	const player2UsernameDiv = document.getElementById('lobbyPlayer2Username');
@@ -74,13 +88,12 @@ export async function renderLobby()
 	
 	
 	if (!matchmaking) {
-		matchData = await fetchMatch(urlParams.get('matchId'));
 		if (matchData.end_time != null) {
 			const homeParams = new URLSearchParams();
 			homeParams.append('alert', 'match_finished');
 			window.location.href = `/?${homeParams.toString()}`;
 		}
-		player2 = await fetchUserById(urlParams.get('invitee'));
+		player2 = await fetchUserById(user.id == matchData.player1 ? matchData.player2 : matchData.player1);
 		player2UsernameDiv.textContent = player2.username;
 		player2PfpDiv.style.backgroundImage = `url(${BACKEND_URL}${player2.profile_pic})`;
 	}
@@ -97,7 +110,7 @@ export async function renderLobby()
 		sendMessage(messageData);
 	} else {
 
-		if (user.id != urlParams.get('host') && user.id != urlParams.get('invitee')) {
+		if (user.id != matchData.player1 && user.id != matchData.player2) {
 			return`
 			<div>Error Page Here</div>
 			`;
@@ -105,14 +118,14 @@ export async function renderLobby()
 			return`
 			<div>Error Page Here</div>
 			`;
-		} else if (user.id == urlParams.get('host')) {
+		} else if (user.id == matchData.player1) {
 			player1 = user;
 			isPlayer1Ready = true;
-			player2 = await fetchUserById(urlParams.get('invitee'));
+			player2 = await fetchUserById(matchData.player2);
 		} else {
 			player2 = user;
 			isPlayer2Ready = true;
-			player1 = await fetchUserById(urlParams.get('host'));
+			player1 = await fetchUserById(matchData.player1);
 		}
 	}
 
@@ -142,7 +155,7 @@ async function socketListener()
 					"player2": player2.id,
 					"matchId": matchData.id
 				}
-				await sendMessage(messageData);
+				sendMessage(messageData);
 				const game_update_message = {
 					"id": matchData.id,
 					"start_time": new Date()
@@ -164,11 +177,7 @@ async function socketListener()
 
 			if (matchData.game == 'pong') {
 				const newParams = new URLSearchParams();
-				newParams.append('host', matchData.player1);
-				newParams.append('invitee', matchData.player2);
 				newParams.append('matchId', matchData.id);
-				newParams.append('offline', false);
-				newParams.append('type', 'multiplayer_online');
 				window.location.href = `/pong?${newParams.toString()}`;
 			} else if (matchData.game == 'tic-tac-toe') {
 				const newParams = new URLSearchParams();

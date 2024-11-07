@@ -158,21 +158,30 @@ const addEventListeners = () => {
                 });
 
                 document.getElementById('tournament').addEventListener('click', async () => {
-                    let tournamentBody = {
-                        player1: actualUser.id,
-                        start_time: getCurrentTime(),
-                    };
+                    getBallSpeed();
+                    let tournamentBody;
+                    if (gameChosen == 'pong') {
+                        tournamentBody = {
+                            player1: actualUser.id,
+                            powers: powers.checked,
+                            ball_acc: ballAcc.checked,
+                            ball_speed: theBallSpeed,
+                            game: gameChosen,
+                            start_time: getCurrentTime(),
+                        };
+                    }
+                    else
+                    {
+                        tournamentBody = {
+                            player1: actualUser.id,
+                            powers: powers.checked,
+                            game: gameChosen,
+                            start_time: getCurrentTime(),
+                        };
+                    }
                     const newTournament = await createTournament(tournamentBody);
                     const params = new URLSearchParams();
                     params.append('tournamentId', newTournament.id);
-                    params.append('game', gameChosen);
-                    if (gameChosen == 'pong') {
-                        params.append('powers', powers.checked);
-                        params.append('ballAcc', ballAcc.checked);
-                        params.append('ballSpeed', theBallSpeed); // is undefined
-                    } else {
-                        params.append('powers', powers.checked);
-                    }
                     window.location.href = `/tournament?${params.toString()}`;
                 })
             }
@@ -536,6 +545,25 @@ async function friendsListenersFunction(friendItems, friendItem)
     }
 }
 
+function getBallSpeed()
+{
+    const ballSlider = document.getElementById('ballSpeed');
+    switch(ballSlider.value)
+    {
+        case 1:
+            theBallSpeed = 3;
+            break;
+        case 2:
+            theBallSpeed = 5;
+            break;
+        case 3:
+            theBallSpeed = 7;
+            break;
+        default:
+            theBallSpeed = 5;
+    }
+}
+
 async function showChat() {
     let showFriendBool = false;
     let isFriendClicked = false;
@@ -588,20 +616,7 @@ async function showChat() {
             }
             else
             {
-                switch(ballSlider.value)
-                {
-                    case 1:
-                        theBallSpeed = 3;
-                        break;
-                    case 2:
-                        theBallSpeed = 5;
-                        break;
-                    case 3:
-                        theBallSpeed = 7;
-                        break;
-                    default:
-                        theBallSpeed = 5;
-                }
+                getBallSpeed();
                 body =
                 {
                     "game": gameChosen,
@@ -951,7 +966,6 @@ async function renderFriendRequestNotif(jsonMessage, chatUserId)
         messageText.textContent = "New tournament invite!"
         let params = new URLSearchParams();
         params.append('tournamentId', jsonMessage.tournamentId);
-        params.append('game', jsonMessage.game);
         correct.addEventListener('click', async () => {
             const tournamentData = await getTournamentById(jsonMessage.tournamentId);
             if (!tournamentData.player2) {

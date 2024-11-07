@@ -92,7 +92,7 @@ class Match_Record(models.Model):
 	player1_consec_touch = models.IntegerField(default=0)
 	player2_consec_touch = models.IntegerField(default=0)
 	fastest_ball_speed = models.IntegerField(default=0)
-	ball_speed = models.IntegerField(default=20)
+	ball_speed = models.IntegerField(default=5)
 	ball_acc = models.BooleanField(default=False)
 	powers = models.BooleanField(default=False)
 	ai = models.CharField(max_length=20, null=True)
@@ -121,6 +121,12 @@ class Tournament(models.Model):
     first_place = models.ForeignKey(User, related_name='tournaments_won', on_delete=models.PROTECT, null=True, blank=True)
     second_place = models.ForeignKey(User, related_name='tournaments_second', on_delete=models.PROTECT, null=True, blank=True)
     third_place = models.ForeignKey(User, related_name='tournaments_third', on_delete=models.PROTECT, null=True, blank=True)
+
+    #tournament parameters
+    game = models.CharField(max_length=20)
+    ball_speed = models.IntegerField(default=5)
+    ball_acc = models.BooleanField(default=False)
+    powers = models.BooleanField(default=False)
 
     def __str__(self):
         return f"Tournament {self.id}"
