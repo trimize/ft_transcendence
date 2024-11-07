@@ -164,8 +164,6 @@ const addEventListeners = async () => {
 				const message = {
 					"type": "tournament_invite",
 					"tournamentId": tournamentId,
-					// "game": params.get('game'),
-					// "powers": params.get('powers'),
 					"hostId": user.id,
 					"inviteeId": inviteeInfo.id,
 				}
