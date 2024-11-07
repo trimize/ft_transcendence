@@ -1,5 +1,5 @@
 import { getWebSocket, sendMessage } from './singletonSocket.js';
-import { fetchUserData, getUser, createGame , getTournamentById, fetchUserById, updateTournament } from './fetchFunctions.js';
+import { fetchUserData, getUser, createGame , getTournamentById, fetchUserById, updateTournament, fetchMatch } from './fetchFunctions.js';
 
 let socket;
 let accepted = false;
@@ -191,8 +191,6 @@ const addEventListeners = async () => {
     } catch (error) {
         console.error('Failed to fetch user data:', error);
     }
-	
-    
 }
 
 const createGameInTournament = async (game_player1, game_player2) => {
@@ -235,7 +233,6 @@ const renderPlayButton = async (game_player1, game_player2) => {
 		matchParams.append('matchId', match_id);
 		window.location.href = `/lobby?${matchParams.toString()}`;
 	}
-
 }
 
 const renderPlayButtons = async () => {
@@ -313,7 +310,6 @@ const receiveInfoFromSocket = (socket) => {
 			players = [player1, player2, player3, player4];
             for (let i = 0; i < players.length; i++) {
                 if (players[i] && playerElements[i].textContent === `Player ${i + 1}`) {
-					console.log("trying to change the name");
                     playerElements[i].textContent = players[i].username;
                 }
             }
@@ -324,6 +320,44 @@ const receiveInfoFromSocket = (socket) => {
 		}
     });
 }
+
+const getWinner = (match) => {
+	if (match.player1_score > match.player2_score)
+		return player1;
+	else
+		return player2;
+}
+
+const renderSecondRound = async () => {
+	const winner1Element = document.getElementById('winnerText1');
+	const winner2Element = document.getElementById('winnerText2');
+	if (tournamentData.match1 && tournamentData.match2) {
+		const match1 = await fetchMatch(tournamentData.match1);
+		const match2 = await fetchMatch(tournamentData.match2);
+		const winner1 = getWinner(match1);
+		const winner2 = getWinner(match2);
+		if (winner1Element)
+			winner1Element.textContent = winner1.username;
+		if (winner2Element)
+			winner2Element.textContent = winner2.username;
+		const playButtonMatchV1 = document.getElementById('playButtonMatchV1');
+		if (user.id == winner1.id || user.id == winner2.id) {
+			playButtonMatchV1.style.display = 'block';
+			playButtonMatchV1.addEventListener('click', async () => {
+				if (user.id == winner1.id)
+				{
+					await createGameInTournament(game_player1, game_player2);
+					sendMessage({type: "tournament_match", matchId: match_id, player1: game_player1, player2: game_player2});
+				}
+				if (match_id == 0) {
+					showNotification('Match not created. Please wait for the other player to create a match.');
+				} else {
+					const matchParams = new URLSearchParams();
+					matchParams.append('matchId', match_id);
+					window.location.href = `/lobby?${matchParams.toString()}`;
+				}
+			});
+}}}
 
 export const renderTournament = async () => {
 	socket = await getWebSocket();
@@ -346,9 +380,11 @@ export const renderTournament = async () => {
 		document.getElementById('content').innerHTML = renderTournamentPageHost();
 		document.getElementById('player1').textContent = host.username;
 		addEventListeners();
+		renderSecondRound();
 	} else {
 		document.getElementById('content').innerHTML = renderTournamentPageInvitee();
 		document.getElementById('player1').textContent = host.username;
+		renderSecondRound();
 	}
 
 	if (user.id == tournamentData.player1) {
