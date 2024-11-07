@@ -408,3 +408,29 @@
     left: 1700px;
     top: 770px;
 }
+
+.tournamentNotification {
+    position: absolute;
+    top: 175px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white; /* White text color */
+    padding: 16px;
+    z-index: 5000; /* Ensure the notification is above other elements */
+    animation: fadeInOut 3s forwards; /* Animation to fade in and out */
+}
+
+@keyframes fadeInOut {
+    0% {
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}

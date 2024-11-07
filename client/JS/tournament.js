@@ -67,8 +67,8 @@ const renderTournamentPageHost = () => {
 			<div class="playerBranch" id="player3Branch"></div>
 			<div class="playerBranch" id="player4Branch"></div>
 			<div class="inBetweenBranch" id="inBetweenBranch2"></div>
-			<div class="winnerText" id="winnerText1">Winner</div>
-			<div class="winnerText" id="winnerText2">Winner</div>
+			<div class="winnerText" id="winnerText1">Winner 1</div>
+			<div class="winnerText" id="winnerText2">Winner 2</div>
 			<div class="finalBranch" id="finalBranch1"></div>
 			<div class="finalBranch" id="finalBranch2"></div>
 			<div id="finalInBetween"></div>
@@ -225,8 +225,7 @@ const renderPlayButton = async (game_player1, game_player2) => {
 		sendMessage({type: "tournament_match", matchId: match_id, player1: game_player1, player2: game_player2});
 	}
 	if (match_id == 0) {
-		console.log("Match not created"); //change here to show error
-		return;
+		showNotification('Match not created. Please wait for the other player to create a match.');
 	} else {
 		const matchParams = new URLSearchParams();
 		matchParams.append('matchId', match_id);
@@ -251,15 +250,16 @@ const renderPlayButtons = async () => {
 		})}
 }    
 
-const getPlayers = async () => {
-	const playerElements = document.querySelectorAll('.player-name');
-	let players = [];
-	for (let i = 0; i < playerElements.length; i++) {
-		const player = await getUser(playerElements[i].textContent);
-		players.push(player.id);
-	}
-	return players;
-}
+const showNotification = (message) => {
+    const notificationElement = document.createElement('div');
+    notificationElement.classList.add('tournamentNotification');
+    notificationElement.textContent = message;
+    document.body.appendChild(notificationElement);
+
+    setTimeout(() => {
+        notificationElement.remove();
+    }, 3000);
+};
 
 const receiveInfoFromSocket = (socket) => {
 	socket.addEventListener('message', async (event) => {
