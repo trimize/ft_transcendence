@@ -1037,6 +1037,7 @@ async function renderFriendRequestNotif(jsonMessage, chatUserId)
         let params = new URLSearchParams();
         params.append('tournamentId', jsonMessage.tournamentId);
         correct.addEventListener('click', async () => {
+            remove(friendRequest);
             const tournamentData = await getTournamentById(jsonMessage.tournamentId);
             if (!tournamentData.player2) {
                 sendMessage({type: 'tournament_invite_response', status: 'accepted', inviteeId: actualUser.id, hostId: jsonMessage.hostId});
@@ -1052,6 +1053,7 @@ async function renderFriendRequestNotif(jsonMessage, chatUserId)
             }
         });
         cross.addEventListener('click', () => {
+            remove(friendRequest);
             sendMessage({type: 'tournament_invite_response', tournamentId: jsonMessage.tournamentId, status: 'declined', hostId: jsonMessage.hostId, inviteeId: actualUser.id, inviteeName: actualUser.username});
         });
     }
