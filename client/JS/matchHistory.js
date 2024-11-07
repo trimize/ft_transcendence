@@ -1,6 +1,8 @@
 import { fetchUserData, fetchMatches, fetchUserById } from './fetchFunctions.js';
+import { getWebSocket } from './singletonSocket.js';
 
 let userData;
+let socket;
 
 function formatDate(date) {
     const day = String(date.getDate()).padStart(2, '0');
@@ -148,6 +150,7 @@ const attachMatchHistoryEventListeners = () => {
 
 export async function renderMatchHistory() {
     document.getElementById('content').innerHTML = matchHistoryHTML();
+    socket = await getWebSocket();
     userData = await fetchUserData();
     populateUnfinishedMatches(userData);
     populateMatchesHistory(userData);

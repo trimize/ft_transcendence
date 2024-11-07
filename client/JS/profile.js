@@ -12,7 +12,9 @@ import {
 } from "./fetchFunctionsUsers.js";
 
 import { DEFAULT_PROFILE_PIC, BACKEND_URL } from "./appconfig.js";
-import { closeWebSocket } from "./singletonSocket.js";
+import { closeWebSocket, getWebSocket } from "./singletonSocket.js";
+
+let socket;
 
 const renderProfilePage = () => {
   return `
@@ -271,7 +273,8 @@ const attachEditFormEventListeners = () => {
     });
 };
 
-export const renderProfile = () => {
+export const renderProfile = async () => {
+  socket = await getWebSocket();
   loadProfilePage();
   // attachEventListeners();
 };

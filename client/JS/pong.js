@@ -1,6 +1,7 @@
 import { fetchUserData, getUser, updateGame, createGame, fetchMatch, fetchUserById} from './fetchFunctions.js';
 import { getWebSocket, sendMessage } from './singletonSocket.js';
 import { getCurrentTime } from './utils.js';
+import { BACKEND_URL } from './appconfig.js';
 
 let score_player = 0;
 let score_enemy = 0;
@@ -292,31 +293,27 @@ export const renderPong = async () =>
 		{
 			const movingSquare = document.getElementById("moving-square");
 			movingSquare.style.backgroundColor = "transparent";
-			movingSquare.style.backgroundImage = `url(../Assets/ball${userInfo.pong_ball}.svg)`
+			movingSquare.style.backgroundImage = `url(${BACKEND_URL}${userInfo.pong_ball}.svg)`
 			movingSquare.style.backgroundSize = "cover";
 		}
 		if (userInfo.pong_slider != 0 && userInfo.id == player1Id)
 		{
 			let expansion = "jpg";
-			if (userInfo.pong_slider == 8)
+			if (userInfo.pong_slider >= 8)
 				expansion = "gif";
-			else if (userInfo.pong_slider == 9)
-				expansion = "webp";
 			const player = document.getElementById("player");
 			player.style.backgroundColor = "transparent";
-			player.style.backgroundImage = `url(../Assets/slider${userInfo.pong_slider}.${expansion})`
+			player.style.backgroundImage = `url(${BACKEND_URL}${userInfo.pong_slider}.${expansion})`
 			player.style.backgroundSize = "cover";
 		}
 		else if (userInfo.pong_slider != 0 && multi_online && userInfo.id == player2Id)
 		{
 			let expansion = "jpg";
-			if (userInfo.pong_slider == 8)
+			if (userInfo.pong_slider >= 8)
 				expansion = "gif";
-			else if (userInfo.pong_slider == 9)
-				expansion = "webp";
 			const enemy = document.getElementById("enemy");
 			enemy.style.backgroundColor = "transparent";
-			enemy.style.backgroundImage = `url(../Assets/slider${userInfo.pong_slider}.${expansion})`
+			enemy.style.backgroundImage = `url(${BACKEND_URL}${userInfo.pong_slider}.${expansion})`
 			enemy.style.backgroundSize = "cover";
 		}
 	}
@@ -328,13 +325,11 @@ export const renderPong = async () =>
 			if (player1_info.pong_slider != 0)
 			{
 				let expansion = "jpg";
-				if (player1_info.pong_slider == 8)
+				if (player1_info.pong_slider >= 8)
 					expansion = "gif";
-				else if (player1_info.pong_slider == 9)
-					expansion = "webp";
 				const player = document.getElementById("player");
 				player.style.backgroundColor = "transparent";
-				player.style.backgroundImage = `url(../Assets/slider${player1_info.pong_slider}.${expansion})`
+				player.style.backgroundImage = `url(${BACKEND_URL}${player1_info.pong_slider}.${expansion})`
 				player.style.backgroundSize = "cover";
 			}	
 		}
@@ -343,13 +338,11 @@ export const renderPong = async () =>
 			if (player2_info.pong_slider != 0)
 			{
 				let expansion = "jpg";
-				if (player2_info.pong_slider == 8)
+				if (player2_info.pong_slider >= 8)
 					expansion = "gif";
-				else if (player2_info.pong_slider == 9)
-					expansion = "webp";
 				const enemy = document.getElementById("enemy");
 				enemy.style.backgroundColor = "transparent";
-				enemy.style.backgroundImage = `url(../Assets/slider${player2_info.pong_slider}.${expansion})`
+				enemy.style.backgroundImage = `url(${BACKEND_URL}${player2_info.pong_slider}.${expansion})`
 				enemy.style.backgroundSize = "cover";
 			}	
 			let checkValue = setInterval(function()

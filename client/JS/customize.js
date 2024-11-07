@@ -1,17 +1,30 @@
 import {updateBallSkin, updateSliderSkin, updateSignSkin, updateVictorySkin, fetchUserData} from './fetchFunctions.js'
 import { BACKEND_URL } from "./appconfig.js";
+import { getWebSocket } from './singletonSocket.js';
 
 let slider = 0;
 let ball = 0;
 let sign = 0;
 let victory = 0;
 let user_info;
+let socket;
 
+function handleBackButtonClick(event) {
+    event.preventDefault();
+    pongChoice.style.display = "block";
+    tttChoice.style.display = "block";
+    customizeContainerPong.classList.add('d-none');
+    customizeContainerttt.classList.add('d-none');
+
+    // Remove this event listener
+    backButtonCustom.removeEventListener('click', handleBackButtonClick);
+}
 
 export async function renderCustomize()
 {
 	document.getElementById('content').innerHTML = customizeHTML();
 
+    socket = await getWebSocket();
     const images = [
         { id: 'pongChoice', path: 'pong-customize.png' },
         { id: 'tttChoice', path: 'ttt-customize.png' },
@@ -23,7 +36,7 @@ export async function renderCustomize()
         { id: 'imageSlider6', path: 'slider6.jpg' },
         { id: 'imageSlider7', path: 'slider7.jpg' },
         { id: 'imageSlider8', path: 'slider8.gif' },
-        { id: 'imageSlider9', path: 'slider9.webp' },
+        { id: 'imageSlider9', path: 'slider9.gif' },
         { id: 'imageBall1', path: 'ball1.svg' },
         { id: 'imageBall2', path: 'ball2.svg' },
         { id: 'imageBall3', path: 'ball3.svg' },
@@ -139,12 +152,14 @@ export async function renderCustomize()
 
 	const pongChoice = document.getElementById('pongChoice');
 	const tttChoice = document.getElementById('tttChoice');
+    const backButtonCustom = document.getElementById('backButtonCustom');
 	pongChoice.addEventListener('click', function()
 	{
 		const customizeContainerPong = document.getElementById('customizeContainerPong');
 		pongChoice.style.display = "none";
 		tttChoice.style.display = "none";
 		customizeContainerPong.classList.remove('d-none');
+        backButtonCustom.addEventListener('click', handleBackButtonClick)
 	});
 
 	tttChoice.addEventListener('click', function()
@@ -153,6 +168,7 @@ export async function renderCustomize()
 		tttChoice.style.display = "none";
 		pongChoice.style.display = "none";
 		customizeContainerttt.classList.remove('d-none');
+        backButtonCustom.addEventListener('click', handleBackButtonClick)
 	});
 
 	saveButtonCustom.addEventListener('click', async function()

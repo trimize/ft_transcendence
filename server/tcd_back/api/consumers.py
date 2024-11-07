@@ -15,6 +15,41 @@ class SocketConsumer(AsyncWebsocketConsumer):
 		# print(f"User {user_id} connected")
 		# print(f"User channels: {user_channels}")
 		await self.accept()
+		user_id = None
+		for uid, channel_name in user_channels.items():
+			if channel_name == self.channel_name:
+				user_id = uid
+				break
+
+		if user_id:
+		# Remove the user from the user_channels dictionary
+			del user_channels[user_id]
+
+		# Fetch the user and their friends
+		try:
+			user = await database_sync_to_async(User.objects.get)(id=user_id)
+			friends = await database_sync_to_async(lambda: list(user.friends.all()))()
+		except User.DoesNotExist:
+			print("User does not exist")
+			return
+
+		print(f"User {user_id} disconnected")
+		# Iterate through friends and send a message to connected friends
+		for friend in friends:
+			friend_id = str(friend.id)
+			if friend_id in user_channels:
+				message = {
+					'type': 'friend_connected',
+					'userId': user_id,
+				}
+				print(f"Sending disconnect message to user {friend_id}")
+				await self.channel_layer.send(
+					user_channels.get(friend_id),
+					{
+					'type': 'send_message',
+					'message': message
+					}
+				)
 
 	async def disconnect(self, close_code):
 		# Find the user ID by channel name

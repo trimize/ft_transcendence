@@ -20,6 +20,7 @@ function closeInviteListener(inviteDiv, inviteInput)
     {
         inviteDiv.style.display = 'none';
         inviteInput.value = '';
+        document.getElementById('inviteTextError').style.display = 'none';
     });
 }
 
@@ -111,6 +112,7 @@ const addEventListeners = () => {
                     multiClicked = false;
                 }
             });
+
             if (!offline)
             {
                 onlineMultiplayerMenu.addEventListener('click', function()
@@ -411,6 +413,7 @@ function renderBaseHomeConnected()
                     <button id="inviteButton">Go to lobby</button>
                     <button id="matchmaking">Matchmaking</button>
                     <div id="pipe">||</div>
+                    <div id="inviteTextError">Error</div>
                     <div id="inviteTextToLobby">Invite a friend</div>
                     <button id="cancelInviteButton">Cancel</button>
                 </div>
@@ -439,6 +442,7 @@ function renderBaseHomeConnected()
                 <text id="profileUsername"></text>
             </a>
             <div id="showFriends"></div>
+            <div id="notifShowFriends"></div>
             <div id="friendsListDiv">
                 <div id="friendsTitle"></div>
                 <text id="friendAddStatus"></text>
@@ -539,7 +543,7 @@ async function friendsListenersFunction(friendItems, friendItem)
             if (msg.type === 'chat_message') {
                 renderConversationBalloon(msg.message, msg.senderId === actualUser.id);
             } else if (msg.type === 'send_invite' || msg.type === 'waiting_state') {
-                renderFriendRequestNotif(msg);
+                renderFriendRequestNotif(msg, currentChatUser.id);
             }
         });
     }
@@ -583,6 +587,7 @@ async function showChat() {
     const ballAcc = document.getElementById('ballAcc');
     const ballSlider = document.getElementById('ballSpeed');
     const powers = document.getElementById('powers');
+    const sendButton = document.getElementById('sendButton');
 
     inviteButton.addEventListener('click', async () => {
         // console.log('Invite button clicked');
@@ -629,13 +634,6 @@ async function showChat() {
                 }
             }
             const match_id = await createGame(body);
-            // const onlineMatchData =
-            // {
-            //     type: "new_match",
-            //     game: gameType,
-            //     matchId: matchId,
-            // };
-            // await sendMessage(onlineMatchData);
             const message = {
                 "type": "send_invite",
                 "game": gameChosen,
@@ -644,18 +642,21 @@ async function showChat() {
                 "matchId": match_id
             }
         
-            await sendMessage(message);
+            sendMessage(message);
             params.append('matchId', match_id);
-            params.append('host', actualUser.id);
-            params.append('invitee', invitee.id);
-            params.append('powers', powers.checked);
-            params.append('firstInvite', true);
             window.location.href = `/lobby?${params.toString()}`;
-        } else {
-            // console.log('User not found');
-            const alert = document.createElement('p').textContent = 'User not found';
-            alert.style.color = 'red';
-            inviteContainer.appendChild(alert);
+        }
+        else if (invitee && invitee.id == actualUser.id)
+        {
+            const errorText = document.getElementById('inviteTextError');
+            errorText.textContent = "You cannot invite yourself!";
+            errorText.style.display = "block";
+        }
+        else if (invitee === null)
+        {
+            const errorText = document.getElementById('inviteTextError');
+            errorText.textContent = "User not found!";
+            errorText.style.display = "block";
         }
     });
 
@@ -697,6 +698,33 @@ async function showChat() {
         }
     });
 
+    sendButton.addEventListener('click', async function()
+    {
+        const message = chatInput.value;
+        if (message.trim() === '') {
+            return;
+        }
+        renderConversationBalloon(message, true);
+        chatInput.value = '';
+        chatInput.style.height = 'auto';
+        chatInput.style.height = chatInput.scrollHeight + 'px';
+        if (currentChatUser) {
+            // console.log('Current chat user:', currentChatUser);
+            const messageData = {
+                type: "chat_message",
+                senderId: actualUser.id,
+                receiverId: currentChatUser.id,
+                message: message
+            };
+            if (!messages[currentChatUser.id]) {
+                messages[currentChatUser.id] = [];
+            }
+            messages[currentChatUser.id].push(messageData);
+            // console.log('Sending message:', messageData);
+            sendMessage(messageData);
+        }
+    });
+
     friendItems.forEach((friendItem) => {
         friendItem.addEventListener('click', async function() {
             friendsListenersFunction(friendItems, friendItem);
@@ -704,6 +732,7 @@ async function showChat() {
     });
 
     showChatRoom.addEventListener('click', function() {
+        currentChatUser = null;
         showFriends.style.display = 'block';
         document.documentElement.style.setProperty('--cube-size', '20vmax');
         cube[0].style.top = "40vh";
@@ -719,6 +748,7 @@ async function showChat() {
     });
 
     showFriends.addEventListener('click', function() {
+        document.getElementById('notifShowFriends').style.display = 'none';
         showFriends.classList.toggle('flipped');
         if (showFriendBool == false) {
             document.getElementById('friendsListDiv').style.right = "0px";
@@ -859,6 +889,10 @@ function renderPendingRequest(pendingRequests)
         pendingRequest.textContent = pendingRequests[i].receiver.username;
         pendingRequest.style.color = "grey";
         pendingRequest.classList.add('pending');
+        const pfp = document.createElement('div');
+        pfp.classList.add('pfpFriends');
+        pfp.style.backgroundImage = `url(${BACKEND_URL}${pendingRequests[i].receiver.profile_pic})`;
+        pendingRequest.appendChild(pfp);
         pendingRequest.addEventListener('click', function()
         {
             const friendItems = document.querySelectorAll('.friendItem');
@@ -875,8 +909,40 @@ function showRedDot(friendId)
     const allFriendsElements = friendsList.querySelectorAll('.friendItem');
     allFriendsElements.forEach(child => {
         if (child.classList.contains('friend' + friendId))
-        {
             child.querySelector('.redDot').style.display = 'block';
+    });
+}
+
+function checkRedDot()
+{
+    const friendsList = document.getElementById('friendsList');
+    const allFriendsElements = friendsList.querySelectorAll('.friendItem');
+    allFriendsElements.forEach(child => {
+        if (child.querySelector('.redDot').style.display == 'block' && document.getElementById('showFriends').style.right != "248px")
+        {
+            document.getElementById('notifShowFriends').style.display = 'block';
+            console.log("You received a notification!")
+        }
+    });
+}
+
+function changeBorderStatus(friendId, isOnline)
+{
+    const friendsList = document.getElementById('friendsList');
+    const allFriendsElements = friendsList.querySelectorAll('.friendItem');
+    allFriendsElements.forEach(child => {
+        if (child.classList.contains('friend' + friendId))
+        {
+            if (!isOnline)
+            {
+                child.querySelector('.pfpFriends').style.border = "none";
+                child.querySelector('.pfpFriends').classList.add('grey-filter');
+            }
+            else
+            {
+                child.querySelector('.pfpFriends').style.border = "3px solid #1ddf1d";
+                child.querySelector('.pfpFriends').classList.remove('grey-filter');
+            }
         }
     });
 }
@@ -898,6 +964,10 @@ function renderFriendRequest(friendNotifications)
         const redDot = document.createElement('div');
         redDot.classList.add('redDot');
         redDot.style.display = 'block';
+        const pfp = document.createElement('div');
+        pfp.classList.add('pfpFriends');
+        pfp.style.backgroundImage = `url(${BACKEND_URL}${friendNotifications[i].sender.profile_pic})`;
+        friendRequest.appendChild(pfp);
         friendRequest.appendChild(redDot);
         friendRequest.addEventListener('click', function()
         {
@@ -967,6 +1037,7 @@ async function renderFriendRequestNotif(jsonMessage, chatUserId)
         let params = new URLSearchParams();
         params.append('tournamentId', jsonMessage.tournamentId);
         correct.addEventListener('click', async () => {
+            friendRequest.remove();
             const tournamentData = await getTournamentById(jsonMessage.tournamentId);
             if (!tournamentData.player2) {
                 sendMessage({type: 'tournament_invite_response', status: 'accepted', inviteeId: actualUser.id, hostId: jsonMessage.hostId});
@@ -982,6 +1053,7 @@ async function renderFriendRequestNotif(jsonMessage, chatUserId)
             }
         });
         cross.addEventListener('click', () => {
+            friendRequest.remove();
             sendMessage({type: 'tournament_invite_response', tournamentId: jsonMessage.tournamentId, status: 'declined', hostId: jsonMessage.hostId, inviteeId: actualUser.id, inviteeName: actualUser.username});
         });
     }
@@ -1050,6 +1122,10 @@ function renderFriendsList(friends, friendNotifications, pendingRequests)
         const redDot = document.createElement('div');
         redDot.classList.add('redDot');
         redDot.style.display = 'none';
+        const pfp = document.createElement('div');
+        pfp.classList.add('pfpFriends');
+        pfp.style.backgroundImage = `url(${BACKEND_URL}${friends[i].profile_pic})`;
+        friendElement.appendChild(pfp);
         friendElement.appendChild(redDot);
         friendsList.appendChild(friendElement);
     };
@@ -1110,6 +1186,7 @@ export const renderBaseHomePage = async () =>
                 else
                 {
                     showRedDot(message.senderId);
+                    checkRedDot();
                     //console.log('red dot should show now');
                 }   
             } else if (message.type === 'send_invite' || message.firstInvite == 'true') {
@@ -1121,9 +1198,11 @@ export const renderBaseHomePage = async () =>
                 if (messages[sender].some(msg => (msg.type == 'waiting_state' && msg.matchId == message.matchId) || (msg.type == 'send_invite' && msg.matchId == message.matchId))) {
                     return;
                 }
+                showRedDot(sender);
+                checkRedDot();
                 messages[sender].push(message);
                 if (currentChatUser != null && (message.type == 'send_invite' && message.hostId == currentChatUser.id) || (message.type == 'waiting_state' && message.userId == currentChatUser.id)) {
-                    renderFriendRequestNotif(message);
+                    renderFriendRequestNotif(message, sender);
                 }
             } else if (message.type === 'waiting_state') {
                 // console.log('Received waiting state:', message);
@@ -1134,15 +1213,18 @@ export const renderBaseHomePage = async () =>
                     return;
                 }
                 messages[message.userId].push(message);
+                showRedDot(message.userId);
+                checkRedDot();
                 if (currentChatUser && message.userId == currentChatUser.id) {
-                    renderFriendRequestNotif(message);
+                    renderFriendRequestNotif(message, message.userId);
                 }
             }
             else if (message.type === 'friendRequest')
             {
                 const newfriendNotifications = await getFriendNotifications();
-                console.log("This is every notifications : " + newfriendNotifications);
                 renderFriendRequest(newfriendNotifications);
+                showRedDot(message.senderId);
+                checkRedDot();
             }
             else if (message.type === 'friendRequestAccepted' || message.type === 'friendRequestRefused')
             {
@@ -1154,8 +1236,14 @@ export const renderBaseHomePage = async () =>
             }
             else if (message.type === 'tournament_invite') {
                 console.log('Received tournament invite:', message);
-                renderFriendRequestNotif(message);
+                renderFriendRequestNotif(message, message.hostId);
+                showRedDot(message.hostId);
+                checkRedDot();
             }
+            else if (message.type === 'friend_disconnected')
+                changeBorderStatus(message.userId, false);
+            else if (message.type === 'friend_connected')
+                changeBorderStatus(message.userId, true);
         });
     }
     else
