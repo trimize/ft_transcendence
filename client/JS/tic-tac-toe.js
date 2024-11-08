@@ -1,5 +1,6 @@
 import { getWebSocket } from "./singletonSocket.js";
 import { fetchUserData, fetchMatch, updateGame, fetchUserById } from "./fetchFunctions.js";
+import { BACKEND_URL } from "./appconfig.js";
 
 let socket;
 let firstMove = true;
@@ -112,33 +113,60 @@ function placeCell(index, value) {
 }
 
 function endGame(winner) {
-    const containerElement = document.querySelector('.container');
 
-        // Create overlay div
-        const overlay = document.createElement('div');
-        overlay.classList.add('overlay');
-    
-        // Create modal div
-        const modal = document.createElement('div');
-        modal.classList.add('modalTTT');
-    
-        // Create message
-        const message = document.createElement('p');
-        message.textContent = `${winner} won!`;
-    
-        // Append message to modal
+    const images = [
+        '/media/victory1.gif',
+        '/media/victory2.gif',
+        '/media/victory3.webp',
+        '/media/victory4.gif',
+        '/media/victory5.gif',
+        '/media/victory6.gif',
+        '/media/victory7.gif',
+        '/media/victory8.webp',
+        '/media/victory9.gif'
+    ]
+
+    const containerElement = document.querySelector('.container');
+    const message = document.createElement('p');
+    const modal = document.createElement('div');
+    modal.classList.add('modalTTT');
+    let winnerPlayer;
+    if (type == 'online_multiplayer') {
+        winnerPlayer = winner === 'X' ? player1Data : player2Data;
+        message.textContent = `${winnerPlayer.username} won!`;
+        const gif = document.createElement('img');
+        gif.src = `${BACKEND_URL}${images[winnerPlayer.tic_tac_toe_background]}`;
+        gif.alt = 'Victory GIF';
+        gif.classList.add('victoryGif');
         modal.appendChild(message);
-    
-        // Append modal to overlay
-        overlay.appendChild(modal);
-    
-        // Append overlay to container
-        containerElement.appendChild(overlay);
-    
-        //Redirect to home after a delay
-        setTimeout(() => {
-            window.location.href = '/';
-        }, 5000); // 5 seconds delay
+        modal.appendChild(gif);
+    } else {
+        winnerPlayer = winner;
+        const gif = document.createElement('img');
+        gif.src = `${BACKEND_URL}${images[Math.floor(Math.random() * images.length)]}`;
+        gif.alt = 'Victory GIF';
+        gif.classList.add('victoryGif');
+        modal.appendChild(message);
+        modal.appendChild(gif);
+        message.textContent = `${winner} won!`;
+    }
+
+    // Create overlay div
+    const overlay = document.createElement('div');
+    overlay.classList.add('overlay');
+
+    // Append message to modal
+
+    // Append modal to overlay
+    overlay.appendChild(modal);
+
+    // Append overlay to container
+    containerElement.appendChild(overlay);
+
+    //Redirect to home after a delay
+    setTimeout(() => {
+        window.location.href = '/';
+    }, 35000); // 5 seconds delay
 }
 
 function checkers(change) {
@@ -231,8 +259,8 @@ function makeAIMove_hard() {
     for (let i = 0; i < AI_almostWinningCombinations.length; i++) {
 
         const combination = AI_almostWinningCombinations[i];
-        let targetIndex = combination.find(index => gameState[index] === null);
-        if (targetIndex !== undefined) {
+        let targetIndex = combination.find(index => gameState[index] == null);
+        if (targetIndex != undefined) {
             placeCell(targetIndex, currentPlayer);
             checkers(true);
             return;
@@ -558,6 +586,8 @@ export const renderTTT = async () => {
             cell.addEventListener('drop', handleDrop);
             if (!isOffline) {
                 player1sign = skins[actualUser.tic_tac_toe_sign - 1];
+                if (actualUser.tic_tac_toe_sign == 0)
+                    player1sign = 'X';
                 player2sign = 'O';
             }
         });
@@ -567,6 +597,9 @@ export const renderTTT = async () => {
             player2sign = skins[player2Data.tic_tac_toe_sign - 1];
             if (player2sign == player1sign) {
                 player2sign = 'O';
+            }
+            if (player1Data.tic_tac_toe_sign == 0) {
+                player1sign = 'X';
             }
         }
             

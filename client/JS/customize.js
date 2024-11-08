@@ -7,42 +7,42 @@ let sign = 0;
 let victory = 0;
 let user_info;
 
+export const images = [
+    { id: 'pongChoice', path: 'pong-customize.png' },
+    { id: 'tttChoice', path: 'ttt-customize.png' },
+    { id: 'imageSlider1', path: 'slider1.jpg' },
+    { id: 'imageSlider2', path: 'slider2.jpg' },
+    { id: 'imageSlider3', path: 'slider3.jpg' },
+    { id: 'imageSlider4', path: 'slider4.jpg' },
+    { id: 'imageSlider5', path: 'slider5.jpg' },
+    { id: 'imageSlider6', path: 'slider6.jpg' },
+    { id: 'imageSlider7', path: 'slider7.jpg' },
+    { id: 'imageSlider8', path: 'slider8.gif' },
+    { id: 'imageSlider9', path: 'slider9.webp' },
+    { id: 'imageBall1', path: 'ball1.svg' },
+    { id: 'imageBall2', path: 'ball2.svg' },
+    { id: 'imageBall3', path: 'ball3.svg' },
+    { id: 'imageBall4', path: 'ball4.svg' },
+    { id: 'imageBall5', path: 'ball5.svg' },
+    { id: 'imageBall6', path: 'ball6.svg' },
+    { id: 'imageBall7', path: 'ball7.svg' },
+    { id: 'imageBall8', path: 'ball8.svg' },
+    { id: 'imageBall9', path: 'ball9.svg' },
+    { id: 'imageVictory1', path: 'victory1.gif' },
+    { id: 'imageVictory2', path: 'victory2.gif' },
+    { id: 'imageVictory3', path: 'victory3.webp' },
+    { id: 'imageVictory4', path: 'victory4.gif' },
+    { id: 'imageVictory5', path: 'victory5.gif' },
+    { id: 'imageVictory6', path: 'victory6.gif' },
+    { id: 'imageVictory7', path: 'victory7.gif' },
+    { id: 'imageVictory8', path: 'victory8.webp' },
+    { id: 'imageVictory9', path: 'victory9.gif' },
+];
 
 export async function renderCustomize()
 {
 	document.getElementById('content').innerHTML = customizeHTML();
 
-    const images = [
-        { id: 'pongChoice', path: 'pong-customize.png' },
-        { id: 'tttChoice', path: 'ttt-customize.png' },
-        { id: 'imageSlider1', path: 'slider1.jpg' },
-        { id: 'imageSlider2', path: 'slider2.jpg' },
-        { id: 'imageSlider3', path: 'slider3.jpg' },
-        { id: 'imageSlider4', path: 'slider4.jpg' },
-        { id: 'imageSlider5', path: 'slider5.jpg' },
-        { id: 'imageSlider6', path: 'slider6.jpg' },
-        { id: 'imageSlider7', path: 'slider7.jpg' },
-        { id: 'imageSlider8', path: 'slider8.gif' },
-        { id: 'imageSlider9', path: 'slider9.webp' },
-        { id: 'imageBall1', path: 'ball1.svg' },
-        { id: 'imageBall2', path: 'ball2.svg' },
-        { id: 'imageBall3', path: 'ball3.svg' },
-        { id: 'imageBall4', path: 'ball4.svg' },
-        { id: 'imageBall5', path: 'ball5.svg' },
-        { id: 'imageBall6', path: 'ball6.svg' },
-        { id: 'imageBall7', path: 'ball7.svg' },
-        { id: 'imageBall8', path: 'ball8.svg' },
-        { id: 'imageBall9', path: 'ball9.svg' },
-        { id: 'imageVictory1', path: 'victory1.gif' },
-        { id: 'imageVictory2', path: 'victory2.gif' },
-        { id: 'imageVictory3', path: 'victory3.webp' },
-        { id: 'imageVictory4', path: 'victory4.gif' },
-        { id: 'imageVictory5', path: 'victory5.gif' },
-        { id: 'imageVictory6', path: 'victory6.gif' },
-        { id: 'imageVictory7', path: 'victory7.gif' },
-        { id: 'imageVictory8', path: 'victory8.webp' },
-        { id: 'imageVictory9', path: 'victory9.gif' },
-    ];
 
     images.forEach(image => {
         const element = document.getElementById(image.id);
