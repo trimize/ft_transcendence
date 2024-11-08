@@ -120,12 +120,16 @@ def send_friend_request(request, friend_username):
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     if user == friend:
+        print("here1")
         return Response(status=status.HTTP_400_BAD_REQUEST)
     if user.friends.filter(pk=friend.id).exists():
+        print("here2")
         return Response(status=status.HTTP_400_BAD_REQUEST)
     if FriendInvitation.objects.filter(sender=user, receiver=friend, status='pending').exists():
+        print("here3")
         return Response(status=status.HTTP_400_BAD_REQUEST)
     if user.blocked_friends.filter(pk=friend.id).exists():
+        print("here4")
         return Response(status=status.HTTP_400_BAD_REQUEST)
     
     if FriendInvitation.objects.filter(sender=friend, receiver=user, status='pending').exists():

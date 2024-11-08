@@ -74,17 +74,18 @@ class FriendInvitationSerializer(serializers.ModelSerializer):
         fields = ['id', 'sender', 'receiver', 'status', 'timestamp']
 
 class TournamentSerializer(serializers.ModelSerializer):
-    player1 = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
-    player2 = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False, allow_null=True)
-    player3 = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False, allow_null=True)
-    player4 = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False, allow_null=True)
-    first_place = UserSerializer(read_only=True, required=False, allow_null=True)
-    second_place = UserSerializer(read_only=True, required=False, allow_null=True)
-    third_place = UserSerializer(read_only=True, required=False, allow_null=True)
-    match1 = MatchSerializer(read_only=True, required=False, allow_null=True)
-    match2 = MatchSerializer(read_only=True, required=False, allow_null=True)
-    playoff = MatchSerializer(read_only=True, required=False, allow_null=True)
-    final_match = MatchSerializer(read_only=True, required=False, allow_null=True)
+    #player1 = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    #player2 = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False, allow_null=True)
+    #player3 = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False, allow_null=True)
+    #player4 = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False, allow_null=True)
+    #first_place = UserSerializer(read_only=True, required=False, allow_null=True)
+    #second_place = UserSerializer(read_only=True, required=False, allow_null=True)
+    #third_place = UserSerializer(read_only=True, required=False, allow_null=True)
+    #match1 = MatchSerializer(read_only=True, required=False, allow_null=True)
+    #match2 = MatchSerializer(read_only=True, required=False, allow_null=True)
+    #playoff = MatchSerializer(read_only=True, required=False, allow_null=True)
+    #final_match = MatchSerializer(read_only=True, required=False, allow_null=True)
+
     class Meta:
         model = Tournament
         fields = '__all__'

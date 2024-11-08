@@ -756,7 +756,7 @@ async function startMovingSquare()
 
 	// This is making sure the AI has info of the trajectory of the ball only every second
 
-	const moveInterval = setInterval(() =>
+	const moveInterval = setInterval(async () =>
 	{
 		const playerRect = player.getBoundingClientRect();
 		const enemyRect = enemy.getBoundingClientRect();
@@ -965,7 +965,7 @@ async function startMovingSquare()
 					sendMessage(matchData)
 				}
 			}
-			else
+			else if (finish == false)
 			{
 				player_consec_touch = 0;
 				score_enemy++;
@@ -987,6 +987,7 @@ async function startMovingSquare()
 			}
 			if (score_player >= 3 || score_enemy >= 3)
 			{
+				finish = true;
 				const endPongDiv = document.getElementById("endPongDiv");
 				endPongDiv.style.display = 'block';
 				let opacity = 0;
@@ -1025,11 +1026,18 @@ async function startMovingSquare()
 							finish: "true"
 						};
 						sendMessage(matchData)
-						let tournamentData = get_tournament_from_match(matchId);
-						console.log(tournamentData);
+						let tournamentData = await get_tournament_from_match(matchId);
+						if (tournamentData != null)
+						{
+							console.log('got here');
+							document.getElementById('pongMainMenu').style.display = 'none';
+							const pongTournament = document.getElementById('pongTournament');
+							const params = new URLSearchParams();
+							params.append('tournamentId', tournamentData.id);
+							pongTournament.href = `/tournament?${params.toString()}`;
+						}
 					}
 				}
-				finish = true;
 				if (score_enemy == 3)
 				{
 					if (multi_online)
@@ -1103,7 +1111,8 @@ function pongHTML()
 			<div id="endPongDiv">
 				<div id="pongVictoryText">WINNER</div>
 				<div id="winnerPongPlayer">Player</div>
-				<a id="pongMainMenu" href="/">Go back home</a>
+				<a class="pongEndButton" id="pongMainMenu" href="/">Go back home</a>
+				<a class="pongEndButton" id="pongTournament">Go back to tournament</a>
 			</div>
 			<div id="bg"></div>`
 }
@@ -1263,6 +1272,16 @@ async function handlingSocketEvents()
 				finish = true;
 				const endPongDiv = document.getElementById("endPongDiv");
 				endPongDiv.style.display = 'block';
+				let tournamentData = await get_tournament_from_match(matchId);
+				if (tournamentData != null)
+				{
+					console.log('got here');
+					document.getElementById('pongMainMenu').style.display = 'none';
+					const pongTournament = document.getElementById('pongTournament');
+					const params = new URLSearchParams();
+					params.append('tournamentId', tournamentData.id);
+					pongTournament.href = `/tournament?${params.toString()}`;
+				}
 				let opacity = 0;
 				let endDivAnim = setInterval(function()
 				{
@@ -1273,7 +1292,7 @@ async function handlingSocketEvents()
 				}, 5);
 			}
 		}
-		else if (message.type == "friend_disconnected")
+		else if (message.type == "friend_disconnected" && finish == false)
 		{
 			if (message.userId == player1Id || message.userId == player2Id)
 			{

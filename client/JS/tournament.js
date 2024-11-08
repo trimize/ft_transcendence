@@ -224,6 +224,11 @@ const renderPlayButton = async (game_player1, game_player2) => {
 	if (user.id == player1.id || user.id == player3.id)
 	{
 		await createGameInTournament(game_player1, game_player2);
+		const body = {
+			id: tournamentId,
+			[`match${user.id === player1.id ? 1 : 2}`]: match_id
+		};
+		tournamentData = await updateTournament(body);
 		sendMessage({type: "tournament_match", matchId: match_id, player1: game_player1, player2: game_player2});
 	}
 	if (match_id == 0) {
@@ -236,19 +241,26 @@ const renderPlayButton = async (game_player1, game_player2) => {
 }
 
 const renderPlayButtons = async () => {
-	const playButtonMatch1 = document.getElementById('playButtonMatch1');
-    const playButtonMatch2 = document.getElementById('playButtonMatch2');
-    if (user.id == player1.id || user.id == player2.id) {
-        playButtonMatch1.style.display = 'block';
-        playButtonMatch1.addEventListener('click', async () => {
-			renderPlayButton(player1.id, player2.id);
-        });
-    }
-	else if (user.id == player3.id || user.id == player4.id) {
-		playButtonMatch2.style.display = 'block';
-		playButtonMatch2.addEventListener('click', async () => {
-			renderPlayButton(player3.id, player4.id);
-		})}
+	if (tournamentData.match1 == null)
+	{
+		const playButtonMatch1 = document.getElementById('playButtonMatch1');
+		const playButtonMatch2 = document.getElementById('playButtonMatch2');
+		if (user.id == player1.id || user.id == player2.id) {
+			playButtonMatch1.style.display = 'block';
+			playButtonMatch1.addEventListener('click', async () => {
+				renderPlayButton(player1.id, player2.id);
+			});
+		}
+		else if (user.id == player3.id || user.id == player4.id) {
+			playButtonMatch2.style.display = 'block';
+			playButtonMatch2.addEventListener('click', async () => {
+				renderPlayButton(player3.id, player4.id);
+			})}
+	}
+	else if (tournamentData.final_match == null)
+	{
+		renderSecondRound();
+	}
 }    
 
 const showNotification = (message) => {
@@ -336,10 +348,8 @@ const renderSecondRound = async () => {
 		const match2 = await fetchMatch(tournamentData.match2);
 		const winner1 = getWinner(match1);
 		const winner2 = getWinner(match2);
-		if (winner1Element)
-			winner1Element.textContent = winner1.username;
-		if (winner2Element)
-			winner2Element.textContent = winner2.username;
+		winner1Element.textContent = winner1.username;
+		winner2Element.textContent = winner2.username;
 		const playButtonMatchV1 = document.getElementById('playButtonMatchV1');
 		if (user.id == winner1.id || user.id == winner2.id) {
 			playButtonMatchV1.style.display = 'block';

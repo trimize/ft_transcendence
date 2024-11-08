@@ -531,11 +531,13 @@ async function friendsListenersFunction(friendItems, friendItem)
     // Check if the friend is in the list of friend notifications
 
     const friendUsername = friendItem.textContent.trim();
-    currentChatUser = await getUser(friendUsername); //May cause issues with async
+    console.log(friendUsername);
+    currentChatUser = await getUser(friendUsername);
+    console.log(currentChatUser);
     const friendrequests = await getFriendNotifications();
     for (let i = 0; i < friendrequests.length; i++) {
         if (friendrequests[i].sender.username == currentChatUser.username) {
-            renderFriendRequestNotif(friendrequests[i]);
+            renderFriendRequestNotif(friendrequests[i], friendrequests[i].sender.id);
         }
     }
     if (messages[currentChatUser.id]) {
@@ -801,7 +803,7 @@ async function addFriendButton()
             };
             // console.log("sent : " + friendRequestdata);
             sendMessage(friendRequestdata);
-            showChat();
+            //showChat();
         }
         friendAddStatus.style.display = "block";
         friendAddStatus.addEventListener('animationend', () => {

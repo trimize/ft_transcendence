@@ -1,3 +1,4 @@
+from django.db.models import Q
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -52,23 +53,17 @@ def get_tournament(request, pk):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_tournament_from_match(request, pk):
-	try:
-		match = Match_Record.objects.get(pk=pk)
+    try:
+        match = Match_Record.objects.get(pk=pk)
+    except Match_Record.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
-	except Match_Record.DoesNotExist:
-		return Response(status=status.HTTP_404_NOT_FOUND)
-	try:
-		tournament = Tournament.objects.get(
-			match1=match
-		) | Tournament.objects.get(
-			match2 = match
-		) | Tournament.objects.get(
-			playoff = match
-		) | Tournament.objects.get(
-			final_match = match
-		)
-	except Tournament.DoesNotExist:
-		return Response(status=status.HTTP_404_NOT_FOUND)
-	
-	return Response(TournamentSerializer(tournament).data)
+    tournament = Tournament.objects.filter(
+        Q(match1=match) | Q(match2=match) | Q(playoff=match) | Q(final_match=match)
+    ).first()  # Use .first() to get a single object if it exists
+
+    if not tournament:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    
+    return Response(TournamentSerializer(tournament).data)
 
