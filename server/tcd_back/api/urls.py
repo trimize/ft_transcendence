@@ -50,5 +50,6 @@ urlpatterns = [
 	path('get_tournaments/', tournament_views.get_tournaments, name='get_tournaments'),
 	path('create_tournament/', tournament_views.create_tournament, name='create_tournament'),
 	path('update_tournament/', tournament_views.update_tournament, name='update_tournament'),
-	path('get_tournament/<int:pk>/', tournament_views.get_tournament, name='get_tournament')
+	path('get_tournament/<int:pk>/', tournament_views.get_tournament, name='get_tournament'),
+    path('get_tournament_from_match/<int:pk>/', tournament_views.get_tournament_from_match, name='get_tournament_from_match')
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

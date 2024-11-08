@@ -2,8 +2,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
-from ..models import Tournament
-from ..serializer import TournamentSerializer
+from ..models import Tournament, Match_Record
+from ..serializer import TournamentSerializer, MatchSerializer
 
 @api_view(['GET'])
 # @permission_classes([IsAuthenticated])
@@ -48,4 +48,27 @@ def get_tournament(request, pk):
 		return Response(status=status.HTTP_404_NOT_FOUND)
 	return Response(TournamentSerializer(tournament).data)
 
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_tournament_from_match(request, pk):
+	try:
+		match = Match_Record.objects.get(pk=pk)
+
+	except Match_Record.DoesNotExist:
+		return Response(status=status.HTTP_404_NOT_FOUND)
+	try:
+		tournament = Tournament.objects.get(
+			match1=match
+		) | Tournament.objects.get(
+			match2 = match
+		) | Tournament.objects.get(
+			playoff = match
+		) | Tournament.objects.get(
+			final_match = match
+		)
+	except Tournament.DoesNotExist:
+		return Response(status=status.HTTP_404_NOT_FOUND)
+	
+	return Response(TournamentSerializer(tournament).data)
 
