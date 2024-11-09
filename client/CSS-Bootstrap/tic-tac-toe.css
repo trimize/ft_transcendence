@@ -11,14 +11,14 @@ body {
     color: #fff;
 }
 
-.container {
+.containerTTT {
     display: flex;
     align-items: center;
     text-align: center;
-    position: relative; /* Ensure positioning context for absolute children */
+    flex-direction: row;
 }
 
-.player {
+.playerTTT {
     width: 100px;
     padding: 10px;
     margin: 0 20px;
@@ -169,7 +169,7 @@ button:hover {
 }
 
 .modalTTT {
-    background-color: white;
+    background-color: rgb(0, 0, 0);
     padding: 20px;
     border-radius: 10px;
     text-align: center;
@@ -186,4 +186,11 @@ button:hover {
     font-size: 24px;
     font-weight: bold;
     color: #ffffff;
+    margin-bottom: 10px;
+}
+
+.victoryGif {
+    width: 150px;  /* Adjust the size as needed */
+    height: auto;
+    margin-top: 10px;
 }

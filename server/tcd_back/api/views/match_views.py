@@ -2,8 +2,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
-from ..models import Match_Record
+from ..models import Match_Record, Tournament
 from ..serializer import MatchSerializer
+from django.db.models import Q
 
 @api_view(['GET'])
 # @permission_classes([IsAuthenticated])
@@ -67,6 +68,15 @@ def get_matches_by_player(request):
 		matches = (Match_Record.objects.filter(player1_id=user.id) | Match_Record.objects.filter(player2_id=user.id)).filter(start_time__isnull=False, end_time__isnull=True)
 	else:
 		return Response({'error': 'Invalid type'}, status=status.HTTP_400_BAD_REQUEST)
+
+	# Check if match is not part of a tournament
+
+	for match in matches:
+		tournaments = Tournament.objects.filter(
+			Q(match1=match) | Q(match2=match) | Q(playoff=match) | Q(final_match=match)
+		).first()
+		if tournaments:
+			matches = matches.exclude(id=match.id)
 	
 	serializer = MatchSerializer(matches, many=True)
 	return Response(serializer.data)

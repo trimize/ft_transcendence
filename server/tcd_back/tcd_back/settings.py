@@ -85,18 +85,15 @@ LOGIN_URL = 'two_factor:login'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
-CORS_ALLOW_HEADERS = '*'  # Allow all headers
+CORS_ALLOW_HEADERS = '*'
 
 # Optional: Allow credentials
 CORS_ALLOW_CREDENTIALS = True
 
-# Allow all origins (not recommended for production)
-CORS_ALLOW_ALL_ORIGINS = True
-
 CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8080",
     "https://localhost:4443",
-    "https://10.24.105.8:4443",
-    "https://10.24.105.8:8443",
+    "https://10.32.7.12:4443",
 ]
 
 ROOT_URLCONF = 'tcd_back.urls'
@@ -131,6 +128,15 @@ CHANNEL_LAYERS = {
 #         "BACKEND": "channels.layers.InMemoryChannelLayer",
 #     },
 # }
+
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
 
 
 

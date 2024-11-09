@@ -281,7 +281,7 @@ const addEventListeners = () => {
                     params.append('powers', powers.checked);
                     params.append('type', (multiClicked == true ? 'local_multiplayer' : 'singleplayer'));
                     if (singleClicked == true) {
-                        params.append('ai', (ballSlider.value < 2 ? 'easy' : 'hard'));
+                        params.append('ai', (ballSlider.value < 19 ? 'easy' : 'hard'));
                     }
                     window.location.href = `/tic-tac-toe?${params.toString()}`;
                 }
@@ -466,10 +466,15 @@ function renderBaseHomeConnected()
                     </ul>
                 </div>
                 <div id="conversation">
-                    
+                
                 </div>
                 <textarea type="text" id="chatInput" placeholder="Type away .."></textarea>
                 <div id="sendButton"></div>
+                <div id="buttonContainer">
+                    <button id="playPongButton">Play Pong</button>
+                    <button id="playTicTacToeButton">Play Tic-Tac-Toe</button>
+                    <button id="blockFriendButton">Block Friend</button>
+                </div>
             </div>
             <div id="bg"></div>
             <div class="Cube">
@@ -495,6 +500,9 @@ async function friendsListenersFunction(friendItems, friendItem)
 {
     const chatInput = document.getElementById('chatInput');
     const notFriendMessage = document.getElementById('notFriendMessage');
+    const playPongButton = document.getElementById('playPongButton');
+    const playTicTacToeButton = document.getElementById('playTicTacToeButton');
+    const blockFriendButton = document.getElementById('blockFriendButton');
     const showFriends = document.getElementById('showFriends');
     const cube = document.getElementsByClassName('Cube');
     const faces = document.querySelectorAll('.Face');
@@ -505,13 +513,19 @@ async function friendsListenersFunction(friendItems, friendItem)
     const childsToRemove = invitationList.querySelectorAll('.friendInvitationElement');
     childsToRemove.forEach(child => child.remove());
     if (friendItem.classList.contains('friend'))
-    {
-        notFriendMessage.style.display = 'none';
-        chatInput.disabled = false;
-        chatInput.placeholder = "Type away..";
-    }
-    else
-    {
+        {
+            notFriendMessage.style.display = 'none';
+            chatInput.disabled = false;
+            chatInput.placeholder = "Type away..";
+            playPongButton.style.display = 'block';
+            playTicTacToeButton.style.display = 'block';
+            blockFriendButton.style.display = 'block';
+        }
+        else
+        {
+        playPongButton.style.display = 'none';
+        playTicTacToeButton.style.display = 'none';
+        blockFriendButton.style.display = 'none';
         chatInput.disabled = true;
         chatInput.placeholder = "You need to be friends";
         notFriendMessage.style.display = 'block';
@@ -845,6 +859,12 @@ async function acceptFriendNotif(friend, element)
     renderFriendsList(friends, friendNotifications, pendingRequests);
     const chatInput = document.getElementById('chatInput');
     const notFriendMessage = document.getElementById('notFriendMessage');
+    const playPongButton = document.getElementById('playPongButton');
+    const playTicTacToeButton = document.getElementById('playTicTacToeButton');
+    const blockFriendButton = document.getElementById('blockFriendButton');
+    playPongButton.style.display = 'block';
+    playTicTacToeButton.style.display = 'block';
+    blockFriendButton.style.display = 'block';
     chatInput.disabled = false;
     chatInput.placeholder = "Type away..";
     notFriendMessage.style.display = 'none';
@@ -1172,6 +1192,62 @@ export const renderBaseHomePage = async () =>
         // renderFriendRequest();
         addEventListeners();
         renderFriendsList(friends, friendNotifications, pendingRequests);
+
+        const playPongButton = document.getElementById('playPongButton');
+        const playTicTacToeButton = document.getElementById('playTicTacToeButton');
+        const blockFriendButton = document.getElementById('blockFriendButton');
+    
+        playPongButton.addEventListener('click', async () => {
+            // Logic to play Pong
+            const params = new URLSearchParams();
+            body = {
+                    "game": 'pong',
+                    "player1": actualUser.id,
+                    "player2": currentChatUser.id,
+                    "match_type": "online_multiplayer",
+                    "powers": 'true',
+            }
+            const match_id = await createGame(body);
+            const message = {
+                "type": "send_invite",
+                "game": 'pong',
+                "hostId": actualUser.id,
+                "inviteeId": currentChatUser.id,
+                "matchId": match_id
+            }
+            sendMessage(message);
+            params.append('matchId', match_id);
+            params.append('firstInvite', 'true');
+            window.location.href = `/lobby?${params.toString()}`;
+        });
+    
+        playTicTacToeButton.addEventListener('click', async () => {
+            // Logic to play Tic-Tac-Toe
+            const params = new URLSearchParams();
+            body = {
+                    "game": 'tic-tac-toe',
+                    "player1": actualUser.id,
+                    "player2": currentChatUser.id,
+                    "match_type": "online_multiplayer",
+                    "powers": 'true',
+            }
+            const match_id = await createGame(body);
+            const message = {
+                "type": "send_invite",
+                "game": 'tic-tac-toe',
+                "hostId": actualUser.id,
+                "inviteeId": currentChatUser.id,
+                "matchId": match_id
+            }
+            sendMessage(message);
+            params.append('matchId', match_id);
+            params.append('firstInvite', 'true');
+            window.location.href = `/lobby?${params.toString()}`;
+        });
+    
+        blockFriendButton.addEventListener('click', async () => {
+            alert('Friend blocked successfully');
+        });
 
         // showChat();
         socket = await getWebSocket();
