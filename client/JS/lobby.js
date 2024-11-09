@@ -169,12 +169,14 @@ async function socketListener()
 				newParams.append('matchId', matchData.id);
 				window.location.href = `/pong?${newParams.toString()}`;
 			} else if (matchData.game == 'tic-tac-toe') {
+				const oldParams = new URLSearchParams(window.location.search);
 				const newParams = new URLSearchParams();
 				newParams.append('host', matchData.player1);
 				newParams.append('invitee', matchData.player2);
 				newParams.append('matchId', matchData.id);
 				newParams.append('powers', matchData.powers);
 				newParams.append('offline', false);
+				newParams.append('tournamentId', oldParams.get('tournamentId'));
 				window.location.href = `/tic-tac-toe?${newParams.toString()}`;
 			}
 		} else if (message.type === 'refuse_invite' && message.matchId == matchData.id)

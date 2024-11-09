@@ -33,6 +33,7 @@ urlpatterns = [
 	path('update_tic_tac_toe_sign/<int:tic_tac_toe_sign>', user_views.update_tic_tac_toe_sign, name='update_tic_tac_toe_sign'),
 	path('update_tic_tac_toe_background/<int:tic_tac_toe_background>', user_views.update_tic_tac_toe_background, name='update_tic_tac_toe_background'),
 	path('get_friends/', user_views.get_friends, name='get_friends'),
+	path('get_blocked_friends/', user_views.get_blocked_friends, name='get_blocked_friends'),
 	# path('get_user_wins/<int:pk>/', user_views.get_user_wins, name='get_user_wins'),
 	# path('get_user_losses/<int:pk>/', user_views.get_user_losses, name='get_user_losses'),
 

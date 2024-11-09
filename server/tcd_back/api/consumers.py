@@ -481,6 +481,14 @@ class SocketConsumer(AsyncWebsocketConsumer):
 						'message': message
 					}
 				)
+			elif text_data_json['type'] == 'ping':
+				senderId = str(text_data_json.get('senderId'))
+				receiverId = str(text_data_json.get('receiverId'))
+				receiver_channel_name = user_channels.get(receiverId)
+				if not receiver_channel_name:
+					print(f"Receiver {receiverId} not connected")
+					return
+				
 
 
 

@@ -218,10 +218,10 @@ def block_friend(request, friend):
 
     if user.blocked_friends.filter(pk=friend).exists():
         user.blocked_friends.remove(friend)
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(serializer.friend)
 
     user.blocked_friends.add(friend)
-    return Response(status=status.HTTP_204_NO_CONTENT)
+    return Response(serializer.friend)
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
@@ -305,4 +305,12 @@ def get_friends(request):
     user = request.user
     friends = user.friends.all()  # Get all friends for the authenticated user
     serializer = UserSerializer(friends, many=True)  # Serialize the friends list
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_blocked_friends(request):
+    user = request.user
+    blocked_friends = user.blocked_friends.all()
+    serializer = UserSerializer(blocked_friends, many=True)
     return Response(serializer.data)

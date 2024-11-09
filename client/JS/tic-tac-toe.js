@@ -163,10 +163,16 @@ function endGame(winner) {
     // Append overlay to container
     containerElement.appendChild(overlay);
 
+    const urlParams = new URLSearchParams(window.location.search);
+    let redirect = '/';
+    if (urlParams.has('tournamentId')) {
+        redirect = `/tournament?tournamentId=${urlParams.get('tournamentId')}`;
+    }
+
     //Redirect to home after a delay
     setTimeout(() => {
-        window.location.href = '/';
-    }, 35000); // 5 seconds delay
+        window.location.href = redirect;
+    }, 6000); // 6 seconds delay
 }
 
 function checkers(change) {

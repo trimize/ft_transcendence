@@ -551,6 +551,7 @@ async function finishedWaiting()
 			} else {
 				const matchParams = new URLSearchParams();
 				matchParams.append('matchId', match_id);
+				matchParams.append('tournamentId', tournamentId);
 				window.location.href = `/lobby?${matchParams.toString()}`;
 			}
 		});
