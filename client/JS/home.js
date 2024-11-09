@@ -1241,7 +1241,7 @@ export const renderBaseHomePage = async () =>
         playPongButton.addEventListener('click', async () => {
             // Logic to play Pong
             const params = new URLSearchParams();
-            body = {
+            const body = {
                     "game": 'pong',
                     "player1": actualUser.id,
                     "player2": currentChatUser.id,
@@ -1265,7 +1265,7 @@ export const renderBaseHomePage = async () =>
         playTicTacToeButton.addEventListener('click', async () => {
             // Logic to play Tic-Tac-Toe
             const params = new URLSearchParams();
-            body = {
+            const body = {
                     "game": 'tic-tac-toe',
                     "player1": actualUser.id,
                     "player2": currentChatUser.id,
