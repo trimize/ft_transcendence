@@ -1,4 +1,4 @@
-import { fetchUserData, getTournamentById, fetchMatch, getUser, sendFriendRequest, updateTournament, getFriendNotifications, refuseFriendRequest, addFriend, getFriends, getPendingRequest, createGame, createTournament, fetchUserById } from "./fetchFunctions.js";
+import { fetchUserData, blockFriend, getTournamentById, fetchMatch, getUser, sendFriendRequest, updateTournament, getFriendNotifications, refuseFriendRequest, addFriend, getFriends, getPendingRequest, createGame, createTournament, fetchUserById, getBlockedFriends } from "./fetchFunctions.js";
 import { BACKEND_URL,  } from "./appconfig.js";
 import { sendMessage, getWebSocket } from "./singletonSocket.js";
 import { getCurrentTime } from "./utils.js";
@@ -12,6 +12,7 @@ let offline = true;
 let theBallSpeed;
 let socket;
 let buttonBool = false;
+let blockedFriends;
 
 
 function closeInviteListener(inviteDiv, inviteInput)
@@ -610,6 +611,7 @@ async function showChat() {
     const ballSlider = document.getElementById('ballSpeed');
     const powers = document.getElementById('powers');
     const sendButton = document.getElementById('sendButton');
+    const blockFriendButton = document.getElementById('blockFriendButton');
 
     inviteButton.addEventListener('click', async () => {
         // console.log('Invite button clicked');
@@ -751,6 +753,21 @@ async function showChat() {
     friendItems.forEach((friendItem) => {
         friendItem.addEventListener('click', async function() {
             friendsListenersFunction(friendItems, friendItem);
+            let currentUserblocked = false;
+            blockedFriends.forEach((friend) =>
+            {
+                if (currentChatUser.id == friend.id)
+                {
+                    blockFriendButton.style.color = "green";
+                    blockFriendButton.style.border = "1px solid green";
+                    currentUserblocked = true;
+                }
+            });
+            if (currentUserblocked == false)
+            {
+                blockFriendButton.style.color = "red";
+                blockFriendButton.style.border = "1px solid red";
+            }
         });
     });
 
@@ -929,6 +946,28 @@ function renderPendingRequest(pendingRequests)
             friendsListenersFunction(friendItems, pendingRequest);
         });
         friendsList.appendChild(pendingRequest);
+    };
+    // showChat();
+}
+
+function renderBlockedFriends()
+{
+    const friendsList = document.getElementById('friendsList');
+    const childsToRemove = friendsList.querySelectorAll('.pending');
+    childsToRemove.forEach(child => child.remove());
+    for(let i = 0; i < blockedFriends.length; i++)
+    {
+        const blockedfriend = document.createElement('li');
+        blockedfriend.classList.add('friendItem');
+        blockedfriend.textContent = blockedFriends[i].receiver.username;
+        blockedfriend.style.color = "red";
+        blockedfriend.classList.add('blocked');
+        blockedfriend.addEventListener('click', function()
+        {
+            const friendItems = document.querySelectorAll('.friendItem');
+            friendsListenersFunction(friendItems, blockedfriend);
+        });
+        friendsList.appendChild(blockedfriend);
     };
     // showChat();
 }
@@ -1132,7 +1171,8 @@ function refuseGameInvite(jsonMessage, element) {
 function renderFriendsList(friends, friendNotifications, pendingRequests)
 {
     renderFriendRequest(friendNotifications);
-    renderPendingRequest(pendingRequests)
+    renderPendingRequest(pendingRequests);
+    renderBlockedFriends();
     const friendsList = document.getElementById('friendsList');
     const childsToRemove = friendsList.querySelectorAll('.friend');
     childsToRemove.forEach(child => child.remove());
@@ -1188,6 +1228,7 @@ export const renderBaseHomePage = async () =>
         const friends = await getFriends();
         const friendNotifications = await getFriendNotifications();
         const pendingRequests = await getPendingRequest();
+        blockedFriends = await getBlockedFriends();
         getProfileInfo();
         // renderFriendRequest();
         addEventListeners();
@@ -1246,7 +1287,22 @@ export const renderBaseHomePage = async () =>
         });
     
         blockFriendButton.addEventListener('click', async () => {
-            alert('Friend blocked successfully');
+            const friends = await getFriends();
+            const friendNotifications = await getFriendNotifications();
+            const pendingRequests = await getPendingRequest();
+            if (blockFriendButton.style.color == "red")
+            {
+                const blocked_user = await blockFriend(currentChatUser.id);
+                blockedFriends.push(blocked_user);
+                renderFriendsList(friends, friendNotifications, pendingRequests);
+            }
+            else
+            {
+                const blocked_user = await blockFriend(currentChatUser.id);
+                const index = blockedFriends.findIndex(user => user.id === blocked_user.id);
+                blockedFriends.splice(index, 1);
+                renderFriendsList(friends, friendNotifications, pendingRequests);
+            }
         });
 
         // showChat();
