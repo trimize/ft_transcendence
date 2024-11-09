@@ -320,23 +320,18 @@ class SocketConsumer(AsyncWebsocketConsumer):
 				)
 			elif text_data_json['type'] == 'tournament_match':
 				match_id = str(text_data_json.get('match_id'))
-				self.room_group_name = f'match_{match_id}'
-				player1 = user_channels.get(str(text_data_json.get('player1')))
-				player2 = user_channels.get(str(text_data_json.get('player2')))
+				player2 = user_channels.get(str(text_data_json.get('opponentId')))
 				if not match_id:
 					print("match ID not provided")
 					return
-				players = [player1, player2]
-				for player in players:
-					if player is not None:
-						await self.channel_layer.group_add(self.room_group_name, player)
-				await self.channel_layer.group_send(
-					self.room_group_name,
-					{
-						'type': 'send_message',
-						'message': text_data_json
-					}
-				)
+				if player2 is not None:
+					await self.channel_layer.send(
+						player2,
+						{
+							'type': 'send_message',
+							'message': text_data_json
+						}
+					)
 			elif text_data_json['type'] == 'waiting_state':
 				opponent_id = str(text_data_json.get('opponentId'))
 				match_id = text_data_json.get('matchId')

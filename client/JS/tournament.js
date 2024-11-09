@@ -1,5 +1,6 @@
 import { getWebSocket, sendMessage } from './singletonSocket.js';
 import { fetchUserData, getUser, createGame , getTournamentById, fetchUserById, updateTournament, fetchMatch } from './fetchFunctions.js';
+import { BACKEND_URL } from './appconfig.js';
 
 let socket;
 let accepted = false;
@@ -17,6 +18,15 @@ let powers;
 let ball_acc;
 let ball_speed;
 let game;
+let winner1 = null;
+let winner2 = null;
+let loser1 = null;
+let loser2 = null;
+let champion = null;
+let second = null;
+let third = null;
+let start_loser;
+let start_winner;
 const inviteButtonsMap = new Map();
 
 
@@ -27,13 +37,13 @@ async function sendData()
 	setInterval(async () => {
 		tournamentData = await getTournamentById(tournamentId);
 		if (tournamentData) {
-			if (tournamentData.player1)
+			if (tournamentData.player1 && !player1)
 				player1 = await fetchUserById(tournamentData.player1);
-			if (tournamentData.player2)
+			if (tournamentData.player2 && !player2)
 				player2 = await fetchUserById(tournamentData.player2);
-			if (tournamentData.player3)
+			if (tournamentData.player3 && !player3)
 				player3 = await fetchUserById(tournamentData.player3);
-			if (tournamentData.player4)
+			if (tournamentData.player4 && !player4)
 				player4 = await fetchUserById(tournamentData.player4);
 			players = [player1, player2, player3, player4];
 			sendMessage({...tournamentData, type: "tournament_update"});
@@ -79,14 +89,19 @@ const renderTournamentPageHost = () => {
 
 		<div class="matchup" id="loosersRound">
 			<button id="playButtonLooserMatch"style="display: none;">Play</button>
-			<div class="player-name" id="looser1">Looser 1</div>
-			<div class="player-name" id="looser2">Looser 2</div>
+			<div class="player-name" id="looser1">Loser 1</div>
+			<div class="player-name" id="looser2">Loser 2</div>
 		</div>
 		<div id="looserRoundTree">
 			<div class="playerBranch" id="player1BranchLooser"></div>
 			<div class="playerBranch" id="player2BranchLooser"></div>
 			<div class="inBetweenBranch" id="inBetweenBranchLooser"></div>
 			<div class="winnerText" id="winnerTextLooser">Winner</div>
+		</div>
+		<div id="tournamentEnded">
+			<text class="tournamentWinnerText">Winner</text>
+			<text class="tournamentWinnerText" id="theChampion"></text>
+			<a id="goBackHome" href="/">Go Home</a>
 		</div>
 		<div id="bg"></div>`
 
@@ -133,6 +148,11 @@ const renderTournamentPageInvitee = () => {
 			<div class="playerBranch" id="player2BranchLooser"></div>
 			<div class="inBetweenBranch" id="inBetweenBranchLooser"></div>
 			<div class="winnerText" id="winnerTextLooser">Winner</div>
+		</div>
+		<div id="tournamentEnded">
+			<text class="tournamentWinnerText">Winner</text>
+			<text class="tournamentWinnerText" id="theChampion"></text>
+			<a id="goBackHome" href="/">Go Home</a>
 		</div>
 		<div id="bg"></div>`
 
@@ -220,17 +240,7 @@ const createGameInTournament = async (game_player1, game_player2) => {
 	match_id = await createGame(body);
 }
 
-const renderPlayButton = async (game_player1, game_player2) => {
-	if (user.id == player1.id || user.id == player3.id)
-	{
-		await createGameInTournament(game_player1, game_player2);
-		const body = {
-			id: tournamentId,
-			[`match${user.id === player1.id ? 1 : 2}`]: match_id
-		};
-		tournamentData = await updateTournament(body);
-		sendMessage({type: "tournament_match", matchId: match_id, player1: game_player1, player2: game_player2});
-	}
+const renderPlayButton = async () => {
 	if (match_id == 0) {
 		showNotification('Match not created. Please wait for the other player to create a match.');
 	} else {
@@ -241,27 +251,173 @@ const renderPlayButton = async (game_player1, game_player2) => {
 }
 
 const renderPlayButtons = async () => {
+	if (tournamentData.final_match)
+		start_winner = await fetchMatch(tournamentData.final_match);
+	if (tournamentData.playoff)
+		start_loser = await fetchMatch(tournamentData.playoff);
 	if (tournamentData.match1 == null)
 	{
 		const playButtonMatch1 = document.getElementById('playButtonMatch1');
 		const playButtonMatch2 = document.getElementById('playButtonMatch2');
 		if (user.id == player1.id || user.id == player2.id) {
 			playButtonMatch1.style.display = 'block';
+			if (user.id == player1.id)
+			{
+				await createGameInTournament(player1.id, player2.id);
+				const body = {
+					id: tournamentId,
+					match1: match_id
+				};
+				tournamentData = await updateTournament(body);
+				sendMessage({type: "tournament_match", matchId: match_id, opponentId: player2.id});
+				console.log({type: "tournament_match", matchId: match_id, opponentId: player2.id});
+			}
 			playButtonMatch1.addEventListener('click', async () => {
 				renderPlayButton(player1.id, player2.id);
 			});
 		}
-		else if (user.id == player3.id || user.id == player4.id) {
+		else if (user.id == player3.id || user.id == player4.id)
+		{
+			console.log("Going to the second match"); 
 			playButtonMatch2.style.display = 'block';
+			if (user.id == player3.id)
+			{
+				await createGameInTournament(player3.id, player4.id);
+				const body = {
+					id: tournamentId,
+					match2: match_id
+				};
+				tournamentData = await updateTournament(body);
+				sendMessage({type: "tournament_match", matchId: match_id, opponentId: player4.id});
+				console.log({type: "tournament_match", matchId: match_id, opponentId: player4.id});
+			}
 			playButtonMatch2.addEventListener('click', async () => {
 				renderPlayButton(player3.id, player4.id);
-			})}
+			});
+		}
 	}
-	else if (tournamentData.final_match == null)
-	{
+	else if (!tournamentData.final_match || !tournamentData.playoff)
 		renderSecondRound();
+	else if (tournamentData.final_match && !tournamentData.playoff)
+	{
+		if (start_winner.start_time == null)
+			renderSecondRound();
 	}
-}    
+	else if (!tournamentData.final_match && tournamentData.playoff)
+	{
+		if (start_loser.start_time == null)
+			renderSecondRound();
+	}
+	else if (tournamentData.final_match && tournamentData.playoff)
+	{
+		if (start_loser.start_time == null || start_winner.start_time == null)
+		{
+			if (start_winner.end_time != null || start_loser.end_time != null)
+				renderEnd();
+			else
+				renderSecondRound();
+		}
+		else
+			renderEnd();
+	}
+}
+
+async function getPodium(winMatch, loseMatch)
+{
+	console.log("Win match : ", winMatch);
+	console.log("lose match : ", loseMatch);
+	if (winMatch.player1_score > winMatch.player2_score && winMatch.player1_score >= 3)
+	{
+		champion = await fetchUserById(winMatch.player1);
+		second = await fetchUserById(winMatch.player2);
+	}
+	else if (winMatch.player2_score > winMatch.player1_score && winMatch.player2_score >= 3)
+	{
+		console.log("trying to fetch stuff");
+		champion = await fetchUserById(winMatch.player2);
+		second = await fetchUserById(winMatch.player1);
+	}
+	if (loseMatch.player1_score > loseMatch.player2_score && loseMatch.player1_score >= 3)
+		third = await fetchUserById(loseMatch.player1);
+	else if (loseMatch.player2_score > loseMatch.player1_score && loseMatch.player2_score >= 3)
+		third = await fetchUserById(loseMatch.player2);
+}
+
+async function renderEnd()
+{
+	const winnerTextLoser = document.getElementById('winnerTextLooser'); 
+	const Champion = document.getElementById('Champion');
+	const winner1Element = document.getElementById('winnerText1');
+	const winner2Element = document.getElementById('winnerText2');
+	const loser1Text = document.getElementById('looser1');
+	const loser2Text = document.getElementById('looser2');
+	document.getElementById('player1').textContent = player1.username;
+	document.getElementById('player2').textContent = player2.username;
+	document.getElementById('player3').textContent = player3.username;
+	document.getElementById('player4').textContent = player4.username;
+	const waitingChampion = setInterval(async() =>
+	{
+		tournamentData = await getTournamentById(tournamentId);
+		const matcha1 = await fetchMatch(tournamentData.match1);
+		const matcha2 = await fetchMatch(tournamentData.match2);
+		getWinnerMatch1(matcha1);
+		getWinnerMatch2(matcha2);
+		if (winner1)
+		{
+			winner1Element.textContent = winner1.username;
+			loser1Text.textContent = loser1.username;
+		}
+		if (winner2)
+		{
+			winner2Element.textContent = winner2.username;
+			loser2Text.textContent = loser2.username;
+		}
+		tournamentData = await getTournamentById(tournamentId);
+		const match1 = await fetchMatch(tournamentData.final_match);
+		const match2 = await fetchMatch(tournamentData.playoff);
+		getPodium(match1, match2);
+		console.log("this is the champ : ", champion);
+		console.log("this is the second : ", second);
+		console.log("this is the third : ", third);
+		if (champion != null)
+		{
+			Champion.textContent = champion.username;
+			console.log("This is the champion", champion);
+		}
+		if (third != null)
+		{
+			winnerTextLoser.textContent = third.username;
+			console.log("This is the third place", third);
+		}
+		if (champion != null && third != null)
+		{
+			if (user.id == player1.id)
+			{
+				const body = {
+					id: tournamentId,
+					first_place: champion.id,
+					second_place: second.id,
+					third_place: third.id,
+					end_time: new Date()
+				}
+				tournamentData = await updateTournament(body);
+			}
+			clearInterval(waitingChampion);
+			let opacity = 0;
+			const winBg = document.getElementById('tournamentEnded');
+			winBg.style.display = "flex";
+			winBg.style.backgroundImage = `url(${BACKEND_URL}/media/tournament-bg.gif)`;
+			document.getElementById('theChampion').textContent = champion.username;
+			const showBg = setInterval(() =>
+			{
+				opacity += 0.01;
+				winBg.style.opacity = opacity;
+				if (opacity >= 1)
+					clearInterval(showBg);
+			}, 10);
+		}
+	}, 1000);
+}
 
 const showNotification = (message) => {
     const notificationElement = document.createElement('div');
@@ -307,7 +463,6 @@ const receiveInfoFromSocket = (socket) => {
 			//console.log('Tournament update received:', msg);
 			if (user.id != msg.player1) {
 				delete msg.type;
-			 	console.log('Receiving the update');
 			 	tournamentData = msg;
 			 	if (tournamentData.player1)
 					player1 = await fetchUserById(tournamentData.player1);
@@ -326,54 +481,172 @@ const receiveInfoFromSocket = (socket) => {
                 }
             }
 		}
-		else if (msg.type === 'tournament_match' && user.id != msg.player1 && user.id != msg.player3)
+		else if (msg.type === 'tournament_match')
 		{
 			match_id = msg.matchId;
+			console.log("trying to Update my MatchID !", msg);
 		}
     });
 }
 
-const getWinner = (match) => {
-	if (match.player1_score > match.player2_score)
-		return player1;
-	else
-		return player2;
+const getWinnerMatch1 = async (match) => {
+	if (match.player1_score > match.player2_score && match.player1_score >= 3)
+	{
+		winner1 = await fetchUserById(match.player1);
+		loser1 = await fetchUserById(match.player2);
+	}
+	else if (match.player2_score > match.player1_score && match.player2_score >= 3)
+	{
+		winner1 = await fetchUserById(match.player2);
+		loser1 = await fetchUserById(match.player1);
+	}
+}
+
+const getWinnerMatch2 = async (match) => {
+	if (match.player1_score > match.player2_score && match.player1_score >= 3)
+	{
+		winner2 = await fetchUserById(match.player1);
+		loser2 = await fetchUserById(match.player2);
+		
+	}
+	else if (match.player2_score > match.player1_score && match.player2_score >= 3)
+	{
+		winner2 = await fetchUserById(match.player2);
+		loser2 = await fetchUserById(match.player1);
+	}
+}
+
+async function finishedWaiting()
+{
+	const playButtonLooserMatch = document.getElementById('playButtonLooserMatch');
+	const playButtonMatchV1 = document.getElementById('playButtonMatchV1');
+	if (user.id == winner1.id || user.id == winner2.id) {
+		console.log("I won the first match!");
+		if (user.id == winner1.id)
+		{
+			playButtonMatchV1.style.display = 'block';
+			await createGameInTournament(winner1.id, winner2.id);
+			const body = {
+				id: tournamentId,
+				final_match: match_id
+			};
+			tournamentData = await updateTournament(body);
+		}
+		if (user.id == winner2.id)
+		{
+			const checkingmatch = setInterval(async() =>
+			{
+				tournamentData = await getTournamentById(tournamentId);
+				if (tournamentData.final_match)
+				{
+					match_id = tournamentData.final_match;
+					playButtonMatchV1.style.display = 'block';
+					clearInterval(checkingmatch);
+				}
+			}, 1000);
+		}
+		playButtonMatchV1.addEventListener('click', async () => {
+			if (match_id == 0) {
+				showNotification('Match not created. Please wait for the other player to create a match.');
+			} else {
+				const matchParams = new URLSearchParams();
+				matchParams.append('matchId', match_id);
+				window.location.href = `/lobby?${matchParams.toString()}`;
+			}
+		});
+	}
+	else if (user.id == loser1.id || user.id == loser2.id)
+	{
+		console.log("This is the first loser : ", loser1);
+		console.log("This is the second loser : ", loser2);
+		if (user.id == loser1.id)
+		{
+			playButtonLooserMatch.style.display = 'block';
+			await createGameInTournament(loser1.id, loser2.id);
+			const body = {
+				id: tournamentId,
+				playoff: match_id
+			};
+			tournamentData = await updateTournament(body);
+		}
+		if (user.id == loser2.id)
+		{
+			const checkingmatch = setInterval(async() =>
+			{
+				tournamentData = await getTournamentById(tournamentId);
+				if (tournamentData.playoff)
+				{
+					match_id = tournamentData.playoff;
+					playButtonLooserMatch.style.display = 'block';
+					clearInterval(checkingmatch);
+				}
+			}, 1000);
+		}
+		playButtonLooserMatch.addEventListener('click', async () => {
+			if (match_id == 0) {
+				showNotification('Match not created. Please wait for the other player to create a match.');
+			} else {
+				const matchParams = new URLSearchParams();
+				matchParams.append('matchId', match_id);
+				window.location.href = `/lobby?${matchParams.toString()}`;
+			}
+		});
+	}
 }
 
 const renderSecondRound = async () => {
+	document.getElementById('player1').textContent = player1.username;
+	document.getElementById('player2').textContent = player2.username;
+	document.getElementById('player3').textContent = player3.username;
+	document.getElementById('player4').textContent = player4.username;
 	const winner1Element = document.getElementById('winnerText1');
 	const winner2Element = document.getElementById('winnerText2');
-	if (tournamentData.match1 && tournamentData.match2) {
+	const loser1Text = document.getElementById('looser1');
+	const loser2Text = document.getElementById('looser2');
+	console.log("getting into the function")
+	const waitingWinners = setInterval(async() =>
+	{
+		tournamentData = await getTournamentById(tournamentId);
 		const match1 = await fetchMatch(tournamentData.match1);
 		const match2 = await fetchMatch(tournamentData.match2);
-		const winner1 = getWinner(match1);
-		const winner2 = getWinner(match2);
-		winner1Element.textContent = winner1.username;
-		winner2Element.textContent = winner2.username;
-		const playButtonMatchV1 = document.getElementById('playButtonMatchV1');
-		if (user.id == winner1.id || user.id == winner2.id) {
-			playButtonMatchV1.style.display = 'block';
-			playButtonMatchV1.addEventListener('click', async () => {
-				if (user.id == winner1.id)
-				{
-					await createGameInTournament(game_player1, game_player2);
-					sendMessage({type: "tournament_match", matchId: match_id, player1: game_player1, player2: game_player2});
-				}
-				if (match_id == 0) {
-					showNotification('Match not created. Please wait for the other player to create a match.');
-				} else {
-					const matchParams = new URLSearchParams();
-					matchParams.append('matchId', match_id);
-					window.location.href = `/lobby?${matchParams.toString()}`;
-				}
-			});
-}}}
+		console.log("This is the first match", match1);
+		console.log("This is the second match", match2);
+		getWinnerMatch1(match1);
+		getWinnerMatch2(match2);
+		if (winner1 != null)
+		{
+			winner1Element.textContent = winner1.username;
+			loser1Text.textContent = loser1.username;
+			console.log("This is the first winner", winner1);
+		}
+		if (winner2 != null)
+		{
+			winner2Element.textContent =  winner2.username;
+			loser2Text.textContent = loser2.username;
+			console.log("This is the second winner", winner2);
+		}
+		if (winner1 != null && winner2 != null)
+		{
+			clearInterval(waitingWinners);
+			finishedWaiting();
+		}
+	}, 1000);	
+}
 
 export const renderTournament = async () => {
 	socket = await getWebSocket();
 	tournamentId = params.get('tournamentId');
 	user = await fetchUserData();
 	tournamentData = await getTournamentById(tournamentId);
+	console.log("This is the tournament data : ", tournamentData);
+	if (tournamentData.player1)
+		player1 = await fetchUserById(tournamentData.player1);
+	if (tournamentData.player2)
+		player2 = await fetchUserById(tournamentData.player2);
+	if (tournamentData.player3)
+		player3 = await fetchUserById(tournamentData.player3);
+	if (tournamentData.player4)
+		player4 = await fetchUserById(tournamentData.player4);
 	powers = tournamentData.powers;
 	game = tournamentData.game;
 	if (game == "pong")
@@ -390,16 +663,13 @@ export const renderTournament = async () => {
 		document.getElementById('content').innerHTML = renderTournamentPageHost();
 		document.getElementById('player1').textContent = host.username;
 		addEventListeners();
-		renderSecondRound();
 	} else {
 		document.getElementById('content').innerHTML = renderTournamentPageInvitee();
 		document.getElementById('player1').textContent = host.username;
-		renderSecondRound();
 	}
 
-	if (user.id == tournamentData.player1) {
+	if (user.id == tournamentData.player1 && tournamentData.match1 == null && tournamentData.match2 == null)
 		sendData();
-	}
 
 	const showButtons = setInterval(() => 
 	{

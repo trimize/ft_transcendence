@@ -11,6 +11,7 @@ let matchmakingClicked = false;
 let offline = true;
 let theBallSpeed;
 let socket;
+let buttonBool = false;
 
 
 function closeInviteListener(inviteDiv, inviteInput)
@@ -508,6 +509,9 @@ async function friendsListenersFunction(friendItems, friendItem)
     const showChatRoom = document.getElementById('showChatRoom');
     const chatRoom = document.getElementById('chatRoom');
     const conversationDiv = document.getElementById('conversation');
+    const invitationList = document.getElementById('invitationList');
+    const childsToRemove = invitationList.querySelectorAll('.friendInvitationElement');
+    childsToRemove.forEach(child => child.remove());
     if (friendItem.classList.contains('friend'))
         {
             notFriendMessage.style.display = 'none';
@@ -555,10 +559,12 @@ async function friendsListenersFunction(friendItems, friendItem)
         }
     }
     if (messages[currentChatUser.id]) {
+        console.log("All the notifications : ", messages[currentChatUser.id])
         messages[currentChatUser.id].forEach(msg => {
             if (msg.type === 'chat_message') {
                 renderConversationBalloon(msg.message, msg.senderId === actualUser.id);
-            } else if (msg.type === 'send_invite' || msg.type === 'waiting_state') {
+            } else if (msg.type === 'send_invite' || msg.type === 'waiting_state' || msg.type === 'tournament_invite') {
+                console.log("going in with ", msg);
                 renderFriendRequestNotif(msg, currentChatUser.id);
             }
         });
@@ -676,7 +682,8 @@ async function showChat() {
         }
     });
 
-    addFriendButton();
+    if (buttonBool == false)
+        addFriendButton();
 
     closeInviteListener(inviteContainer, inviteInput);
 
@@ -780,10 +787,11 @@ async function showChat() {
 
 async function addFriendButton()
 {
-    const addFriendButton = document.getElementById('plusButton');
+    buttonBool = true;
+    const friendButton = document.getElementById('plusButton');
     const textInput = document.getElementById('searchContact');
     const user = await fetchUserData();
-    addFriendButton.addEventListener('click', async function ()
+    friendButton.addEventListener('click', async function ()
     {
         const friendAddStatus = document.getElementById('friendAddStatus');
         const friendName = textInput.value;
@@ -1005,22 +1013,11 @@ async function renderFriendRequestNotif(jsonMessage, chatUserId)
 {
     const chatUser = await fetchUserById(chatUserId);
     // console.log(jsonMessage);
-    const invitationList = document.getElementById('invitationList');
-    const childsToRemove = invitationList.querySelectorAll('.friendInvitationElement');
-    childsToRemove.forEach(child => child.remove());
 
     const friendRequest = document.createElement('li');
     friendRequest.classList.add('friendItemNotif');
     friendRequest.style.color = "aliceblue";
     friendRequest.classList.add('friendInvitationElement');
-
-    const correct = document.createElement('div');
-    correct.classList.add('correctDiv');
-    friendRequest.appendChild(correct);
-
-    const cross = document.createElement('div');
-    cross.classList.add('crossDiv');
-    friendRequest.appendChild(cross);
 
     const requestUsername = document.createElement('div');
     requestUsername.classList.add('requestUsername');
@@ -1035,6 +1032,14 @@ async function renderFriendRequestNotif(jsonMessage, chatUserId)
     const messageText = document.createElement('div');
     messageText.classList.add('messageText');
     friendRequest.appendChild(messageText);
+
+    const correct = document.createElement('div');
+    correct.classList.add('correctDiv');
+    friendRequest.appendChild(correct);
+
+    const cross = document.createElement('div');
+    cross.classList.add('crossDiv');
+    friendRequest.appendChild(cross);
 
     invitationList.appendChild(friendRequest);
 
@@ -1313,10 +1318,18 @@ export const renderBaseHomePage = async () =>
                 renderFriendsList(newfriends, newfriendNotifications, newpendingRequests);
             }
             else if (message.type === 'tournament_invite') {
-                console.log('Received tournament invite:', message);
-                renderFriendRequestNotif(message, message.hostId);
+                if (!messages[message.hostId]) {
+                    messages[message.hostId] = [];
+                }
+                if (messages[message.hostId].some(msg => (msg.type === 'tournament_invite' && msg.tournamentId == message.tournamentId))) {
+                    return;
+                }
+                messages[message.hostId].push(message);
                 showRedDot(message.hostId);
                 checkRedDot();
+                if (currentChatUser && message.hostId == currentChatUser.id) {
+                    renderFriendRequestNotif(message, message.hostId);
+                }
             }
             else if (message.type === 'friend_disconnected')
                 changeBorderStatus(message.userId, false);
