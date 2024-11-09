@@ -562,3 +562,24 @@ export async function get_tournament_from_match(matchId)
 	  return null;
 	}
 }
+
+export async function blockFriend(id) {
+	const accessToken = await securelyGetAccessToken();
+	try {
+	  let response = await fetch(
+	    `${BACKEND_URL}/api/block_friend/${id}/`,
+	    {
+	      method: "GET",
+	      headers: {
+		Authorization: `Bearer ${accessToken}`,
+		"Content-Type": "application/json",
+	      },
+	    }
+	  );
+	  if (!response.ok) throw new Error("Failed to fetch tournament data");
+	  return await response.json();
+	} catch (error) {
+	  console.error(error.message);
+	  return null;
+	}
+}

@@ -398,7 +398,6 @@ async function renderEnd()
 					first_place: champion.id,
 					second_place: second.id,
 					third_place: third.id,
-					end_time: new Date()
 				}
 				tournamentData = await updateTournament(body);
 			}
@@ -672,10 +671,18 @@ export const renderTournament = async () => {
 	if (user.id == tournamentData.player1 && tournamentData.match1 == null && tournamentData.match2 == null)
 		sendData();
 
-	const showButtons = setInterval(() => 
+	const showButtons = setInterval(async () => 
 	{
 		if (player1 && player2 && player3 && player4)
 		{
+			if (user.id == player1.id)
+			{
+				const data = {
+					id: tournamentId,
+					start_time: new Date()
+				}
+				tournamentData = await updateTournament(data);
+			}
 			clearInterval(showButtons);
 			renderPlayButtons();
 		}

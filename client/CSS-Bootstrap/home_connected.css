@@ -672,7 +672,7 @@ button#blockFriendButton {
     border: 1px solid red;
 }
 
-#blockFriendButton:hover
+/*#blockFriendButton:hover
 {
     background-color: rgba(255, 0, 0, 0.555);
-}
+}*/
