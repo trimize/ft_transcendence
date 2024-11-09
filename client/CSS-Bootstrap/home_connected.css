@@ -667,9 +667,13 @@
 }
 
 button#blockFriendButton {
-    color: red;
-    margin-left: 500px;
-    border: 1px solid red;
+	color: red;
+	/* margin-left: 500px; */
+	border: 1px solid red;
+	position: absolute;
+	width: 140px;
+	left: 850px;
+	bottom: 0;
 }
 
 /*#blockFriendButton:hover

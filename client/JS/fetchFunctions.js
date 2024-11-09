@@ -245,7 +245,7 @@ export async function fetchTournaments(type) {
 	  console.error(error.message);
 	  return "";
 	}
-  }
+}
 
 export async function fetchMatch(matchId) {
 	const accessToken = await securelyGetAccessToken();
@@ -568,6 +568,27 @@ export async function blockFriend(id) {
 	try {
 	  let response = await fetch(
 	    `${BACKEND_URL}/api/block_friend/${id}/`,
+	    {
+	      method: "PUT",
+	      headers: {
+		Authorization: `Bearer ${accessToken}`,
+		"Content-Type": "application/json",
+	      },
+	    }
+	  );
+	  if (!response.ok) throw new Error("Failed block friend");
+	  return await response.json();
+	} catch (error) {
+	  console.error(error.message);
+	  return null;
+	}
+}
+
+export async function getBlockedFriends() {
+	const accessToken = await securelyGetAccessToken();
+	try {
+	  let response = await fetch(
+	    `${BACKEND_URL}/api/get_blocked_friends/`,
 	    {
 	      method: "GET",
 	      headers: {

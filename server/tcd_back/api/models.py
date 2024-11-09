@@ -37,7 +37,7 @@ class User(AbstractBaseUser):
     friends = models.ManyToManyField('self', blank=True)
     invitations_received = models.ManyToManyField('self', blank=True)
     invitations_sent = models.ManyToManyField('self', blank=True)
-    blocked_friends = models.ManyToManyField('self', blank=True, related_name='blocked_by')
+    blocked_friends = models.ManyToManyField('self', blank=True)
     pong_ball = models.IntegerField(default=0)
     pong_slider = models.IntegerField(default=0)
     tic_tac_toe_sign = models.IntegerField(default=0)

@@ -12,7 +12,6 @@ let offline = true;
 let theBallSpeed;
 let socket;
 let buttonBool = false;
-let blockedFriends;
 
 
 function closeInviteListener(inviteDiv, inviteInput)
@@ -488,7 +487,11 @@ function renderBaseHomeConnected()
             </div>`
 }
 
-function renderConversationBalloon(message, isSender) {
+async function renderConversationBalloon(message, isSender) {
+    if (await checkBlocked(currentChatUser.id) == true) {
+        console.log("it was true in the balloon");
+        return;
+    }
     const conversationDiv = document.getElementById('conversation');
     const balloon = document.createElement('div');
     balloon.classList.add('balloon');
@@ -514,19 +517,18 @@ async function friendsListenersFunction(friendItems, friendItem)
     const childsToRemove = invitationList.querySelectorAll('.friendInvitationElement');
     childsToRemove.forEach(child => child.remove());
     if (friendItem.classList.contains('friend'))
-        {
-            notFriendMessage.style.display = 'none';
-            chatInput.disabled = false;
-            chatInput.placeholder = "Type away..";
-            playPongButton.style.display = 'block';
-            playTicTacToeButton.style.display = 'block';
-            blockFriendButton.style.display = 'block';
-        }
-        else
-        {
+    {
+        notFriendMessage.style.display = 'none';
+        chatInput.disabled = false;
+        chatInput.placeholder = "Type away..";
+        playPongButton.style.display = 'block';
+        playTicTacToeButton.style.display = 'block';
+        blockFriendButton.style.display = 'block';
+    }
+    else
+    {
         playPongButton.style.display = 'none';
         playTicTacToeButton.style.display = 'none';
-        blockFriendButton.style.display = 'none';
         chatInput.disabled = true;
         chatInput.placeholder = "You need to be friends";
         notFriendMessage.style.display = 'block';
@@ -554,8 +556,11 @@ async function friendsListenersFunction(friendItems, friendItem)
     currentChatUser = await getUser(friendUsername);
     console.log(currentChatUser);
     const friendrequests = await getFriendNotifications();
+    console.log("here are the friend requests");
+    console.log(friendrequests);
     for (let i = 0; i < friendrequests.length; i++) {
         if (friendrequests[i].sender.username == currentChatUser.username) {
+            console.log("going to render");
             renderFriendRequestNotif(friendrequests[i], friendrequests[i].sender.id);
         }
     }
@@ -569,6 +574,22 @@ async function friendsListenersFunction(friendItems, friendItem)
                 renderFriendRequestNotif(msg, currentChatUser.id);
             }
         });
+    }
+    let currentUserblocked = false;
+    const blockedFriends = await getBlockedFriends();
+    blockedFriends.forEach((friend) =>
+    {
+        if (currentChatUser.id == friend.id)
+        {
+            blockFriendButton.style.color = "green";
+            blockFriendButton.style.border = "1px solid green";
+            currentUserblocked = true;
+        }
+    });
+    if (currentUserblocked == false)
+    {
+        blockFriendButton.style.color = "red";
+        blockFriendButton.style.border = "1px solid red";
     }
 }
 
@@ -753,21 +774,6 @@ async function showChat() {
     friendItems.forEach((friendItem) => {
         friendItem.addEventListener('click', async function() {
             friendsListenersFunction(friendItems, friendItem);
-            let currentUserblocked = false;
-            blockedFriends.forEach((friend) =>
-            {
-                if (currentChatUser.id == friend.id)
-                {
-                    blockFriendButton.style.color = "green";
-                    blockFriendButton.style.border = "1px solid green";
-                    currentUserblocked = true;
-                }
-            });
-            if (currentUserblocked == false)
-            {
-                blockFriendButton.style.color = "red";
-                blockFriendButton.style.border = "1px solid red";
-            }
         });
     });
 
@@ -866,6 +872,7 @@ async function acceptFriendNotif(friend, element)
     const friends = await getFriends();
     const friendNotifications = await getFriendNotifications();
     const pendingRequests = await getPendingRequest();
+    const blockedFriends = await getBlockedFriends();
     element.remove();
     for (let i = 0; i < friendNotifications.length; i++) {
         if (friendNotifications[i].sender.username == currentChatUser.username) {
@@ -873,7 +880,7 @@ async function acceptFriendNotif(friend, element)
         }
     }
     renderFriendRequest(friendNotifications);
-    renderFriendsList(friends, friendNotifications, pendingRequests);
+    renderFriendsList(friends, friendNotifications, pendingRequests, blockedFriends);
     const chatInput = document.getElementById('chatInput');
     const notFriendMessage = document.getElementById('notFriendMessage');
     const playPongButton = document.getElementById('playPongButton');
@@ -900,6 +907,7 @@ async function refuseFriendNotif(friend, element)
     const friends = await getFriends();
     const friendNotifications = await getFriendNotifications();
     const pendingRequests = await getPendingRequest();
+    const blockedFriends = await getBlockedFriends();
     element.remove();
     for (let i = 0; i < friendNotifications.length; i++) {
         if (friendNotifications[i].sender.username == currentChatUser.username) {
@@ -907,7 +915,7 @@ async function refuseFriendNotif(friend, element)
         }
     }
     renderFriendRequest(friendNotifications);
-    renderFriendsList(friends, friendNotifications, pendingRequests);
+    renderFriendsList(friends, friendNotifications, pendingRequests, blockedFriends);
     const chatRoom = document.getElementById('chatRoom');
     const showChatRoom = document.getElementById('showChatRoom');
     const cube = document.getElementsByClassName('Cube');
@@ -950,16 +958,16 @@ function renderPendingRequest(pendingRequests)
     // showChat();
 }
 
-function renderBlockedFriends()
+function renderBlockedFriends(blockedFriends)
 {
     const friendsList = document.getElementById('friendsList');
-    const childsToRemove = friendsList.querySelectorAll('.pending');
+    const childsToRemove = friendsList.querySelectorAll('.blocked');
     childsToRemove.forEach(child => child.remove());
     for(let i = 0; i < blockedFriends.length; i++)
     {
         const blockedfriend = document.createElement('li');
         blockedfriend.classList.add('friendItem');
-        blockedfriend.textContent = blockedFriends[i].receiver.username;
+        blockedfriend.textContent = blockedFriends[i].username;
         blockedfriend.style.color = "red";
         blockedfriend.classList.add('blocked');
         blockedfriend.addEventListener('click', function()
@@ -1050,8 +1058,15 @@ function renderFriendRequest(friendNotifications)
 
 async function renderFriendRequestNotif(jsonMessage, chatUserId)
 {
+    console.log("here")
+
+    if (await checkBlocked(chatUserId) == true) {
+        console.log("it was true");
+        return;
+    }
+
     const chatUser = await fetchUserById(chatUserId);
-    // console.log(jsonMessage);
+    console.log(jsonMessage);
 
     const friendRequest = document.createElement('li');
     friendRequest.classList.add('friendItemNotif');
@@ -1083,7 +1098,7 @@ async function renderFriendRequestNotif(jsonMessage, chatUserId)
     invitationList.appendChild(friendRequest);
 
     if (!('type' in jsonMessage)) {
-        // console.log('No type');
+            console.log('No type');
         messageText.textContent = "New friend request!"
         correct.addEventListener('click', () => acceptFriendNotif(jsonMessage.sender, friendRequest));
         cross.addEventListener('click', () => refuseFriendNotif(jsonMessage.sender, friendRequest));
@@ -1168,11 +1183,11 @@ function refuseGameInvite(jsonMessage, element) {
     element.remove();
 }
 
-function renderFriendsList(friends, friendNotifications, pendingRequests)
+function renderFriendsList(friends, friendNotifications, pendingRequests, blockedFriends)
 {
     renderFriendRequest(friendNotifications);
     renderPendingRequest(pendingRequests);
-    renderBlockedFriends();
+    renderBlockedFriends(blockedFriends);
     const friendsList = document.getElementById('friendsList');
     const childsToRemove = friendsList.querySelectorAll('.friend');
     childsToRemove.forEach(child => child.remove());
@@ -1228,15 +1243,17 @@ export const renderBaseHomePage = async () =>
         const friends = await getFriends();
         const friendNotifications = await getFriendNotifications();
         const pendingRequests = await getPendingRequest();
-        blockedFriends = await getBlockedFriends();
+        const blockedFriends = await getBlockedFriends();
         getProfileInfo();
         // renderFriendRequest();
         addEventListeners();
-        renderFriendsList(friends, friendNotifications, pendingRequests);
+        renderFriendsList(friends, friendNotifications, pendingRequests, blockedFriends);
 
         const playPongButton = document.getElementById('playPongButton');
         const playTicTacToeButton = document.getElementById('playTicTacToeButton');
         const blockFriendButton = document.getElementById('blockFriendButton');
+        const chatInput = document.getElementById('chatInput');
+        const notFriendMessage = document.getElementById('notFriendMessage');
     
         playPongButton.addEventListener('click', async () => {
             // Logic to play Pong
@@ -1287,22 +1304,36 @@ export const renderBaseHomePage = async () =>
         });
     
         blockFriendButton.addEventListener('click', async () => {
-            const friends = await getFriends();
-            const friendNotifications = await getFriendNotifications();
-            const pendingRequests = await getPendingRequest();
             if (blockFriendButton.style.color == "red")
             {
                 const blocked_user = await blockFriend(currentChatUser.id);
-                blockedFriends.push(blocked_user);
-                renderFriendsList(friends, friendNotifications, pendingRequests);
+                playPongButton.style.display = 'none';
+                playTicTacToeButton.style.display = 'none';
+                chatInput.disabled = true;
+                chatInput.placeholder = "You need to be friends";
+                notFriendMessage.style.display = 'block';
+                blockFriendButton.style.color = "green";
+                blockFriendButton.style.border = "1px solid green";
+                blockFriendButton.textContent = "Unblock Friend";
             }
             else
             {
                 const blocked_user = await blockFriend(currentChatUser.id);
-                const index = blockedFriends.findIndex(user => user.id === blocked_user.id);
-                blockedFriends.splice(index, 1);
-                renderFriendsList(friends, friendNotifications, pendingRequests);
+                notFriendMessage.style.display = 'none';
+                chatInput.disabled = false;
+                chatInput.placeholder = "Type away..";
+                playPongButton.style.display = 'block';
+                playTicTacToeButton.style.display = 'block';
+                blockFriendButton.style.display = 'block';
+                blockFriendButton.style.color = "red";
+                blockFriendButton.style.border = "1px solid red";
+                blockFriendButton.textContent = "Block Friend";
             }
+            const friends = await getFriends();
+            const friendNotifications = await getFriendNotifications();
+            const pendingRequests = await getPendingRequest();
+            const blockedFriends = await getBlockedFriends();
+            renderFriendsList(friends, friendNotifications, pendingRequests, blockedFriends);
         });
 
         // showChat();
@@ -1328,7 +1359,7 @@ export const renderBaseHomePage = async () =>
                     checkRedDot();
                     //console.log('red dot should show now');
                 }   
-            } else if (message.type === 'send_invite' || message.firstInvite == 'true') {
+            } else if ((message.type === 'send_invite' || message.firstInvite == 'true')) {
                 // console.log('Received game invite:', message);
                 const sender = message.type == 'send_invite' ? message.hostId : message.userId;
                 if (!messages[sender]) {
@@ -1370,8 +1401,9 @@ export const renderBaseHomePage = async () =>
                 const newfriends = await getFriends();
                 const newfriendNotifications = await getFriendNotifications();
                 const newpendingRequests = await getPendingRequest();
+                const blockedFriends = await getBlockedFriends();
                 console.log("This is the updated friends : " + newfriends);
-                renderFriendsList(newfriends, newfriendNotifications, newpendingRequests);
+                renderFriendsList(newfriends, newfriendNotifications, newpendingRequests, blockedFriends);
             }
             else if (message.type === 'tournament_invite') {
                 if (!messages[message.hostId]) {
@@ -1400,6 +1432,11 @@ export const renderBaseHomePage = async () =>
         offline = true;
         addEventListeners();
     }
+}
+
+async function checkBlocked(id) {
+    const blockedFriends = await getBlockedFriends();
+    return blockedFriends.some((friend) => friend.id == id);
 }
 
 function renderError()
