@@ -91,6 +91,7 @@ CORS_ALLOW_HEADERS = '*'
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8080",
     "https://localhost:4443",
     "https://10.32.7.12:4443",
 ]

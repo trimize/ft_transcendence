@@ -21,13 +21,14 @@
 	max-width: 1000px;
 }
 
-.unfinishedMatches, .finishedMatches {
+.unfinishedMatches, .finishedMatches, .unfinishedTournaments, .finishedTournaments {
 	width: 100%;
 	max-width: 1000px;
 	margin-bottom: 20px;
 	overflow-y: auto;
 	max-height: 350px;
     padding-right: 5px;
+    text-align: center;
 }
 
 .unfinishedMatches::-webkit-scrollbar-track, .finishedMatches::-webkit-scrollbar-track {
@@ -36,16 +37,16 @@
     border-radius: 10px;
 }
   
-.unfinishedMatches::-webkit-scrollbar, .finishedMatches::-webkit-scrollbar {
+.unfinishedMatches::-webkit-scrollbar, .finishedMatches::-webkit-scrollbar, .unfinishedTournaments::-webkit-scrollbar, .finishedTournaments::-webkit-scrollbar {
     width: 5px;
 }
   
-.unfinishedMatches::-webkit-scrollbar-thumb, .finishedMatches::-webkit-scrollbar-thumb {
+.unfinishedMatches::-webkit-scrollbar-thumb, .finishedMatches::-webkit-scrollbar-thumb, .unfinishedTournaments::-webkit-scrollbar-thumb, .finishedTournaments::-webkit-scrollbar-thumb {
     border-radius: 10px;
     background-color: #c4babab0;
 }
 
-.unfinishedMatch, .finishedMatch {
+.unfinishedMatch, .finishedMatch, .unfinishedTournament, .finishedTournament {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -68,7 +69,7 @@ button.profileButtons.historyBtn {
     background-color: #3b5b078b;
 }
 
-.unfinishedMatch p, .finishedMatch p {
+.unfinishedMatch p, .finishedMatch p, .unfinishedTournament p, .finishedTournament p {
     margin: 0 10px;
     flex: 1;
     text-align: center;
@@ -87,7 +88,7 @@ button.profileButtons.historyBtn {
     cursor: pointer;
 } */
 
-.unfinishedMatch button:hover, .finishedMatch button:hover {
+.unfinishedMatch button:hover, .finishedMatch button:hover, .unfinishedTournament button:hover, .finishedTournament button:hover {
     background-color: #0056b3;
 }
 

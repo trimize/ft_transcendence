@@ -461,8 +461,8 @@ function changeTurn() {
 function tttHtml()
 {
 	return `
-            <div class="container">
-                <div class="player" id="player1">Player 1</div>
+            <div class="containerTTT">
+                <div class="playerTTT" id="player1TTT">Player 1</div>
                 <div class="grid">
                     <div id="score" class="score">0:0</div>
                     <div id="game-message" class="game-message"></div>
@@ -503,7 +503,7 @@ function tttHtml()
                         <div class="back"></div>
                     </div>
                 </div>
-                <div class="player" id="player2">Player 2</div>
+                <div class="playerTTT" id="player2TTT">Player 2</div>
             </div>
             <div id="bg"></div>
 	`;
@@ -548,8 +548,8 @@ export const renderTTT = async () => {
     }
 
     cells = document.querySelectorAll('.cell');
-    player1 = document.getElementById('player1');
-    player2 = document.getElementById('player2');
+    player1 = document.getElementById('player1TTT');
+    player2 = document.getElementById('player2TTT');
 
     if (!isOffline) {
         player1score = matchData.player1_score;

@@ -220,6 +220,33 @@ export async function fetchMatches(type, userId = null) {
   }
 }
 
+export async function fetchTournaments(type) {
+	const accessToken = await securelyGetAccessToken();
+	try {
+	  const params = new URLSearchParams();
+	  params.append("type", type);
+	  if (userId) {
+		  params.append("user_id", userId);
+	  }
+	  let response = await fetch(
+		`${BACKEND_URL}/api/get_tournaments_by_player?${params}`,
+		{
+		  method: "GET",
+		  headers: {
+			Authorization: `Bearer ${accessToken}`,
+			"Content-Type": "application/json",
+		  },
+		}
+	  );
+	  if (!response.ok) throw new Error("Failed to fetch user data");
+	  const tournaments = await response.json();
+	  return tournaments;
+	} catch (error) {
+	  console.error(error.message);
+	  return "";
+	}
+  }
+
 export async function fetchMatch(matchId) {
 	const accessToken = await securelyGetAccessToken();
 	try {

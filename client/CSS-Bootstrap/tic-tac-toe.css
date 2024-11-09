@@ -11,14 +11,14 @@ body {
     color: #fff;
 }
 
-.container {
+.containerTTT {
     display: flex;
     align-items: center;
     text-align: center;
-    position: relative; /* Ensure positioning context for absolute children */
+    flex-direction: row;
 }
 
-.player {
+.playerTTT {
     width: 100px;
     padding: 10px;
     margin: 0 20px;

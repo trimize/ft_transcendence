@@ -12,6 +12,63 @@ function formatDate(date) {
     return `${day}/${month} ${hours}:${minutes}`;
 }
 
+async function populateTournamentsHistory(userData) {
+    const tournaments = await fetchTournaments('finished');
+    const table = document.getElementById('finishedTournaments');
+    if (tournaments.length === 0) {
+        table.textContent = 'No tournaments found';
+        return;
+    }
+    const date = new Date(tournament.start_time);
+    tournaments.forEach(async (tournament) => {
+        const element = document.createElement('div');
+        element.classList.add('finishedTournament');
+        const game = tournament.game == 'tic-tac-toe' ? 'Tic Tac Toe' : 'Pong';
+        let result;
+        if (tournament.first_place == userData.id) {
+            result = "🏅 1st place 🏅";
+        } else if (tournament.second_place == userData.id) {
+            result = "🥈 2nd place 🥈";
+        } else if (tournament.third_place == userData.id) {
+            result = "🥉 3rd place 🥉";
+        } else {
+            result = "💣 You lost 💣";
+        }
+        element.innerHTML = `
+            <img src="" alt="Result" class="resultImage">
+            <p>${formatDate(date)}</p>
+            <p>${game}</p>
+            <p>${result}</p>
+        `;
+        table.appendChild(element);
+    });
+}
+
+async function populateUnfinishedTournamentsHistory(userData) {
+    const tournaments = await fetchTournaments('unfinished');
+    const table = document.getElementById('unfinishedTournaments');
+    if (tournaments.length === 0) {
+        table.textContent = 'No unfinished tournaments found';
+        return;
+    }
+    const date = new Date(tournament.start_time);
+    tournaments.forEach(async (tournament) => {
+        const element = document.createElement('div');
+        element.classList.add('unfinishedTournament');
+        const game = tournament.game == 'tic-tac-toe' ? 'Tic Tac Toe' : 'Pong';
+        const result = "🏆 In progress 🏆";
+        const gameUrl = `tournament?tournamentId=${tournament.id}`;
+        element.innerHTML = `
+            <img src="" alt="Result" class="resultImage">
+            <p>${formatDate(date)}</p>
+            <p>${game}</p>
+            <p>${result}</p>
+            <button class="profileButtons historyBtn" onclick="window.location.href='/${gameUrl}'">Continue</button>
+        `;
+        table.appendChild(element);
+    });
+}
+
 async function populateMatchesHistory(userData) {
     const matches = await fetchMatches('finished');
     const table = document.getElementById('finishedMatches');
@@ -28,17 +85,17 @@ async function populateMatchesHistory(userData) {
         const myScore = match.player1 === userData.id ? match.player1_score : match.player2_score;
         const opponentScore = match.player1 === userData.id ? match.player2_score : match.player1_score;
         const opponent = await getOpponent(match, userData);
-        const params = new URLSearchParams();
         const result = getMatchResult(match, userData) === "Victory" ? "../Assets/victory.svg" : "../Assets/loss.png";
-        params.append('matchId', match.id);
-        params.append('game', match.game);
-        params.append('match_type', match.match_type);
-        params.append('host', match.player1);
-        params.append('invitee', match.player2);
-        let gameUrl = 'lobby?' + params;
-        if (opponent === "AI Agent" || opponent === "Local player" || opponent === "Anonymous user") {
-            gameUrl = match.game + '?' + params;
-        }
+        // const params = new URLSearchParams();
+        // params.append('matchId', match.id);
+        // params.append('game', match.game);
+        // params.append('match_type', match.match_type);
+        // params.append('host', match.player1);
+        // params.append('invitee', match.player2);
+        // let gameUrl = 'lobby?' + params;
+        // if (opponent === "AI Agent" || opponent === "Local player" || opponent === "Anonymous user") {
+        //     gameUrl = match.game + '?' + params;
+        // }
         element.innerHTML = `
             <p>${formatDate(date)}</p>
             <p>${game}</p>
@@ -131,8 +188,14 @@ const matchHistoryHTML = () => {
                         <h2>Unfinished Matches</h2>
                         <div class="unfinishedMatches" id="unfinishedMatches">
                         </div>
+                        <h2>Unfinished Tournaments</h2>
+                        <div class="unfinishedTournaments" id="unfinishedTournaments">
+                        </div>
                         <h2>Finished Matches</h2>
                         <div class="finishedMatches" id="finishedMatches">
+                        </div>
+                        <h2>Finished Tournaments</h2>
+                        <div class="finishedTournaments" id="finishedTournaments">
                         </div>
                   </div>
               </div><div id="bg"></div>`;

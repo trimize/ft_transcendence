@@ -105,7 +105,7 @@ class Match_Record(models.Model):
 class Tournament(models.Model):
     id = models.AutoField(primary_key=True)
     start_time = models.DateTimeField()
-    end_time = models.DateTimeField(null=True, blank=True)
+    # end_time = models.DateTimeField(null=True, blank=True)
 # Assign unique related_name for each player
     player1 = models.ForeignKey(User, related_name='tournaments_as_player1', on_delete=models.PROTECT)
     player2 = models.ForeignKey(User, related_name='tournaments_as_player2', on_delete=models.PROTECT, null=True, blank=True)

@@ -67,3 +67,28 @@ def get_tournament_from_match(request, pk):
     
     return Response(TournamentSerializer(tournament).data)
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_tournaments_by_player(request):
+	user = request.user
+	# Get the type parameter from the url
+	requestType = request.GET.get('type', 'finished')
+
+	if requestType == 'all':
+		tournaments = Tournament.objects.filter(
+			Q(player1=user) | Q(player2=user) | Q(player3=user) | Q(player4=user)
+		)
+	elif requestType == 'finished':
+		tournaments = Tournament.objects.filter(
+			Q(player1=user) | Q(player2=user) | Q(player3=user) | Q(player4=user)
+		).filter(match1__end_time__isnull=False, match2__end_time__isnull=False, playoff__end_time__isnull=False, final_match__end_time__isnull=False)
+	elif requestType == 'unfinished':
+		tournaments = Tournament.objects.filter(
+			Q(player1=user) | Q(player2=user) | Q(player3=user) | Q(player4=user)
+		).filter(Q(match1__end_time__isnull=True) | Q(match2__end_time__isnull=True) | Q(playoff__end_time__isnull=True) | Q(final_match__end_time__isnull=True))
+	else:
+		return Response({'error': 'Invalid type'}, status=status.HTTP_400_BAD_REQUEST)
+
+	serializer = TournamentSerializer(tournaments, many=True)
+
+
