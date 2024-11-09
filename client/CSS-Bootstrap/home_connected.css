@@ -458,15 +458,15 @@
 }
 
 .correctDiv {
-	cursor: pointer;
-	background-image: url('../Assets/correct.svg');
-	background-color: rgba(138, 136, 136, 0.411);
-	transition: background-color ease 0.3s;
-	width: 30px;
-	height: 30px;
-	background-size: cover;
-	/* margin-left: 0px; */
-	/* margin-right: 10px; */
+    cursor: pointer;
+    background-image: url('../Assets/correct.svg');
+    background-color: rgba(138, 136, 136, 0.411);
+    transition: background-color ease 0.3s;
+    width: 30px;
+    height: 30px;
+    background-size: cover;
+    /* margin-left: 0px; */
+    /* margin-right: 10px; */
 }
 .correctDiv:hover
 {
@@ -474,14 +474,14 @@
 }
 
 .crossDiv {
-	cursor: pointer;
-	background-image: url('../Assets/cross.svg');
-	background-color: rgba(179, 87, 87, 0.534);
-	transition: background-color ease 0.3s;
-	width: 30px;
-	height: 30px;
-	background-size: cover;
-	margin-right: 20px;
+    cursor: pointer;
+    background-image: url('../Assets/cross.svg');
+    background-color: rgba(179, 87, 87, 0.534);
+    transition: background-color ease 0.3s;
+    width: 30px;
+    height: 30px;
+    background-size: cover;
+    /* margin-left: 10px; */
 }
 
 .crossDiv:hover
@@ -490,22 +490,29 @@
 }
 
 .requestPfp {
-	width: 30px;
-	height: 30px;
-	position: absolute;
-	left: 0;
-	top: 0;
-	background-size: cover;
+    width: 30px;
+    height: 30px;
+    position: absolute;
+    left: 0;
+    /* top: 0; */
+    background-size: cover;
+    margin-bottom: 50px;
 }
 
 .requestUsername {
-	width: 100px;
-	height: 30px;
-	position: absolute;
-	color: white;
-	font-size: 15px;
-	left: 0;
-	top: 5px;
+    width: 100px;
+    height: 30px;
+    position: absolute;
+    color: white;
+    font-size: 15px;
+    left: 0;
+    /* top: 5px; */
+    margin-bottom: 38px;
+}
+
+.messageText {
+    width: 152px;
+    font-size: 17px;
 }
 
 #friendAddStatus {

@@ -17,8 +17,6 @@ let ball_acc;
 let matchmaking = false;
 let firstInvite = false;
 
-let isPlayer1Ready = false;
-let isPlayer2Ready = false;
 
 async function waitingState()
 {
@@ -30,7 +28,7 @@ async function waitingState()
             "matchId": matchData.id,
 			"firstInvite": firstInvite
         };
-        await sendMessage(message);
+        sendMessage(message);
     }, 2000);
 	// console.log('Waiting for opponent');
 }
@@ -65,6 +63,8 @@ export async function renderLobby()
 	user = await fetchUserData();
 	socket = await getWebSocket();
 	matchData = await fetchMatch(urlParams.get('matchId'));
+	console.log("Match is: ");
+	console.log(matchData);
 	matchmaking = urlParams.get('matchmaking');
 	firstInvite = urlParams.has('firstInvite') ? urlParams.get('firstInvite') : false;
 	
@@ -93,7 +93,8 @@ export async function renderLobby()
 			homeParams.append('alert', 'match_finished');
 			window.location.href = `/?${homeParams.toString()}`;
 		}
-		player2 = await fetchUserById(user.id == matchData.player1 ? matchData.player2 : matchData.player1);
+		player2 = (user.id == matchData.player2 ? user : await fetchUserById(matchData.player2));
+		player1 = (user.id == matchData.player1 ? user : await fetchUserById(matchData.player1));
 		player2UsernameDiv.textContent = player2.username;
 		player2PfpDiv.style.backgroundImage = `url(${BACKEND_URL}${player2.profile_pic})`;
 	}
@@ -111,21 +112,9 @@ export async function renderLobby()
 	} else {
 
 		if (user.id != matchData.player1 && user.id != matchData.player2) {
-			return`
-			<div>Error Page Here</div>
-			`;
-		} else if (user.id != matchData.player1 && user.id != matchData.player2) {
-			return`
-			<div>Error Page Here</div>
-			`;
-		} else if (user.id == matchData.player1) {
-			player1 = user;
-			isPlayer1Ready = true;
-			player2 = await fetchUserById(matchData.player2);
-		} else {
-			player2 = user;
-			isPlayer2Ready = true;
-			player1 = await fetchUserById(matchData.player1);
+			const homeParams = new URLSearchParams();
+			homeParams.append('alert', 'match_finished');
+			window.location.href = `/?${homeParams.toString()}`;
 		}
 	}
 
