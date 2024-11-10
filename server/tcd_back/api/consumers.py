@@ -43,13 +43,14 @@ class SocketConsumer(AsyncWebsocketConsumer):
 					'userId': user_id,
 				}
 				print(f"Sending disconnect message to user {friend_id}")
-				await self.channel_layer.send(
-					user_channels.get(friend_id),
-					{
-					'type': 'send_message',
-					'message': message
-					}
-				)
+				ws_send(self, user_channels.get(friend_id), message)
+				# await self.channel_layer.send(
+				# 	user_channels.get(friend_id),
+				# 	{
+				# 	'type': 'send_message',
+				# 	'message': message
+				# 	}
+				# )
 
 	async def disconnect(self, close_code):
 		# Find the user ID by channel name
@@ -81,13 +82,14 @@ class SocketConsumer(AsyncWebsocketConsumer):
 					'userId': user_id,
 				}
 				print(f"Sending disconnect message to user {friend_id}")
-				await self.channel_layer.send(
-					user_channels.get(friend_id),
-					{
-					'type': 'send_message',
-					'message': message
-					}
-				)
+				ws_send(self, user_channels.get(friend_id), message)
+				# await self.channel_layer.send(
+				# 	user_channels.get(friend_id),
+				# 	{
+				# 	'type': 'send_message',
+				# 	'message': message
+				# 	}
+				# )
 
 		for match in matchmaking:
 			if match.get('playerId') == user_id:
@@ -129,13 +131,14 @@ class SocketConsumer(AsyncWebsocketConsumer):
 							'type': 'friend_connected',
 							'userId': user_id
 						}
-						await self.channel_layer.send(
-							user_channels.get(friend_id),
-							{
-							'type': 'send_message',
-							'message': message
-							}
-						)
+						ws_send(self, user_channels.get(friend_id), message)
+						# await self.channel_layer.send(
+						# 	user_channels.get(friend_id),
+						# 	{
+						# 	'type': 'send_message',
+						# 	'message': message
+						# 	}
+						# )
 			elif text_data_json['type'] == 'new_match':
 				match_id = text_data_json.get('matchId')
 				if not match_id:
@@ -213,13 +216,14 @@ class SocketConsumer(AsyncWebsocketConsumer):
 				if invitee_id in user_channels:
 					invitee_channel_name = user_channels.get(invitee_id)
 					print(f"Sending invite to user {invitee_id} on channel {invitee_channel_name}")
-					await self.channel_layer.send(
-						invitee_channel_name,
-						{
-							'type': 'send_message',
-							'message': text_data_json
-						}
-					)
+					ws_send(self, invitee_channel_name, text_data_json)
+					# await self.channel_layer.send(
+					# 	invitee_channel_name,
+					# 	{
+					# 		'type': 'send_message',
+					# 		'message': text_data_json
+					# 	}
+					# )
 				else:
 					print(f"User {invitee_id} is not connected")
 			elif text_data_json['type'] == 'refuse_invite':
@@ -227,13 +231,14 @@ class SocketConsumer(AsyncWebsocketConsumer):
 				if host_id in user_channels:
 					host_channel_name = user_channels.get(host_id)
 					print(f"Sending refusal to user {host_id} on channel {host_channel_name}")
-					await self.channel_layer.send(
-						host_channel_name,
-						{
-							'type': 'send_message',
-							'message': text_data_json
-						}
-					)
+					ws_send(self, host_channel_name, text_data_json)
+					# await self.channel_layer.send(
+					# 	host_channel_name,
+					# 	{
+					# 		'type': 'send_message',
+					# 		'message': text_data_json
+					# 	}
+					# )
 			elif text_data_json['type'] == 'chat_message':
 				sender_id = str(text_data_json.get('senderId'))
 				receiver_id = str(text_data_json.get('receiverId'))
@@ -253,32 +258,35 @@ class SocketConsumer(AsyncWebsocketConsumer):
 					)
 					return
 				print(f"Sending message to user {receiver_id} on channel {receiver_channel_name}")
-				await self.channel_layer.send(
-					receiver_channel_name,
-					{
-						'type': 'send_message',
-						'message': text_data_json
-					}
-				)
-				await self.channel_layer.send(
-					self.channel_name,
-					{
-						'type': 'send_message',
-						'message': text_data_json
-					}
-				)
+				ws_send(self, receiver_channel_name, text_data_json)
+				# await self.channel_layer.send(
+				# 	receiver_channel_name,
+				# 	{
+				# 		'type': 'send_message',
+				# 		'message': text_data_json
+				# 	}
+				# )
+				ws_send(self, self.channel_name, text_data_json)
+				# await self.channel_layer.send(
+				# 	self.channel_name,
+				# 	{
+				# 		'type': 'send_message',
+				# 		'message': text_data_json
+				# 	}
+				# )
 			elif text_data_json['type'] == 'tournament_invite':
 				invitee_id = str(text_data_json.get('inviteeId'))
 				if invitee_id in user_channels:
 					invitee_channel_name = user_channels.get(invitee_id)
 					print(f"Sending tournament invite to user {invitee_id} on channel {invitee_channel_name}")
-					await self.channel_layer.send(
-						invitee_channel_name,
-						{
-							'type': 'send_message',
-							'message': text_data_json
-						}
-					)
+					ws_send(self, invitee_channel_name, text_data_json)
+					# await self.channel_layer.send(
+					# 	invitee_channel_name,
+					# 	{
+					# 		'type': 'send_message',
+					# 		'message': text_data_json
+					# 	}
+					# )
 				else:
 					print(f"User {invitee_id} is not connected")
 			elif text_data_json['type'] == 'tournament_invite_response':
@@ -286,13 +294,14 @@ class SocketConsumer(AsyncWebsocketConsumer):
 				if host_id in user_channels:
 					host_channel_name = user_channels.get(host_id)
 					print(f"Sending tournament invite to user {host_id} on channel {host_channel_name}")
-					await self.channel_layer.send(
-						host_channel_name,
-						{
-							'type': 'send_message',
-							'message': text_data_json
-						}
-					)
+					ws_send(self, host_channel_name, text_data_json)
+					# await self.channel_layer.send(
+					# 	host_channel_name,
+					# 	{
+					# 		'type': 'send_message',
+					# 		'message': text_data_json
+					# 	}
+					# )
 				else:
 					print(f"User {host_id} is not connected")
 			elif text_data_json['type'] == 'tournament_update':
@@ -309,8 +318,6 @@ class SocketConsumer(AsyncWebsocketConsumer):
 				for player in players:
 					if player is not None:
 						await self.channel_layer.group_add(self.room_group_name, player)
-
-
 				await self.channel_layer.group_send(
 					self.room_group_name,
 					{
@@ -325,13 +332,14 @@ class SocketConsumer(AsyncWebsocketConsumer):
 					print("match ID not provided")
 					return
 				if player2 is not None:
-					await self.channel_layer.send(
-						player2,
-						{
-							'type': 'send_message',
-							'message': text_data_json
-						}
-					)
+					ws_send(self, player2, text_data_json)
+					# await self.channel_layer.send(
+					# 	player2,
+					# 	{
+					# 		'type': 'send_message',
+					# 		'message': text_data_json
+					# 	}
+					# )
 			elif text_data_json['type'] == 'waiting_state':
 				opponent_id = str(text_data_json.get('opponentId'))
 				match_id = text_data_json.get('matchId')
@@ -343,13 +351,14 @@ class SocketConsumer(AsyncWebsocketConsumer):
 					print(f"Opponent {opponent_id} not connected")
 					return
 				print(f"Sending waiting state to user {opponent_id} on channel {opponent_channel_name}")
-				await self.channel_layer.send(
-					opponent_channel_name,
-					{
-						'type': 'send_message',
-						'message': text_data_json
-					}
-				)
+				ws_send(self, opponent_channel_name, text_data_json)
+				# await self.channel_layer.send(
+				# 	opponent_channel_name,
+				# 	{
+				# 		'type': 'send_message',
+				# 		'message': text_data_json
+				# 	}
+				# )
 			elif text_data_json['type'] == 'allons-y':
 				player1_id = str(text_data_json.get('player1'))
 				player2_id = str(text_data_json.get('player2'))
@@ -361,20 +370,22 @@ class SocketConsumer(AsyncWebsocketConsumer):
 				if not player2_channel_name:
 					print(f"Player 2 {player2_id} not connected")
 					return
-				await self.channel_layer.send(
-					player1_channel_name,
-					{
-						'type': 'send_message',
-						'message': text_data_json
-					}
-				)
-				await self.channel_layer.send(
-					player2_channel_name,
-					{
-						'type': 'send_message',
-						'message': text_data_json
-					}
-				)
+				ws_send(self, player1_channel_name, text_data_json)
+				# await self.channel_layer.send(
+				# 	player1_channel_name,
+				# 	{
+				# 		'type': 'send_message',
+				# 		'message': text_data_json
+				# 	}
+				# )
+				ws_send(self, player2_channel_name, text_data_json)
+				# await self.channel_layer.send(
+				# 	player2_channel_name,
+				# 	{
+				# 		'type': 'send_message',
+				# 		'message': text_data_json
+				# 	}
+				# )
 			elif text_data_json['type'] == 'matchmaking':
 				player_id = str(text_data_json.get('playerId'))
 				game = text_data_json.get('game')
@@ -410,20 +421,22 @@ class SocketConsumer(AsyncWebsocketConsumer):
 								'player2': match_found.get('playerId'),
 								'matchId': match.id
 					}
-					await self.channel_layer.send(
-						player1_channel_name,
-						{
-							'type': 'send_message',
-							'message': message
-						}
-					)
-					await self.channel_layer.send(
-						player2_channel_name,
-						{
-							'type': 'send_message',
-							'message': message
-						}
-					)
+					ws_send(self, player1_channel_name, message)
+					# await self.channel_layer.send(
+					# 	player1_channel_name,
+					# 	{
+					# 		'type': 'send_message',
+					# 		'message': message
+					# 	}
+					# )
+					ws_send(self, player2_channel_name, message)
+					# await self.channel_layer.send(
+					# 	player2_channel_name,
+					# 	{
+					# 		'type': 'send_message',
+					# 		'message': message
+					# 	}
+					# )
 				else:
 					print(f"No match found for game {game}")
 					matchmaking.append(text_data_json)
@@ -438,13 +451,14 @@ class SocketConsumer(AsyncWebsocketConsumer):
 					'type': 'friendRequest',
 					'senderId': senderId,
 				}
-				await self.channel_layer.send(
-					receiver_channel_name,
-					{
-						'type': 'send_message',
-						'message': message
-					}
-				)
+				ws_send(self, receiver_channel_name, message)
+				# await self.channel_layer.send(
+				# 	receiver_channel_name,
+				# 	{
+				# 		'type': 'send_message',
+				# 		'message': message
+				# 	}
+				# )
 			elif text_data_json['type'] == 'friendRequestAccepted':
 				senderId = str(text_data_json.get('senderId'))
 				receiverId = str(text_data_json.get('receiverId'))
@@ -456,13 +470,14 @@ class SocketConsumer(AsyncWebsocketConsumer):
 					'type': 'friendRequestAccepted',
 					'senderId': senderId,
 				}
-				await self.channel_layer.send(
-					receiver_channel_name,
-					{
-						'type': 'send_message',
-						'message': message
-					}
-				)
+				ws_send(self, receiver_channel_name, message)
+				# await self.channel_layer.send(
+				# 	receiver_channel_name,
+				# 	{
+				# 		'type': 'send_message',
+				# 		'message': message
+				# 	}
+				# )
 			elif text_data_json['type'] == 'friendRequestRefused':
 				senderId = str(text_data_json.get('senderId'))
 				receiverId = str(text_data_json.get('receiverId'))
@@ -474,25 +489,24 @@ class SocketConsumer(AsyncWebsocketConsumer):
 					'type': 'friendRequestRefused',
 					'senderId': senderId,
 				}
-				await self.channel_layer.send(
-					receiver_channel_name,
-					{
-						'type': 'send_message',
-						'message': message
-					}
-				)
-			elif text_data_json['type'] == 'ping':
-				senderId = str(text_data_json.get('senderId'))
-				receiverId = str(text_data_json.get('receiverId'))
-				receiver_channel_name = user_channels.get(receiverId)
-				if not receiver_channel_name:
-					print(f"Receiver {receiverId} not connected")
-					return
-				
+				ws_send(self, receiver_channel_name, message)
+				# await self.channel_layer.send(
+				# 	receiver_channel_name,
+				# 	{
+				# 		'type': 'send_message',
+				# 		'message': message
+				# 	}
+				# )
 
 
-
-				
+	async def ws_send(self, receiver, message):
+		self.channel_layer.send(
+			receiver,
+			{
+				'type': 'send_message',
+				'message': message
+			}
+		)
 				
 			
 
