@@ -9,6 +9,7 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 from ..models import User, Match_Record, FriendInvitation
 from ..serializer import UserSerializer, FriendInvitationSerializer
+import random
 
 @api_view(['GET'])
 # @permission_classes([IsAuthenticated])
@@ -215,13 +216,18 @@ def block_friend(request, friend):
     except User.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
+    serializer = UserSerializer(friend)
 
-    if user.blocked_friends.filter(pk=friend).exists():
+    if user.blocked_friends.filter(pk=friend.id).exists():
         user.blocked_friends.remove(friend)
-        return Response(serializer.friend)
+        user.friends.add(friend)
+        user.save()
+        return Response(serializer.data)
 
+    user.friends.remove(friend)
     user.blocked_friends.add(friend)
-    return Response(serializer.friend)
+    user.save()
+    return Response(serializer.data)
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
@@ -275,8 +281,8 @@ def update_tic_tac_toe_background(request, tic_tac_toe_background):
 @permission_classes([IsAuthenticated])
 def anonymize_user(request):
     user = request.user
-    user.username = f'anonymous_{user.id}'
-    user.email = ''
+    user.username = f'anon_{user.id}'
+    user.email = user.username + '@42.fr'
     user.save()
 
     user_data = {
