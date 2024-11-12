@@ -24,6 +24,7 @@ async function waitingState()
         const message = {
             "type": "waiting_state",
 			"userId": user.id,
+			"game": game,
             "opponentId": (user.id == player1.id ? player2.id : player1.id),
             "matchId": matchData.id,
 			"firstInvite": firstInvite
@@ -95,8 +96,12 @@ export async function renderLobby()
 		}
 		player2 = (user.id == matchData.player2 ? user : await fetchUserById(matchData.player2));
 		player1 = (user.id == matchData.player1 ? user : await fetchUserById(matchData.player1));
-		player2UsernameDiv.textContent = player2.username;
-		player2PfpDiv.style.backgroundImage = `url(${BACKEND_URL}${player2.profile_pic})`;
+		console.log("player1");
+		console.log(player1);
+		console.log("player2");
+		console.log(player2);
+		player2UsernameDiv.textContent = (user.id == player2.id ? player1.username : player2.username);
+		player2PfpDiv.style.backgroundImage = `url(${BACKEND_URL}${user.id == player2.id ? player1.profile_pic : player2.profile_pic})`;
 	}
 	
 	
@@ -153,6 +158,7 @@ async function socketListener()
 			}
 		} else if (message.type == 'allons-y')
 		{
+			console.log("allons-y received");
 			if (!matchmaking && message.matchId != matchData.id) {
 				return;
 			}
@@ -169,6 +175,7 @@ async function socketListener()
 				newParams.append('matchId', matchData.id);
 				window.location.href = `/pong?${newParams.toString()}`;
 			} else if (matchData.game == 'tic-tac-toe') {
+				console.log("transfering to tic-tac-toe");
 				const oldParams = new URLSearchParams(window.location.search);
 				const newParams = new URLSearchParams();
 				newParams.append('host', matchData.player1);

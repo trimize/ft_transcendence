@@ -208,7 +208,7 @@ const addEventListeners = () => {
                 const gamePicture = document.getElementById('gamePicture');
                 gamePicture.style.backgroundImage = 'url(../Assets/Pong.gif)';
                 const gameText = document.getElementById('gameText');
-                gameText.textContent = 'Pong game is cool';
+                gameText.innerHTML = 'Pong game is cool!<br>With powers is even cooler!<br>You can enable ball acceleration and movement speed to make the game more interesting!';
                 ballSpeedDiv.style.display = "flex";
                 AITitle.textContent = "Ball speed";
                 ballSlider.style.display = "block";
@@ -235,7 +235,7 @@ const addEventListeners = () => {
                 const gamePicture = document.getElementById('gamePicture');
                 gamePicture.style.backgroundImage = 'url(../Assets/tic-tac-toe.gif)';
                 const gameText = document.getElementById('gameText');
-                gameText.textContent = 'Tic-tac-toe game is cool';
+                gameText.innerHTML = 'Reinvented Tic-tac-toe<br>In this version of tic-tac-toe, you can use powers to change the game!<br>Drag and drop a cell to switch positions with another cell. You can use this power once per game.';
                 AITitle.textContent = "AI Difficulty";
                 gameChosen = "tic-tac-toe";
                 if (multiClicked == true)
@@ -689,6 +689,7 @@ async function showChat() {
         
             sendMessage(message);
             params.append('matchId', match_id);
+            params.append('firstInvite', 'true');
             window.location.href = `/lobby?${params.toString()}`;
         }
         else if (invitee && invitee.id == actualUser.id)
@@ -1104,17 +1105,17 @@ async function renderFriendRequestNotif(jsonMessage, chatUserId)
         cross.addEventListener('click', () => refuseFriendNotif(jsonMessage.sender, friendRequest));
     } else if (jsonMessage.type == 'send_invite' || (jsonMessage.type == 'waiting_state' && jsonMessage.firstInvite == 'true')) {
         // console.log('Game invite being rendered:', jsonMessage);
-        messageText.textContent = "New game invite!"
+        messageText.textContent = jsonMessage.game === 'tic-tac-toe' ? "New Tic-Tac-Toe invite!" : "New Pong invite!";
         correct.addEventListener('click', () => acceptGameInvite(jsonMessage, friendRequest));
         cross.addEventListener('click', () => refuseGameInvite(jsonMessage, friendRequest));
     } else if (jsonMessage.type == 'waiting_state') {
         // console.log('Waiting state being rendered:', jsonMessage);
-        messageText.textContent = "Finish the game!"
+        messageText.textContent = "Finish your " + (jsonMessage.game === 'tic-tac-toe' ? "Tic Tac Toe" : "Pong") + " game!";
         correct.addEventListener('click', () => acceptGameInvite(jsonMessage, friendRequest));
         cross.style.display = 'none';
     } else if (jsonMessage.type == 'tournament_invite') {
         console.log('Tournament invite being rendered:', jsonMessage);
-        messageText.textContent = "New tournament invite!"
+        messageText.textContent = "New " + (jsonMessage.game === 'tic-tac-toe' ? "Tic Tac Toe" : "Pong") + " tournament invite!"
         let params = new URLSearchParams();
         params.append('tournamentId', jsonMessage.tournamentId);
         correct.addEventListener('click', async () => {

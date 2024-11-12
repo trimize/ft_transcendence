@@ -231,7 +231,7 @@ const createGameInTournament = async (game_player1, game_player2) => {
 		body = {
 			player1: game_player1,
 			player2: game_player2,
-			game: "tic_tac_toe",
+			game: "tic-tac-toe",
 			match_type: "online_multiplayer",
 			powers: powers
 		};
@@ -245,7 +245,9 @@ const renderPlayButton = async () => {
 		showNotification('Match not created. Please wait for the other player to create a match.');
 	} else {
 		const matchParams = new URLSearchParams();
+		const oldParams = new URLSearchParams(window.location.search);
 		matchParams.append('matchId', match_id);
+		matchParams.append('tournamentId', oldParams.get('tournamentId'));
 		window.location.href = `/lobby?${matchParams.toString()}`;
 	}
 }
@@ -549,8 +551,9 @@ async function finishedWaiting()
 				showNotification('Match not created. Please wait for the other player to create a match.');
 			} else {
 				const matchParams = new URLSearchParams();
+				const oldParams = new URLSearchParams(window.location.search);
 				matchParams.append('matchId', match_id);
-				matchParams.append('tournamentId', tournamentId);
+				matchParams.append('tournamentId', oldParams.get('tournamentId'));
 				window.location.href = `/lobby?${matchParams.toString()}`;
 			}
 		});
@@ -587,7 +590,9 @@ async function finishedWaiting()
 				showNotification('Match not created. Please wait for the other player to create a match.');
 			} else {
 				const matchParams = new URLSearchParams();
+				const oldParams = new URLSearchParams(window.location.search);
 				matchParams.append('matchId', match_id);
+				matchParams.append('tournamentId', oldParams.get('tournamentId'));
 				window.location.href = `/lobby?${matchParams.toString()}`;
 			}
 		});
