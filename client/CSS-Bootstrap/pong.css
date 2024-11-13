@@ -190,6 +190,8 @@
 
 .pongEndButton:hover {
     background-color: #9ea2a55e;
+    text-decoration: none;
+    color: aliceblue;
 }
 
 #pongTournament {
@@ -197,4 +199,14 @@
 	left: calc((100% - 50vw) - (330px / 2));
 	text-decoration: none;
 	color: aliceblue;
+}
+
+.theballProjection
+{
+    width: 30px;
+	height: 30px;
+	background-color: rgb(255, 0, 0);
+	position: absolute;
+	border-radius: 50%;
+    right: -25px;
 }

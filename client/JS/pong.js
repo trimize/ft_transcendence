@@ -14,6 +14,7 @@ let finish = false;
 let socket;
 //const usernameInput = document.getElementById('usernameInput');
 
+let aiCalc = false;
 let ai_ball_info;
 let move_up = true;
 let move_down = true;
@@ -379,42 +380,72 @@ let previousBallInfo = null; // To store the last known position and speed
 
 function predictBallPosition(ai_ball_info, framesAhead) {
     // Extract initial information from `ai_ball_info`
-    let { ballX, ballY, deltaX, deltaY, gameHeight, gameWidth } = ai_ball_info;
-
-    let futureY = ballY;
-    let futureX = ballX;
-    let futureDeltaY = deltaY;
-    let futureDeltaX = deltaX;
+	const movingSquare = document.getElementById("moving-square");
+	const player = document.getElementById("player");
+	const squareRect = movingSquare.getBoundingClientRect();
+	const contentArea = player.parentElement;
+	const ParentRect = contentArea.getBoundingClientRect();
+    let futureY = ai_ball_info.ballY;
+    let futureX = ai_ball_info.ballX;
+    let futureDeltaY = ai_ball_info.deltaY;
+    let futureDeltaX = ai_ball_info.deltaX;
+	let defaultY = ai_ball_info.ballY;
+    let defaultX = ai_ball_info.ballX;
+    let defaultDeltaY = ai_ball_info.deltaY;
+    let defaultDeltaX = ai_ball_info.deltaX;
     let speedMultiplier = 1.0;
+	//const ballProjection = document.getElementById('ballProjection');
+	//ballProjection.classList.add("theballProjection");
+	//ballProjection.style.top = `${futureY}px`;
+	//ballProjection.style.left = `${futureX}px`
 
     // Estimate the speed increment if `previousBallInfo` is available
     if (previousBallInfo) {
         // Calculate speed change based on previous interval
         speedMultiplier = Math.sqrt(
-            (deltaX ** 2 + deltaY ** 2) /
+            (futureDeltaX ** 2 + futureDeltaY ** 2) /
             (previousBallInfo.deltaX ** 2 + previousBallInfo.deltaY ** 2)
         );
     }
 
     // Predict position over `framesAhead`, adjusting for speed
     for (let i = 0; i < framesAhead; i++) {
-        futureY += futureDeltaY * speedMultiplier;
-        futureX += futureDeltaX * speedMultiplier;
-        // Handle vertical wall collisions
-        if (futureY <= 0 || futureY >= gameHeight) {
+        futureY += futureDeltaY;
+		//futureY *= speedMultiplier;
+        futureX += futureDeltaX;
+		if (defaultX != ai_ball_info.ballX)
+			futureX = ai_ball_info.ballX;
+		if (defaultY != ai_ball_info.ballY)
+			futureY = ai_ball_info.ballY;
+		if (defaultDeltaX != ai_ball_info.deltaX)
+			futureDeltaX = ai_ball_info.deltaX;
+		if (defaultDeltaY != ai_ball_info.deltaY)
+			futureDeltaY = ai_ball_info.deltaY;
+		//const newPoint = document.createElement('div');
+		//newPoint.classList.add("theballProjection");
+		//newPoint.style.top = `${futureY}px`;
+		//newPoint.style.left = `${futureX}px`
+		contentArea.append(newPoint);
+		//futureX *= speedMultiplier;
+		//console.log("ai calculating", futureX);
+        if (futureY <= 0 || futureY >= player.parentElement.clientHeight - squareRect.height) {
             futureDeltaY = -futureDeltaY;
-            futureY = futureY <= 0 ? -futureY : gameHeight - futureY;
+			console.log("touching above or below : ", futureY);
         }
-
-        // Optional: Handle horizontal wall collisions
-        if (futureX <= 0 || futureX >= gameWidth) {
-            futureDeltaX = -futureDeltaX;
-            futureX = futureX <= 0 ? -futureX : gameWidth - futureX;
-        }
+		if (futureX >= ParentRect.right - 50 - margins)
+		{
+			console.log("touching the end : ", futureX);
+			break ;
+		}
+		if (futureX + margins <= (ParentRect.left - 10))
+		{
+			console.log("player touched");
+			futureDeltaX = -futureDeltaX;
+		}
     }
 
     // Update `previousBallInfo` for the next call
-    previousBallInfo = { ballX, ballY, deltaX, deltaY };
+    previousBallInfo = {futureDeltaX, futureDeltaY };
 
     return { futureX, futureY };
 }
@@ -737,18 +768,17 @@ async function startMovingSquare()
 	movingSquare.style.top = `${centerY}px`;
 	movingSquare.style.display = 'block';
 	const angle = Math.PI;
-	let deltaX = Math.cos(angle) * ball_step; // Horizontal movement
+	let deltaX = Math.cos(angle) * ball_step * turn_ball; // Horizontal movement
 	let deltaY = Math.cos(angle) * ball_step; // Vertical movement
 	let bounce_X = 1;
 	let bounce_Y = 1;
-	deltaX *= turn_ball;
 
 	// Since AI makes its own calculation of the trajectory of the ball we need to update it every 50ms
 	const ballSPeed = setInterval(() =>
 	{
 		if (!finish)
 		{
-			deltaX = Math.cos(angle) * ball_step * bounce_X;
+			deltaX = Math.cos(angle) * ball_step * bounce_X * turn_ball;
 			deltaY = Math.cos(angle) * ball_step * bounce_Y;
 		}
 		else
@@ -840,6 +870,7 @@ async function startMovingSquare()
 			enemy_consec_touch++;
 			bounce_bool = false;
 			bounce_X *= -1;
+			aiCalc = false;
 			if (ball_powered && ball_power_player_touch && player_used_ball_power && power)
 			{
 				ball_step = ball_step - 4;
@@ -864,13 +895,21 @@ async function startMovingSquare()
 
 		// Singleplayer's AI
 
-		if (newLeftPosition >= centerX && single && bounce_X == -1 && single)
+		if (newLeftPosition >= centerX && single && deltaX > 0)
 		{
 
 			// The AI has 5 frames in advance to try and predict the ball direction
-
-			let frames_ahead = 15;
-			const predictedPosition = predictBallPosition(ai_ball_info, frames_ahead);
+			let predictedPosition = {};
+			//ai_ball_info.ballX = newLeftPosition;
+			//ai_ball_info.ballY = newTopPosition;
+			let frames_ahead = 500;
+			predictedPosition = predictBallPosition(ai_ball_info, frames_ahead);
+			if (aiCalc == false)
+			{
+				aiCalc = true;
+			}
+			//console.log(predictedPosition.futureY);
+			document.getElementById('ballProjection').style.top = `${predictedPosition.futureY}px`;
             const enemyMidPoint = enemyRect.top + enemyRect.height / 2;
 			// Self-explanatory, handles the ai's powers
 			if (power)
@@ -948,7 +987,7 @@ async function startMovingSquare()
 		}
 		else
 		{
-
+			console.log("real number", newLeftPosition);
 			if (newLeftPosition + margins >= ParentRect.right - 50)
 			{
 				score_player++;
@@ -1081,6 +1120,7 @@ async function startMovingSquare()
 
 			}
 			clearInterval(moveInterval);
+			aiCalc = false;
 			movingSquare.style.display = 'none';
 			ball_power_player_touch = false;
 			player_used_ball_power = false;
@@ -1104,6 +1144,7 @@ function pongHTML()
 				<div id="score">0 : 0</div>
 				<div class="moving-square" id="moving-square"></div>
 				<div class="rectangle" id="enemy"></div>
+				<div id="ballProjection"></div>
 				
 				<div class="bottom-left-container">
 					<div class="bottom-left" id="player_speed">Player Speed</div>
