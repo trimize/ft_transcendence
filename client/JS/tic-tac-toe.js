@@ -282,7 +282,7 @@ function makeAIMove_hard() {
                     return acc;
                 }, []);
                 for (let j = 0; j < myCells.length; j++) {
-                    if (!combination.includes(myCells[j])) {
+                    if (!combination.includes(myCells[j]) && hasPowers) {
                         console.log(`Index of 'O' not in combination: ${myCells[j]}`);
                         switchCells(myCells[j], targetIndex);
                         return;
@@ -308,7 +308,7 @@ function makeAIMove_hard() {
             const myIndex = gameState.findIndex((cell, index) => 
                 cell === 'O' && player1_almostWinningCombinations.every(combination => !combination.includes(index))
             );
-            if (targetIndex !== undefined) {
+            if (targetIndex !== undefined && hasPowers) {
                 switchCells(myIndex, targetIndex);
                 return
             }

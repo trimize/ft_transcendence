@@ -91,6 +91,7 @@ const renderEditProfileForm = (userData) => {
 };
 
 const loadProfilePage = async () => {
+  console.log("Loading profile page");
   document.getElementById("content").innerHTML = renderProfilePage();
   try {
     const winsText = document.getElementById('winsText');

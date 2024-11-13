@@ -382,6 +382,13 @@ html, body
     height: 80px;
 }
 
+#aiDiv {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    height: 80px;
+}
+
 .customizeGameTitles {
     font-family: "Roboto", sans-serif;
     font-weight: 300;
@@ -460,6 +467,7 @@ input[type=range]:focus
     background-color: red;
     border-radius: 20px;
     transition: background-color ease 0.2s;
+    cursor: pointer;
 }
 
 /* Hide default HTML checkbox */
@@ -499,7 +507,15 @@ input[type=range]:focus
     background-color: #32a71b; /* Green color when active */
 }
 
-#owers:checked + .slider:before {
+#powers:checked + .slider:before {
+    transform: translateX(21px); /* Slide toggle fully to the other side */
+}
+
+#aiHard:checked + .switch {
+    background-color: #32a71b; /* Green color when active */
+}
+
+#aiHard:checked + .slider:before {
     transform: translateX(21px); /* Slide toggle fully to the other side */
 }
 
