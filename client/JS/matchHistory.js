@@ -1,8 +1,7 @@
-import { fetchUserData, fetchMatches, fetchUserById } from './fetchFunctions.js';
+import { fetchUserData, fetchMatches, fetchUserById, fetchTournaments } from './fetchFunctions.js';
 import { getWebSocket } from './singletonSocket.js';
 
 let userData;
-let socket;
 
 function formatDate(date) {
     const day = String(date.getDate()).padStart(2, '0');
@@ -12,15 +11,15 @@ function formatDate(date) {
     return `${day}/${month} ${hours}:${minutes}`;
 }
 
-async function populateTournamentsHistory(userData) {
-    const tournaments = await fetchTournaments('finished');
+async function populateTournamentsHistory(userData, userId) {
+    const tournaments = await fetchTournaments('finished', userId);
     const table = document.getElementById('finishedTournaments');
     if (tournaments.length === 0) {
         table.textContent = 'No tournaments found';
         return;
     }
-    const date = new Date(tournament.start_time);
     tournaments.forEach(async (tournament) => {
+        const date = new Date(tournament.start_time);
         const element = document.createElement('div');
         element.classList.add('finishedTournament');
         const game = tournament.game == 'tic-tac-toe' ? 'Tic Tac Toe' : 'Pong';
@@ -35,7 +34,6 @@ async function populateTournamentsHistory(userData) {
             result = "💣 You lost 💣";
         }
         element.innerHTML = `
-            <img src="" alt="Result" class="resultImage">
             <p>${formatDate(date)}</p>
             <p>${game}</p>
             <p>${result}</p>
@@ -44,22 +42,22 @@ async function populateTournamentsHistory(userData) {
     });
 }
 
-async function populateUnfinishedTournamentsHistory(userData) {
-    const tournaments = await fetchTournaments('unfinished');
+async function populateUnfinishedTournamentsHistory(userId) {
+    const tournaments = await fetchTournaments('unfinished', userId);
+    console.log(tournaments);
     const table = document.getElementById('unfinishedTournaments');
     if (tournaments.length === 0) {
         table.textContent = 'No unfinished tournaments found';
         return;
     }
-    const date = new Date(tournament.start_time);
     tournaments.forEach(async (tournament) => {
+        const date = new Date(tournament.start_time);
         const element = document.createElement('div');
         element.classList.add('unfinishedTournament');
         const game = tournament.game == 'tic-tac-toe' ? 'Tic Tac Toe' : 'Pong';
         const result = "🏆 In progress 🏆";
         const gameUrl = `tournament?tournamentId=${tournament.id}`;
         element.innerHTML = `
-            <img src="" alt="Result" class="resultImage">
             <p>${formatDate(date)}</p>
             <p>${game}</p>
             <p>${result}</p>
@@ -215,7 +213,12 @@ export async function renderMatchHistory() {
     document.getElementById('content').innerHTML = matchHistoryHTML();
     socket = await getWebSocket();
     userData = await fetchUserData();
-    populateUnfinishedMatches(userData);
-    populateMatchesHistory(userData);
-    attachMatchHistoryEventListeners();
+    if (userData) {
+        const userId = userData.id;
+        populateUnfinishedMatches(userData);
+        populateMatchesHistory(userData);
+        populateTournamentsHistory(userData, userId);
+        populateUnfinishedTournamentsHistory(userId);
+        attachMatchHistoryEventListeners();
+    }
 }
