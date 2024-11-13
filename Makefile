@@ -8,6 +8,7 @@ HOST_IP=$(shell hostname -i)
 .PHONY: all clean compose-up compose-down fclean re front
 
 all: compose-up
+	@$(shell cp ./client/Assets/default_user.jpg ./server/tcd_back/media/profile_pics)
 	@$(shell sed -i 's/$(HOST_IP)/localhost/g' ./client/nginx.conf)
 
 clean:
