@@ -253,21 +253,25 @@ const renderPlayButton = async () => {
 }
 
 const renderPlayButtons = async () => {
+	document.getElementById('player1').textContent = player1.username;
+	document.getElementById('player2').textContent = player2.username;
+	document.getElementById('player3').textContent = player3.username;
+	document.getElementById('player4').textContent = player4.username;
+	const playButtonMatch1 = document.getElementById('playButtonMatch1');
+	const playButtonMatch2 = document.getElementById('playButtonMatch2');
 	if (tournamentData.final_match)
 		start_winner = await fetchMatch(tournamentData.final_match);
 	if (tournamentData.playoff)
 		start_loser = await fetchMatch(tournamentData.playoff);
-	if (tournamentData.match1 == null)
+	if (tournamentData.match1 == null || tournamentData.match2 == null)
 	{
-		const playButtonMatch1 = document.getElementById('playButtonMatch1');
-		const playButtonMatch2 = document.getElementById('playButtonMatch2');
 		if (user.id == player1.id || user.id == player2.id) {
 			playButtonMatch1.style.display = 'block';
 			if (user.id == player1.id)
-			{
-				await createGameInTournament(player1.id, player2.id);
-				const body = {
-					id: tournamentId,
+				{
+					await createGameInTournament(player1.id, player2.id);
+					const body = {
+						id: tournamentId,
 					match1: match_id
 				};
 				tournamentData = await updateTournament(body);
@@ -298,29 +302,48 @@ const renderPlayButtons = async () => {
 			});
 		}
 	}
-	else if (!tournamentData.final_match || !tournamentData.playoff)
-		renderSecondRound();
-	else if (tournamentData.final_match && !tournamentData.playoff)
-	{
-		if (start_winner.start_time == null)
+	else {
+		const match1 = await fetchMatch(tournamentData.match1);
+		const match2 = await fetchMatch(tournamentData.match2);
+		if ((user.id == player1.id || user.id == player2.id) && match1.end_time == null) {
+			match_id = tournamentData.match1;
+			playButtonMatch1.style.display = 'block';
+			playButtonMatch1.addEventListener('click', async () => {
+				renderPlayButton(player1.id, player2.id);
+			});
+			return;
+		} else if ((user.id == player3.id || user.id == player4.id) && match2.end_time == null) {
+			match_id = tournamentData.match2;
+			playButtonMatch2.style.display = 'block';
+			playButtonMatch2.addEventListener('click', async () => {
+				renderPlayButton(player3.id, player4.id);
+			});
+			return;
+		}
+		if (!tournamentData.final_match || !tournamentData.playoff)
 			renderSecondRound();
-	}
-	else if (!tournamentData.final_match && tournamentData.playoff)
-	{
-		if (start_loser.start_time == null)
-			renderSecondRound();
-	}
-	else if (tournamentData.final_match && tournamentData.playoff)
-	{
-		if (start_loser.start_time == null || start_winner.start_time == null)
+		else if (tournamentData.final_match && !tournamentData.playoff)
 		{
-			if (start_winner.end_time != null || start_loser.end_time != null)
-				renderEnd();
-			else
+			if (start_winner.start_time == null)
 				renderSecondRound();
 		}
-		else
-			renderEnd();
+		else if (!tournamentData.final_match && tournamentData.playoff)
+		{
+			if (start_loser.start_time == null)
+				renderSecondRound();
+		}
+		else if (tournamentData.final_match && tournamentData.playoff)
+		{
+			if (start_loser.start_time == null || start_winner.start_time == null)
+			{
+				if (start_winner.end_time != null || start_loser.end_time != null)
+					renderEnd();
+				else
+					renderSecondRound();
+			}
+			else
+				renderEnd();
+		}
 	}
 }
 
@@ -600,10 +623,6 @@ async function finishedWaiting()
 }
 
 const renderSecondRound = async () => {
-	document.getElementById('player1').textContent = player1.username;
-	document.getElementById('player2').textContent = player2.username;
-	document.getElementById('player3').textContent = player3.username;
-	document.getElementById('player4').textContent = player4.username;
 	const winner1Element = document.getElementById('winnerText1');
 	const winner2Element = document.getElementById('winnerText2');
 	const loser1Text = document.getElementById('looser1');
@@ -664,7 +683,7 @@ export const renderTournament = async () => {
 		console.log('Failed to fetch tournament data');
 		return;
 	}
-	if (user.id == tournamentData.player1) {
+	if (user.id == tournamentData.player1 && (!tournamentData.player2 || !tournamentData.player3 || !tournamentData.player4)) {
 		document.getElementById('content').innerHTML = renderTournamentPageHost();
 		document.getElementById('player1').textContent = host.username;
 		addEventListeners();
@@ -673,14 +692,14 @@ export const renderTournament = async () => {
 		document.getElementById('player1').textContent = host.username;
 	}
 
-	if (user.id == tournamentData.player1 && tournamentData.match1 == null && tournamentData.match2 == null)
+	if (user.id == tournamentData.player1 && tournamentData.match1 == null && tournamentData.match2 == null && tournamentData.start_time == null)
 		sendData();
 
 	const showButtons = setInterval(async () => 
 	{
 		if (player1 && player2 && player3 && player4)
 		{
-			if (user.id == player1.id)
+			if (user.id == player1.id && tournamentData.start_time == null)
 			{
 				const data = {
 					id: tournamentId,
@@ -689,9 +708,10 @@ export const renderTournament = async () => {
 				tournamentData = await updateTournament(data);
 			}
 			clearInterval(showButtons);
+			console.log("I am in the show buttons");
 			renderPlayButtons();
 		}
 	}, 1000);
-	showButtons();
+	// showButtons();
 	receiveInfoFromSocket(socket);
 }

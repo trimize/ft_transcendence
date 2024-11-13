@@ -509,6 +509,8 @@ async function friendsListenersFunction(friendItems, friendItem)
     const conversationDiv = document.getElementById('conversation');
     const invitationList = document.getElementById('invitationList');
     const childsToRemove = invitationList.querySelectorAll('.friendInvitationElement');
+    console.log("childs to remove");
+    console.log(childsToRemove);
     childsToRemove.forEach(child => child.remove());
     if (friendItem.classList.contains('friend'))
     {
@@ -1452,6 +1454,33 @@ function renderError()
             errorDiv.classList.add("errorMessage");
             if (urlParams.get('alert') == "match_finished")
                 errorDiv.textContent = "Match has already ended"; 
+            content.append(errorDiv);
+            let opacity = 0;
+            const interval = setInterval(() =>
+            {
+                opacity += 0.08;
+                errorDiv.style.opacity = `${opacity}`;
+                if (opacity >= 1)
+                    clearInterval(interval);
+            }, 50);
+            setTimeout(() => {
+                const interval = setInterval(() =>
+                {
+                    opacity -= 0.08;
+                    errorDiv.style.opacity = `${opacity}`;
+                    if (opacity <= 0)
+                    {
+                        errorDiv.style.display = "none"
+                        clearInterval(interval);
+                    }
+                }, 50);
+            }, 2000);
+        } else if (urlParams.get('alert') == "match_rejected") {
+            const content = document.getElementById('content');
+            const errorDiv = document.createElement('div');
+            errorDiv.classList.add("errorMessage");
+            if (urlParams.get('alert') == "match_rejected")
+                errorDiv.textContent = "Friend has rejected your invite"; 
             content.append(errorDiv);
             let opacity = 0;
             const interval = setInterval(() =>
