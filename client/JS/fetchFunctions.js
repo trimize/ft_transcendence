@@ -220,7 +220,7 @@ export async function fetchMatches(type, userId = null) {
   }
 }
 
-export async function fetchTournaments(type) {
+export async function fetchTournaments(type, userId) {
 	const accessToken = await securelyGetAccessToken();
 	try {
 	  const params = new URLSearchParams();
