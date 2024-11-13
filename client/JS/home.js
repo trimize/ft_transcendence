@@ -33,11 +33,10 @@ const addEventListeners = () => {
     const ballSlider = document.getElementById('ballSpeed');
     const ballSpeedComment = document.getElementById('inputRangeText');
     const ballSpeedDiv = document.getElementById('inputRangeDiv');
-    const AITitle = document.getElementById('ballSpeedText');
     const ballAccDiv = document.getElementById('ballAccDiv');
     const ballAcc = document.getElementById('ballAcc');
     const powers = document.getElementById('powers');
-    AITitle.style.display = "none";
+    const AIHardMode = document.getElementById('aiDiv');
     ballSlider.style.display = "none";
     let invitee;
     
@@ -74,7 +73,6 @@ const addEventListeners = () => {
                     buttonPlay.classList.remove('hide-hover');
                     buttonPlay.style.color = "rgb(0, 0, 0)";
                     ballSlider.style.display = "flex";
-                    AITitle.style.display = "flex";
                 }
                 else if (singleClicked == true)
                 {
@@ -100,12 +98,6 @@ const addEventListeners = () => {
                     buttonPlay.classList.remove('hide-after');
                     buttonPlay.classList.remove('hide-hover');
                     buttonPlay.style.color = "rgb(0, 0, 0)";
-                    if (AITitle.textContent == "AI Difficulty")
-                    {
-                        AITitle.style.display = "none";
-                        ballSlider.style.display = "none";
-                        ballSpeedComment.textContent = " ";
-                    }
                 }
                 else if (multiClicked == true)
                 {
@@ -126,12 +118,6 @@ const addEventListeners = () => {
                         multiClicked = false;
                         singleplayerMenu.style.textShadow = "0 0 0px rgb(255, 255, 255)";
                         singleClicked = false;
-                        if (AITitle.textContent == "AI Difficulty")
-                        {
-                            AITitle.style.display = "none";
-                            ballSlider.style.display = "none";
-                            ballSpeedComment.textContent = " ";
-                        }
                         const matchmaking = document.getElementById('matchmaking');
                         const inviteInput = document.getElementById('inviteInput');
                         matchmaking.addEventListener('click', function()
@@ -201,6 +187,7 @@ const addEventListeners = () => {
             rightDiv.style.display = 'flex';
             if (face.classList.contains('pongFace'))
             {
+                AIHardMode.style.display = "none";
                 ballAccDiv.style.display = "flex";
                 ballSpeedComment.textContent = " ";
                 const gameTitle = document.getElementById('gameTitletext');
@@ -210,9 +197,7 @@ const addEventListeners = () => {
                 const gameText = document.getElementById('gameText');
                 gameText.innerHTML = 'Pong game is cool!<br>With powers is even cooler!<br>You can enable ball acceleration and movement speed to make the game more interesting!';
                 ballSpeedDiv.style.display = "flex";
-                AITitle.textContent = "Ball speed";
                 ballSlider.style.display = "flex";
-                AITitle.style.display = "flex";
                 gameChosen = "pong";
                 ballSlider.addEventListener('input', function()
                 {
@@ -226,7 +211,10 @@ const addEventListeners = () => {
             }
             else if (face.classList.contains('tttFace')) 
             {
+                document.getElementById('inputRangeDiv').style.display = "none";
+                AIHardMode.style.display = "flex";
                 ballAccDiv.style.display = "none";
+                ballSlider.style.display = "none";
                 ballSpeedComment.textContent = " ";
                 const gameTitle = document.getElementById('gameTitletext');
                 gameTitle.textContent = "Tic-Tac-Toe";
@@ -236,34 +224,26 @@ const addEventListeners = () => {
                 gamePicture.style.backgroundImage = 'url(../Assets/tic-tac-toe.gif)';
                 const gameText = document.getElementById('gameText');
                 gameText.innerHTML = 'Reinvented Tic-tac-toe<br>In this version of tic-tac-toe, you can use powers to change the game!<br>Drag and drop a cell to switch positions with another cell. You can use this power once per game.';
-                AITitle.textContent = "AI Difficulty";
                 gameChosen = "tic-tac-toe";
                 if (multiClicked == true)
                 {
-                    ballSlider.style.display = "none";
-                    AITitle.style.display = "none";
+                    AIHardMode.style.display = "none";
                 }
                 else
                 {
-                    ballSlider.style.display = "flex";
-                    AITitle.style.display = "flex";
+                    AIHardMode.style.display = "flex";
                 }
-            
-                ballSlider.addEventListener('input', function()
-                {
-                    if (ballSlider.value < 19)
-                        ballSpeedComment.textContent = "Easy AI";
-                    else if (ballSlider.value >= 19)
-                        ballSpeedComment.textContent = "Hard AI!";
-                });
             }
 
             document.getElementById('buttonPlay').addEventListener('click', async () => {
                 if (face.classList.contains('tttFace') && (multiClicked == true || singleClicked == true)) {
+                    console.log("clicked");
                     const params = new URLSearchParams();
+                    const aiHard = document.getElementById('aiHard');
                     params.append('offline', offline);
                     let matchId = null;
                     if (!offline) {
+                        console.log('Creating game');
                         const requestBody = {
                             host: actualUser.id,
                             game: 'tic-tac-toe',
@@ -271,7 +251,7 @@ const addEventListeners = () => {
                             player2: (invitee ? invitee.id : null),
                             match_type: (multiClicked == true ? 'local_multiplayer' : 'singleplayer'),
                             powers: powers.checked,
-                            ai: (multiClicked ? null : (ballSlider.value < 19 ? 'easy' : 'hard')),
+                            ai: (multiClicked ? null : (aiHard.checked ? 'hard' : 'easy')),
                             start_time: new Date()
                         };
                         matchId = await createGame(requestBody);
@@ -281,7 +261,7 @@ const addEventListeners = () => {
                     params.append('powers', powers.checked);
                     params.append('type', (multiClicked == true ? 'local_multiplayer' : 'singleplayer'));
                     if (singleClicked == true) {
-                        params.append('ai', (ballSlider.value < 19 ? 'easy' : 'hard'));
+                        params.append('ai', aiHard.checked ? 'hard' : 'easy');
                     }
                     window.location.href = `/tic-tac-toe?${params.toString()}`;
                 }
@@ -365,6 +345,13 @@ function renderBaseHomeBlock()
                     <input type="range" id="ballSpeed" class="form-control w-50" min="1" max="3">
                 </div>
                 <span id="inputRangeText">&nbsp;</span>
+                <div class="align-items-center justify-content-between" id="aiDiv">
+                    <label class="customizeGameTitles" for="aiHard">Enable powers</label>
+                    <label class="switch">
+                        <input type="checkbox" id="aiHard">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
                 <div class="align-items-center justify-content-between" id="powersDiv">
                     <label class="customizeGameTitles" for="powers">Enable powers</label>
                     <label class="switch">
@@ -423,6 +410,13 @@ function renderBaseHomeConnected()
                     <input type="range" id="ballSpeed" class="form-control w-50" min="1" max="3">
                 </div>
                 <span id="inputRangeText">&nbsp;</span>
+                <div class="align-items-center justify-content-between" id="aiDiv">
+                    <label class="customizeGameTitles" for="aiHard">AI Hard mode</label>
+                    <label class="switch">
+                        <input type="checkbox" id="aiHard">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
                 <div class="align-items-center justify-content-between" id="powersDiv">
                     <label class="customizeGameTitles" for="powers">Enable powers</label>
                     <label class="switch">
