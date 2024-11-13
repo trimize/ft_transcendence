@@ -365,25 +365,38 @@ html, body
 	margin-top: 100px;
 }*/
 
-#inputRangeDiv
-{
-	width: 500px;
+#inputRangeDiv {
+    width: 500px;
     display: none;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    margin-top: 20px;
+    height: 120px;
 }
 
-.customizeGameTitles
-{
-	font-family: "Roboto", sans-serif;
-	font-weight: 300;
-	font-size: 20px;
-	letter-spacing: 1px;
-	margin-top: 100px;
+#powersDiv {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    height: 80px;
+}
+
+.customizeGameTitles {
+    font-family: "Roboto", sans-serif;
+    font-weight: 300;
+    font-size: 20px;
+    letter-spacing: 1px;
+    /* margin-top: 100px; */
     margin-right: 50px;
+    margin-bottom: 0;
 }
 
-#ballSpeed
-{
-	margin-top: 95px;
+#ballAccDiv {
+    justify-content: center;
+    height: 80px;
+    display: flex;
+    align-items: center;
 }
 
 input[type=range]
@@ -441,8 +454,12 @@ input[type=range]:focus
 .switch {
     position: relative;
     display: inline-block;
-    width: 60px;
-    height: 20px;
+    width: 45px;
+    height: 24px;
+    margin-bottom: 0;
+    background-color: red;
+    border-radius: 20px;
+    transition: background-color ease 0.2s;
 }
 
 /* Hide default HTML checkbox */
@@ -453,34 +470,48 @@ input[type=range]:focus
 }
 
 /* The slider */
-.slider
-{
+.slider {
     position: absolute;
     cursor: pointer;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    width: 45px;
     background-color: rgb(70, 70, 70);
-    -webkit-transition: .4s;
     transition: .4s;
+    border-radius: 34px; /* Smooth rounded edges */
 }
 
-.slider:before
-{
+.slider:before {
     position: absolute;
     content: "";
-    height: 17px;
-    width: 17px;
-    left: 4px;
-    bottom: 2px;
-    border-width: 1px;
+    height: 20px;
+    width: 20px;
+    left: 2px;
+    bottom: 22px;
+    background-color: white;
     border: 1px solid rgb(122, 122, 122);
-    background-color: rgb(255, 255, 255);
-    -webkit-transition: .4s;
     transition: .4s;
+    border-radius: 50%;
 }
+
+#powers:checked + .switch {
+    background-color: #32a71b; /* Green color when active */
+}
+
+#owers:checked + .slider:before {
+    transform: translateX(21px); /* Slide toggle fully to the other side */
+}
+
+/* Rounded sliders */
+.slider.round {
+    border-radius: 34px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
 
 input:checked + .slider
 {

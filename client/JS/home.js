@@ -73,8 +73,8 @@ const addEventListeners = () => {
                     buttonPlay.classList.remove('hide-after');
                     buttonPlay.classList.remove('hide-hover');
                     buttonPlay.style.color = "rgb(0, 0, 0)";
-                    ballSlider.style.display = "block";
-                    AITitle.style.display = "block";
+                    ballSlider.style.display = "flex";
+                    AITitle.style.display = "flex";
                 }
                 else if (singleClicked == true)
                 {
@@ -201,7 +201,7 @@ const addEventListeners = () => {
             rightDiv.style.display = 'flex';
             if (face.classList.contains('pongFace'))
             {
-                ballAccDiv.style.display = "block";
+                ballAccDiv.style.display = "flex";
                 ballSpeedComment.textContent = " ";
                 const gameTitle = document.getElementById('gameTitletext');
                 gameTitle.textContent = "PONG";
@@ -211,8 +211,8 @@ const addEventListeners = () => {
                 gameText.innerHTML = 'Pong game is cool!<br>With powers is even cooler!<br>You can enable ball acceleration and movement speed to make the game more interesting!';
                 ballSpeedDiv.style.display = "flex";
                 AITitle.textContent = "Ball speed";
-                ballSlider.style.display = "block";
-                AITitle.style.display = "block";
+                ballSlider.style.display = "flex";
+                AITitle.style.display = "flex";
                 gameChosen = "pong";
                 ballSlider.addEventListener('input', function()
                 {
@@ -245,8 +245,8 @@ const addEventListeners = () => {
                 }
                 else
                 {
-                    ballSlider.style.display = "block";
-                    AITitle.style.display = "block";
+                    ballSlider.style.display = "flex";
+                    AITitle.style.display = "flex";
                 }
             
                 ballSlider.addEventListener('input', function()
@@ -1240,6 +1240,7 @@ export const renderBaseHomePage = async () =>
         offline = false;
         document.getElementById('content').innerHTML = renderBaseHomeConnected();
         renderError();
+        colorSwitches();
         actualUser = await fetchUserData();
         const friends = await getFriends();
         const friendNotifications = await getFriendNotifications();
@@ -1430,6 +1431,7 @@ export const renderBaseHomePage = async () =>
     {
         document.getElementById('content').innerHTML = renderBaseHomeBlock();
         renderError();
+        colorSwitches();
         offline = true;
         addEventListeners();
     }
@@ -1479,4 +1481,20 @@ function renderError()
             }, 2000);
         }
     }
+}
+
+function colorSwitches() {
+    const allSwitches = document.getElementsByClassName("switch");
+    
+    Array.from(allSwitches).forEach((switchElement) => {
+        const input = switchElement.querySelector('input');
+        
+        input.addEventListener('click', () => {
+            if (input.checked) {
+                switchElement.style.backgroundColor = "green";
+            } else {
+                switchElement.style.backgroundColor = "red";
+            }
+        });
+    });
 }

@@ -280,6 +280,7 @@ export const renderPong = async () =>
 
 	if (single || multi)
 	{
+		document.getElementById('pongTournament').style.display = "none";
 		let checkValue = setInterval(function()
 		{
 			setTimeout(startMovingSquare, 1000);
@@ -885,10 +886,12 @@ async function startMovingSquare()
 				if (enemyY > enemy.parentElement.clientHeight - enemy.clientHeight)
 					enemyY = enemy.parentElement.clientHeight - enemy.clientHeight;
 				move_up = false;
+				move_down = false;
 				setTimeout(() => 
 				{
+					move_down = true;
 					move_up = true;
-				}, 200);
+				}, 100);
 			}
 
 			// AI moves down here, also move_down is a boolean that makes sure the AI doesn't go up
@@ -899,11 +902,13 @@ async function startMovingSquare()
 				enemyY -= enemy_step;
 				if (enemyY <= 0) 
 					enemyY = 0;
-				move_down = false
+				move_up = false;
+				move_down = false;
 				setTimeout(() => 
 				{
 					move_down = true;
-				}, 200);
+					move_up = true;
+				}, 100);
 			}
 			enemy.style.top = `${enemyY}px`;
 
@@ -1036,6 +1041,8 @@ async function startMovingSquare()
 							params.append('tournamentId', tournamentData.id);
 							pongTournament.href = `/tournament?${params.toString()}`;
 						}
+						else
+							document.getElementById('pongTournament').style.display = "none";
 					}
 				}
 				if (score_enemy == 3)
