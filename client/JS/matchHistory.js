@@ -2,6 +2,7 @@ import { fetchUserData, fetchMatches, fetchUserById, fetchTournaments } from './
 import { getWebSocket } from './singletonSocket.js';
 
 let userData;
+let socket;
 
 function formatDate(date) {
     const day = String(date.getDate()).padStart(2, '0');
