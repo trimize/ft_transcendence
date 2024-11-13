@@ -236,7 +236,7 @@ const createGameInTournament = async (game_player1, game_player2) => {
 			powers: powers
 		};
 	}
-	console.log(body);
+	// console.log(body);
 	match_id = await createGame(body);
 }
 
@@ -692,6 +692,6 @@ export const renderTournament = async () => {
 			renderPlayButtons();
 		}
 	}, 1000);
-
+	showButtons();
 	receiveInfoFromSocket(socket);
 }
