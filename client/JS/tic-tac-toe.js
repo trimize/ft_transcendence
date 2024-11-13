@@ -126,7 +126,7 @@ function endGame(winner) {
         '/media/victory9.gif'
     ]
 
-    const containerElement = document.querySelector('.container');
+    const containerElement = document.querySelector('.containerTTT');
     const message = document.createElement('p');
     const modal = document.createElement('div');
     modal.classList.add('modalTTT');
@@ -176,12 +176,13 @@ function endGame(winner) {
 }
 
 function checkers(change) {
-    const gameMessageElement = document.getElementById('game-message');
-    const scoreDiv = document.getElementById('score');
+    const gameMessageElement = document.getElementById('game-messageTTT');
+    const scoreDiv = document.getElementById('scoreTTT');
 
     const winner = checkWinner();
 
     if (winner && winner !== 'D') {
+        console.log('Winner: ' + winner);
         gameMessageElement.textContent = `${winner} wins!`;
         gameMessageElement.style.display = 'block';
         if (winner === 'X') {
@@ -431,7 +432,7 @@ function checkWinner() {
 }
 
 function resetGame() {
-    const gameMessageElement = document.getElementById('game-message');
+    const gameMessageElement = document.getElementById('game-messageTTT');
 
     gameMessageElement.style.display = 'none';
     gameState.fill(null);
@@ -470,8 +471,8 @@ function tttHtml()
             <div class="containerTTT">
                 <div class="playerTTT" id="player1TTT">Player 1</div>
                 <div class="grid">
-                    <div id="score" class="score">0:0</div>
-                    <div id="game-message" class="game-message"></div>
+                    <div id="scoreTTT" class="scoreTTT">0:0</div>
+                    <div id="game-messageTTT" class="game-messageTTT"></div>
                     <div class="cell" data-index="0" draggable="true">
                         <div class="front"></div>
                         <div class="back"></div>
@@ -581,7 +582,7 @@ export const renderTTT = async () => {
         player2.textContent = actualUser.id == invitee ? 'You' : player1Data.username;
     }
     
-    const scoreDiv = document.getElementById('score');
+    const scoreDiv = document.getElementById('scoreTTT');
     scoreDiv.textContent = `${player1score}:${player2score}`;
     
     if (isOffline || (type == 'local_multiplayer' || type == 'singleplayer')) {

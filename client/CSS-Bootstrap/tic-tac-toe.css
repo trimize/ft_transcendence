@@ -127,9 +127,9 @@ button:hover {
     }
 }
 
-.game-message {
+.game-messageTTT {
     position: absolute; /* Position it absolutely */
-    top: -30px; /* Position it above the game board */
+    top: 265px; /* Position it above the game board */
     left: 50%; /* Center it horizontally */
     transform: translateX(-50%); /* Adjust for centering */
     text-align: center;
@@ -138,7 +138,7 @@ button:hover {
     display: none; /* Hide by default */
 }
 
-.score {
+.scoreTTT {
     font-size: 50px;
     font-weight: bold;
     text-align: center;
@@ -148,7 +148,7 @@ button:hover {
     padding: 10px;
     border-radius: 5px;
     position: absolute;
-    top: -190px;
+    top: 100px;
     left: 50%;
     transform: translateX(-50%);
 }
@@ -190,7 +190,6 @@ button:hover {
 }
 
 .victoryGif {
-    width: 150px;  /* Adjust the size as needed */
+    width: 200px;  /* Adjust the size as needed */
     height: auto;
-    margin-top: 10px;
 }
