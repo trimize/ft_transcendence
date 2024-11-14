@@ -567,7 +567,7 @@ async function friendsListenersFunction(friendItems, friendItem, type)
     const blockedFriends = await getBlockedFriends();
     blockedFriends.forEach((friend) =>
     {
-        if (currentChatUser.id == friend.id)
+        if (currentChatUser.id == friend.blocked.id)
         {
             blockFriendButton.style.color = "green";
             blockFriendButton.style.border = "1px solid green";
@@ -940,7 +940,7 @@ function renderBlockedFriends(blockedFriends)
     {
         const blockedfriend = document.createElement('li');
         blockedfriend.classList.add('friendItem');
-        blockedfriend.textContent = blockedFriends[i].username;
+        blockedfriend.textContent = blockedFriends[i].blocked.username;
         blockedfriend.style.color = "red";
         blockedfriend.classList.add('blocked');
         blockedfriend.addEventListener('click', function()
