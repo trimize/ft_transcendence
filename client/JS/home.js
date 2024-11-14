@@ -542,6 +542,7 @@ async function friendsListenersFunction(friendItems, friendItem, type)
     {
         const friendUsername = friendItem.textContent.trim();
         currentChatUser = await getUser(friendUsername);
+        console.log("This is the current Chat user : ", currentChatUser);
         const friendrequests = await getFriendNotifications();
     
         for (let i = 0; i < friendrequests.length; i++) {
@@ -1032,7 +1033,7 @@ function renderFriendRequest(friendNotifications)
         friendRequest.addEventListener('click', function()
         {
             const friendItems = document.querySelectorAll('.friendItem');
-            friendsListenersFunction(friendItems, friendRequest, "friendRequest");
+            friendsListenersFunction(friendItems, friendRequest, "none");
         });
         friendsList.appendChild(friendRequest);
     };
@@ -1107,6 +1108,9 @@ async function renderFriendRequestNotif(jsonMessage, chatUserId)
         params.append('tournamentId', jsonMessage.tournamentId);
         correct.addEventListener('click', async () => {
             friendRequest.remove();
+            messages[jsonMessage.hostId] = messages[jsonMessage.hostId].filter(
+                msg => !(msg.type === 'tournament_invite' && msg.tournamentId == jsonMessage.tournamentId)
+            );
             const tournamentData = await getTournamentById(jsonMessage.tournamentId);
             if (!tournamentData.player2) {
                 sendMessage({type: 'tournament_invite_response', status: 'accepted', inviteeId: actualUser.id, hostId: jsonMessage.hostId});
@@ -1123,6 +1127,9 @@ async function renderFriendRequestNotif(jsonMessage, chatUserId)
         });
         cross.addEventListener('click', () => {
             friendRequest.remove();
+            messages[jsonMessage.hostId] = messages[jsonMessage.hostId].filter(
+                msg => !(msg.type === 'tournament_invite' && msg.tournamentId == jsonMessage.tournamentId)
+            );
             sendMessage({type: 'tournament_invite_response', tournamentId: jsonMessage.tournamentId, status: 'declined', hostId: jsonMessage.hostId, inviteeId: actualUser.id, inviteeName: actualUser.username});
         });
     }
@@ -1201,6 +1208,11 @@ function renderFriendsList(friends, friendNotifications, pendingRequests, blocke
         friendElement.appendChild(pfp);
         friendElement.appendChild(redDot);
         friendsList.appendChild(friendElement);
+        friendElement.addEventListener('click', function()
+        {
+            const friendItems = document.querySelectorAll('.friendItem');
+            friendsListenersFunction(friendItems, friendElement, "friendRequest");
+        });
     };
 }
 
@@ -1410,12 +1422,13 @@ export const renderBaseHomePage = async () =>
                 if (messages[message.hostId].some(msg => (msg.type === 'tournament_invite' && msg.tournamentId == message.tournamentId))) {
                     return;
                 }
-                messages[message.hostId].push(message);
-                showRedDot(message.hostId);
-                checkRedDot();
                 if (currentChatUser && message.hostId == currentChatUser.id) {
                     renderFriendRequestNotif(message, message.hostId, "friendRequest");
                 }
+                messages[message.hostId].push(message);
+                showRedDot(message.hostId);
+                checkRedDot();
+                console.log("trying to render the tournament request");
             }
             else if (message.type === 'friend_disconnected')
                 changeBorderStatus(message.userId, false);

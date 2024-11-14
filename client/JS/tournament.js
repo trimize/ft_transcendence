@@ -201,6 +201,7 @@ const addEventListeners = async () => {
 						}
 						const inviteInterval = setInterval(() => {
 							sendMessage(message);
+							console.log("trying to invite");
 							if (accepted || declined)
 							{
 								accepted = false;
