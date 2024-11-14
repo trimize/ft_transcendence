@@ -551,17 +551,20 @@ async function friendsListenersFunction(friendItems, friendItem, type)
                 renderFriendRequestNotif(friendrequests[i], friendrequests[i].sender.id);
             }
         }
+    }
+    else if (type == "Notif")
+    {
         if (messages[currentChatUser.id]) {
-            console.log("All the notifications : ", messages[currentChatUser.id])
-            messages[currentChatUser.id].forEach(msg => {
-                if (msg.type === 'chat_message') {
-                    renderConversationBalloon(msg.message, msg.senderId === actualUser.id);
-                } else if (msg.type === 'send_invite' || msg.type === 'waiting_state' || msg.type === 'tournament_invite') {
-                    console.log("going in with ", msg);
-                    renderFriendRequestNotif(msg, currentChatUser.id);
-                }
-            });
-        }
+    }
+        console.log("All the notifications : ", messages[currentChatUser.id])
+        messages[currentChatUser.id].forEach(msg => {
+            if (msg.type === 'chat_message') {
+                renderConversationBalloon(msg.message, msg.senderId === actualUser.id);
+            } else if (msg.type === 'send_invite' || msg.type === 'waiting_state' || msg.type === 'tournament_invite') {
+                console.log("going in with ", msg);
+                renderFriendRequestNotif(msg, currentChatUser.id);
+            }
+        });
     }
     let currentUserblocked = false;
     const blockedFriends = await getBlockedFriends();
@@ -1033,7 +1036,7 @@ function renderFriendRequest(friendNotifications)
         friendRequest.addEventListener('click', function()
         {
             const friendItems = document.querySelectorAll('.friendItem');
-            friendsListenersFunction(friendItems, friendRequest, "none");
+            friendsListenersFunction(friendItems, friendRequest, "friendRequest");
         });
         friendsList.appendChild(friendRequest);
     };
@@ -1210,8 +1213,9 @@ function renderFriendsList(friends, friendNotifications, pendingRequests, blocke
         friendsList.appendChild(friendElement);
         friendElement.addEventListener('click', function()
         {
+            console.log("CLICKING");
             const friendItems = document.querySelectorAll('.friendItem');
-            friendsListenersFunction(friendItems, friendElement, "friendRequest");
+            friendsListenersFunction(friendItems, friendElement, "Notif");
         });
     };
 }
@@ -1396,7 +1400,7 @@ export const renderBaseHomePage = async () =>
                 showRedDot(message.userId);
                 checkRedDot();
                 if (currentChatUser && message.userId == currentChatUser.id) {
-                    renderFriendRequestNotif(message, message.userId, "friendRequest");
+                    renderFriendRequestNotif(message, message.userId);
                 }
             }
             else if (message.type === 'friendRequest')
