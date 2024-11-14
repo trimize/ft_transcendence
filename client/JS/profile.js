@@ -175,12 +175,12 @@ const attachEditFormEventListeners = () => {
       const profilePicture = document.getElementById("formFile").files[0];
       const errorContainer = document.getElementById("editProfileErrorMessage");
       const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-      if (username.length < 3) {
+      if (username.length != 0 && (username.length < 3 || username.length > 12)) {
         errorContainer.textContent = "Invalid username";
         errorContainer.style.display = "block";
         return;
       }
-      if (!emailPattern.test(email)) {
+      if (email.length !=0 && !emailPattern.test(email)) {
         errorContainer.textContent = "Invalid email";
         errorContainer.style.display = "block";
         return;

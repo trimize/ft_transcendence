@@ -67,8 +67,10 @@ export async function updateUserData(username, email, profilePicture) {
   const accessToken = await securelyGetAccessToken();
   try {
     const formData = new FormData();
-    formData.append('username', username);
-    formData.append('email', email);
+	if (username)
+    	formData.append('username', username);
+	if (email)
+    	formData.append('email', email);
     if (profilePicture) {
       formData.append('profile_pic', profilePicture);
     }
@@ -80,7 +82,6 @@ export async function updateUserData(username, email, profilePicture) {
       },
       body: formData,
     });
-    // const data = await response.json();
   } catch (error) {
     console.error("Error updating user data:", error);
   }

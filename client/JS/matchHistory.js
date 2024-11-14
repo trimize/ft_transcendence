@@ -184,17 +184,25 @@ const matchHistoryHTML = () => {
       <a id="backButtonEdit" href="/profile"></a>
                   <h1 class="text-center mt-5">Match History</h1>
                   <div class="allMatches">
+                  <div class=grid-item>
                         <h2>Unfinished Matches</h2>
                         <div class="unfinishedMatches" id="unfinishedMatches">
                         </div>
+                        </div>
+                         <div class=grid-item>
                         <h2>Unfinished Tournaments</h2>
                         <div class="unfinishedTournaments" id="unfinishedTournaments">
                         </div>
+                        </div>
+                         <div class=grid-item>
                         <h2>Finished Matches</h2>
                         <div class="finishedMatches" id="finishedMatches">
                         </div>
+                        </div>
+                         <div class=grid-item>
                         <h2>Finished Tournaments</h2>
                         <div class="finishedTournaments" id="finishedTournaments">
+                        </div>
                         </div>
                   </div>
               </div><div id="bg"></div>`;
