@@ -43,7 +43,7 @@ def verify_2fa(request):
 		if device and device.verify_token(token):
 			# 2FA token is valid, return tokens
 			refresh = RefreshToken.for_user(user)
-			websocket_url = f"ws://{request.get_host()}/ws/"
+			websocket_url = f"wss://{request.get_host()}/ws/"
 			return Response({
 				'refresh': str(refresh),
 				'access': str(refresh.access_token),

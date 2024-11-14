@@ -235,13 +235,11 @@ const addEventListeners = () => {
 
             document.getElementById('buttonPlay').addEventListener('click', async () => {
                 if (face.classList.contains('tttFace') && (multiClicked == true || singleClicked == true)) {
-                    console.log("clicked");
                     const params = new URLSearchParams();
                     const aiHard = document.getElementById('aiHard');
                     params.append('offline', offline);
                     let matchId = null;
                     if (!offline) {
-                        console.log('Creating game');
                         const requestBody = {
                             host: actualUser.id,
                             game: 'tic-tac-toe',
@@ -476,7 +474,6 @@ function renderBaseHomeConnected()
 
 async function renderConversationBalloon(message, isSender) {
     if (await checkBlocked(currentChatUser.id) == true) {
-        console.log("it was true in the balloon");
         return;
     }
     const conversationDiv = document.getElementById('conversation');
@@ -502,8 +499,6 @@ async function friendsListenersFunction(friendItems, friendItem)
     const conversationDiv = document.getElementById('conversation');
     const invitationList = document.getElementById('invitationList');
     const childsToRemove = invitationList.querySelectorAll('.friendInvitationElement');
-    console.log("childs to remove");
-    console.log(childsToRemove);
     childsToRemove.forEach(child => child.remove());
     if (friendItem.classList.contains('friend'))
     {
@@ -541,25 +536,18 @@ async function friendsListenersFunction(friendItems, friendItem)
     // Check if the friend is in the list of friend notifications
 
     const friendUsername = friendItem.textContent.trim();
-    console.log(friendUsername);
     currentChatUser = await getUser(friendUsername);
-    console.log(currentChatUser);
     const friendrequests = await getFriendNotifications();
-    console.log("here are the friend requests");
-    console.log(friendrequests);
     for (let i = 0; i < friendrequests.length; i++) {
         if (friendrequests[i].sender.username == currentChatUser.username) {
-            console.log("going to render");
             renderFriendRequestNotif(friendrequests[i], friendrequests[i].sender.id);
         }
     }
     if (messages[currentChatUser.id]) {
-        console.log("All the notifications : ", messages[currentChatUser.id])
         messages[currentChatUser.id].forEach(msg => {
             if (msg.type === 'chat_message') {
                 renderConversationBalloon(msg.message, msg.senderId === actualUser.id);
             } else if (msg.type === 'send_invite' || msg.type === 'waiting_state' || msg.type === 'tournament_invite') {
-                console.log("going in with ", msg);
                 renderFriendRequestNotif(msg, currentChatUser.id);
             }
         });
@@ -609,7 +597,6 @@ async function showChat() {
     const conversationDiv = document.getElementById('conversation');
     const showChatRoom = document.getElementById('showChatRoom');
     const friendItems = document.querySelectorAll('.friendItem');
-    // console.log(friendItems);
     const cube = document.getElementsByClassName('Cube');
     const chatInput = document.getElementById('chatInput');
     const faces = document.querySelectorAll('.Face');
@@ -625,10 +612,8 @@ async function showChat() {
     const blockFriendButton = document.getElementById('blockFriendButton');
 
     inviteButton.addEventListener('click', async () => {
-        // console.log('Invite button clicked');
 
         if (matchmakingClicked) {
-            // console.log('Matchmaking chosen');
             const params = new URLSearchParams();
             params.append('matchmaking', 'true');
             params.append('game', gameChosen);
@@ -639,7 +624,6 @@ async function showChat() {
         const username = inviteInput.value.trim();
         let invitee = await getUser(username);
         if (invitee && invitee.id !== actualUser.id) {
-            // console.log('Invitee already set:', invitee);
             const params = new URLSearchParams();
             params.append('game', gameChosen);
             let body;
@@ -718,7 +702,6 @@ async function showChat() {
             chatInput.style.height = 'auto';
             chatInput.style.height = chatInput.scrollHeight + 'px';
             if (currentChatUser) {
-                // console.log('Current chat user:', currentChatUser);
                 const messageData = {
                     type: "chat_message",
                     senderId: actualUser.id,
@@ -729,7 +712,6 @@ async function showChat() {
                     messages[currentChatUser.id] = [];
                 }
                 messages[currentChatUser.id].push(messageData);
-                // console.log('Sending message:', messageData);
                 sendMessage(messageData);
             }
         }
@@ -746,7 +728,6 @@ async function showChat() {
         chatInput.style.height = 'auto';
         chatInput.style.height = chatInput.scrollHeight + 'px';
         if (currentChatUser) {
-            // console.log('Current chat user:', currentChatUser);
             const messageData = {
                 type: "chat_message",
                 senderId: actualUser.id,
@@ -757,7 +738,6 @@ async function showChat() {
                 messages[currentChatUser.id] = [];
             }
             messages[currentChatUser.id].push(messageData);
-            // console.log('Sending message:', messageData);
             sendMessage(messageData);
         }
     });
@@ -810,7 +790,6 @@ async function addFriendButton()
         const friendAddStatus = document.getElementById('friendAddStatus');
         const friendName = textInput.value;
         const friendInfo = await getUser(friendName);
-        // console.log(friendInfo);
         if (friendName == user.username) {
             friendAddStatus.textContent = 'You cannot add yourself as a friend';
             friendAddStatus.style.color = "red";
@@ -837,7 +816,6 @@ async function addFriendButton()
                 "receiverId": friendInfo.id,
                 "senderId": user.id
             };
-            // console.log("sent : " + friendRequestdata);
             sendMessage(friendRequestdata);
             //showChat();
         }
@@ -858,7 +836,6 @@ async function acceptFriendNotif(friend, element)
         "receiverId": friend.id,
         "senderId": actualUser.id
     };
-    //console.log("sent : " + friendRequestdata);
     sendMessage(friendRequestdata);
     const friends = await getFriends();
     const friendNotifications = await getFriendNotifications();
@@ -989,7 +966,6 @@ function checkRedDot()
         if (child.querySelector('.redDot').style.display == 'block' && document.getElementById('showFriends').style.right != "248px")
         {
             document.getElementById('notifShowFriends').style.display = 'block';
-            console.log("You received a notification!")
         }
     });
 }
@@ -1097,17 +1073,14 @@ async function renderFriendRequestNotif(jsonMessage, chatUserId)
         correct.addEventListener('click', () => acceptFriendNotif(jsonMessage.sender, friendRequest));
         cross.addEventListener('click', () => refuseFriendNotif(jsonMessage.sender, friendRequest));
     } else if (jsonMessage.type == 'send_invite' || (jsonMessage.type == 'waiting_state' && jsonMessage.firstInvite == 'true')) {
-        // console.log('Game invite being rendered:', jsonMessage);
         messageText.textContent = jsonMessage.game === 'tic-tac-toe' ? "New Tic-Tac-Toe invite!" : "New Pong invite!";
         correct.addEventListener('click', () => acceptGameInvite(jsonMessage, friendRequest));
         cross.addEventListener('click', () => refuseGameInvite(jsonMessage, friendRequest));
     } else if (jsonMessage.type == 'waiting_state') {
-        // console.log('Waiting state being rendered:', jsonMessage);
         messageText.textContent = "Finish your " + (jsonMessage.game === 'tic-tac-toe' ? "Tic Tac Toe" : "Pong") + " game!";
         correct.addEventListener('click', () => acceptGameInvite(jsonMessage, friendRequest));
         cross.style.display = 'none';
     } else if (jsonMessage.type == 'tournament_invite') {
-        console.log('Tournament invite being rendered:', jsonMessage);
         messageText.textContent = "New " + (jsonMessage.game === 'tic-tac-toe' ? "Tic Tac Toe" : "Pong") + " tournament invite!"
         let params = new URLSearchParams();
         params.append('tournamentId', jsonMessage.tournamentId);
@@ -1135,7 +1108,6 @@ async function renderFriendRequestNotif(jsonMessage, chatUserId)
 }
 
 async function acceptGameInvite(jsonMessage, element) {
-    // console.log('Accepting game invite:', jsonMessage);
     const matchData = await fetchMatch(jsonMessage.matchId);
     if (!matchData) {
         console.error('Failed to fetch match data');
@@ -1161,7 +1133,6 @@ async function acceptGameInvite(jsonMessage, element) {
 }
 
 function refuseGameInvite(jsonMessage, element) {
-    // console.log('Refusing game invite:', jsonMessage);
     const messageData = {
         type: 'refuse_invite',
         hostId: jsonMessage.hostId,
@@ -1185,10 +1156,8 @@ function renderFriendsList(friends, friendNotifications, pendingRequests, blocke
     const friendsList = document.getElementById('friendsList');
     const childsToRemove = friendsList.querySelectorAll('.friend');
     childsToRemove.forEach(child => child.remove());
-    // console.log(friendNotifications);
     for(let i = 0; i < friends.length; i++)
     {
-        console.log("This is the friend " + i + " " + friends[i]);
         const friendElement = document.createElement('li');
         friendElement.classList.add('friendItem');
         let username = friends[i].username;
@@ -1336,7 +1305,6 @@ export const renderBaseHomePage = async () =>
         });
 
         viewFriendButton.addEventListener('click', async () => {
-            console.log(currentChatUser);
             if (currentChatUser)
                 window.location.href = `/profile?id=${currentChatUser.id}`;
         });
