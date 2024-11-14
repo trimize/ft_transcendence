@@ -342,7 +342,7 @@ function renderBaseHomeBlock()
                 </div>
                 <span id="inputRangeText">&nbsp;</span>
                 <div class="align-items-center justify-content-between" id="aiDiv">
-                    <label class="customizeGameTitles" for="aiHard">Enable powers</label>
+                    <label class="customizeGameTitles" for="aiHard">AI Hard Mode</label>
                     <label class="switch">
                         <input type="checkbox" id="aiHard">
                         <span class="slider round"></span>

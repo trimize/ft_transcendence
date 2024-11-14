@@ -12,6 +12,7 @@ let player2hasSwitch = true;
 let ai = false;
 let actualUser;
 let matchData;
+let isRoundOver = false;
 
 let player1score = 0;
 let player2score = 0;
@@ -182,6 +183,7 @@ function checkers(change) {
     const winner = checkWinner();
 
     if (winner && winner !== 'D') {
+        isRoundOver = true;
         console.log('Winner: ' + winner);
         gameMessageElement.textContent = `${winner} wins!`;
         gameMessageElement.style.display = 'block';
@@ -214,6 +216,7 @@ function checkers(change) {
         }
 
     } else if (winner === 'D' || gameState.every(cell => cell)) {
+        isRoundOver = true;
         gameMessageElement.textContent = 'Draw!';
         gameMessageElement.style.display = 'block';
         setTimeout(resetGame, 2000);
@@ -394,6 +397,9 @@ function switchCells(currentCellIndex, targetCellIndex) {
 		}
         if (currentPlayer === 'O') {
             checkers(false);
+            if (ai && !isRoundOver) {
+                setTimeout(makeAIMove_hard, 500);
+            }
         } else {
             checkers(true);
         }
@@ -431,6 +437,10 @@ function checkWinner() {
     }
 }
 
+function resetVar() {
+    isRoundOver = false;
+}
+
 function resetGame() {
     const gameMessageElement = document.getElementById('game-messageTTT');
 
@@ -448,6 +458,7 @@ function resetGame() {
         player1hasSwitch = true;
         player2hasSwitch = true;
     }
+    setTimeout(resetVar, 3000);
 }
 
 function changeTurn() {
