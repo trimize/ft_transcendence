@@ -76,7 +76,7 @@
     /*background-color: rgba(119, 119, 115, 0.521);*/
     border-bottom: 1px solid rgba(255, 255, 255, 0.527);
     transition: background-color ease 0.3s;
-    padding-left: 25px;
+    padding-left: 45px;
 }
 
 .friendItemNotif
@@ -499,14 +499,15 @@
 }
 
 .requestUsername {
-    width: 100px;
-    height: 30px;
-    position: absolute;
-    color: white;
-    font-size: 15px;
-    left: 0;
-    /* top: 5px; */
-    margin-bottom: 38px;
+	width: 100px;
+	height: 30px;
+	position: absolute;
+	color: white;
+	font-size: 15px;
+	left: 0;
+	/* top: 5px; */
+	margin-bottom: 38px;
+	margin-left: 35px;
 }
 
 .messageText {

@@ -466,6 +466,7 @@ function renderBaseHomeConnected()
                     <button id="playPongButton">Play Pong</button>
                     <button id="playTicTacToeButton">Play Tic-Tac-Toe</button>
                     <button id="blockFriendButton">Block Friend</button>
+                    <button id="viewFriendButton">View Friend</button>
                 </div>
             </div>
             <div id="bg"></div>
@@ -1071,8 +1072,8 @@ async function renderFriendRequestNotif(jsonMessage, chatUserId)
     const requestUsername = document.createElement('div');
     requestUsername.classList.add('requestUsername');
     let username = chatUser.username;
-    if (chatUser.username.length > 8)
-        username = chatUser.username.substring(0, 8) + "...";
+    // if (chatUser.username.length > 8)
+    //     username = chatUser.username.substring(0, 8) + "...";
     requestUsername.textContent = username;
     friendRequest.appendChild(requestUsername);
 
@@ -1196,8 +1197,8 @@ function renderFriendsList(friends, friendNotifications, pendingRequests, blocke
         const friendElement = document.createElement('li');
         friendElement.classList.add('friendItem');
         let username = friends[i].username;
-        if (friends[i].username.length > 8)
-            username = friends[i].username.substring(0, 8) + "...";
+        // if (friends[i].username.length > 8)
+        //     username = friends[i].username.substring(0, 8) + "...";
         friendElement.textContent = username;
         friendElement.style.color = "cyan";
         friendElement.classList.add('friend');
@@ -1256,7 +1257,8 @@ export const renderBaseHomePage = async () =>
         const blockFriendButton = document.getElementById('blockFriendButton');
         const chatInput = document.getElementById('chatInput');
         const notFriendMessage = document.getElementById('notFriendMessage');
-    
+        const viewFriendButton = document.getElementById('viewFriendButton');
+
         playPongButton.addEventListener('click', async () => {
             // Logic to play Pong
             const params = new URLSearchParams();
@@ -1336,6 +1338,12 @@ export const renderBaseHomePage = async () =>
             const pendingRequests = await getPendingRequest();
             const blockedFriends = await getBlockedFriends();
             renderFriendsList(friends, friendNotifications, pendingRequests, blockedFriends);
+        });
+
+        viewFriendButton.addEventListener('click', async () => {
+            console.log(currentChatUser);
+            if (currentChatUser)
+                window.location.href = `/profile?id=${currentChatUser.id}`;
         });
 
         // showChat();

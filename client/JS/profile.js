@@ -1,7 +1,7 @@
 import {
   fetchUserData,
   updateUserData,
-  fetchMatches,
+  fetchUserById,
 } from "./fetchFunctions.js";
 
 import {
@@ -16,6 +16,55 @@ import { closeWebSocket, getWebSocket } from "./singletonSocket.js";
 
 let socket;
 let userData;
+
+const url = new URL(window.location.href);
+const params = new URLSearchParams(url.search);
+
+const getFriendProfile = () => {
+  return `<a id="backButtonEdit"></a>
+        <div id="pfpDiv">
+                <img id="pfp">
+            </div>
+            <div id="pfDiv">
+                <div id="pfBackground"></div>
+                <div>
+                    <div class="profileLogos" id="wins"></div>
+                    <p id="winsText" class="profileNumbers"></p>
+                    <div class="profileLogos" id="losses"></div>
+                    <p id="lossesText" class="profileNumbers"></p>
+                    <div id="matchDivProfile"></div>
+                    <h2 id="username" class="text-pf"></h2>
+                    <p id="email" class="text-pf text-info"></p>
+                </div>
+            </div>
+            <div id="bg">
+            </div>`
+}
+
+const renderFriendProfile = async (id) => {
+  document.getElementById("content").innerHTML = getFriendProfile();
+    try {
+          const winsText = document.getElementById('winsText');
+          const lossesText = document.getElementById('lossesText');
+          const username = document.getElementById('username');
+          const email = document.getElementById('email');
+          const profilePicture = document.getElementById('pfp');
+          userData = await fetchUserById(id);
+          console.log(userData);
+          winsText.textContent = userData.wins;
+          lossesText.textContent = userData.losses;
+          username.textContent = userData.username;
+          email.textContent = userData.email;
+          if (userData.profile_pic !== null)
+            profilePicture.src = `${BACKEND_URL}${userData.profile_pic}`;
+          else profilePicture.src = DEFAULT_PROFILE_PIC;
+      } catch (error) {
+        console.error("Failed to load profile data:", error);
+      }
+      document.getElementById("backButtonEdit").addEventListener("click", () => {
+        window.location.href = "/home";
+      })
+          };
 
 const renderProfilePage = () => {
   return `
@@ -92,7 +141,6 @@ const renderEditProfileForm = (userData) => {
 };
 
 const loadProfilePage = async () => {
-  console.log("Loading profile page");
   document.getElementById("content").innerHTML = renderProfilePage();
   try {
     const winsText = document.getElementById('winsText');
@@ -279,6 +327,10 @@ const attachEditFormEventListeners = () => {
 
 export const renderProfile = async () => {
   socket = await getWebSocket();
-  loadProfilePage();
-  // attachEventListeners();
+  console.log(params.get("id"));
+  if (params.get("id")) {
+    renderFriendProfile(params.get("id"));
+  } else {
+    loadProfilePage();
+  }
 };
