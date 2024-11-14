@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from ..models import User, Match_Record, FriendInvitation, BlockedUser
-from ..serializer import UserSerializer, FriendInvitationSerializer
+from ..serializer import UserSerializer, FriendInvitationSerializer, BlockedUserSerializer
 import random
 
 @api_view(['GET'])
@@ -185,7 +185,7 @@ def add_friend(request, new_friend):
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
     try:
-        invitation = FriendInvitation.objects.get(sender=friend, receiver=user)
+        invitation = FriendInvitation.objects.get(sender=friend, receiver=user, status='pending')
         invitation.status = 'accepted'
         invitation.save(update_fields=['status'])
     except FriendInvitation.DoesNotExist:
@@ -319,7 +319,7 @@ def get_friends(request):
 def get_blocked_friends(request):
     user = request.user
     blocked_users = BlockedUser.objects.filter(blocker=user)
-    serializer = UserSerializer(blocked_users, many=True)
+    serializer = BlockedUserSerializer(blocked_users, many=True)
     print("This is the blocked users")
-    print(blocked_users_serialized)
+    print(serializer.data)
     return Response(serializer.data)

@@ -102,7 +102,7 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8080",
     "https://localhost:4443",
-    "https://10.31.4.2:4443",
+    "https://10.24.103.5:4443",
 ]
 
 ROOT_URLCONF = 'tcd_back.urls'

@@ -91,9 +91,11 @@ class TournamentSerializer(serializers.ModelSerializer):
 		fields = '__all__'
 
 class BlockedUserSerializer(serializers.ModelSerializer):
-	user = UserSerializer(read_only=True)
-	blocked_user = UserSerializer(read_only=True)
+    blocked = serializers.SerializerMethodField()
 
-	class Meta:
-		model = BlockedUser
-		fields = '__all__'
+    class Meta:
+        model = BlockedUser
+        fields = ['blocked']
+
+    def get_blocked(self, obj):
+        return UserSerializer(obj.blocked).data

@@ -538,34 +538,36 @@ async function friendsListenersFunction(friendItems, friendItem, type)
     conversationDiv.innerHTML = '';
     // Check if the friend is in the list of friend notifications
     const friendUsername = friendItem.textContent.trim();
+    const blockedFriends = await getBlockedFriends();
     currentChatUser = await getUser(friendUsername);
 
-    if (type == "friendRequest")
-    {
-        console.log("This is the current Chat user : ", currentChatUser);
-        const friendrequests = await getFriendNotifications();
-    
-        for (let i = 0; i < friendrequests.length; i++) {
-            if (friendrequests[i].sender.username == currentChatUser.username) {
-                console.log("going to render");
-                renderFriendRequestNotif(friendrequests[i], friendrequests[i].sender.id);
+    if (blockedFriends.some(friend => friend.blocked.id == currentChatUser.id) == false) {
+        if (type == "friendRequest")
+        {
+            console.log("This is the current Chat user : ", currentChatUser);
+            const friendrequests = await getFriendNotifications();
+        
+            for (let i = 0; i < friendrequests.length; i++) {
+                if ((friendrequests[i].sender.username == currentChatUser.username)) {
+                    console.log("going to render");
+                    renderFriendRequestNotif(friendrequests[i], friendrequests[i].sender.id);
+                }
             }
         }
-    }
-    else if (currentChatUser && type == "Notif" && messages[currentChatUser.id])
-    {
-        console.log("All the notifications : ", messages[currentChatUser.id])
-        messages[currentChatUser.id].forEach(msg => {
-            if (msg.type === 'chat_message') {
-                renderConversationBalloon(msg.message, msg.senderId === actualUser.id);
-            } else if (msg.type === 'send_invite' || msg.type === 'waiting_state' || msg.type === 'tournament_invite') {
-                console.log("going in with ", msg);
-                renderFriendRequestNotif(msg, currentChatUser.id);
-            }
-        });
+        else if (currentChatUser && type == "Notif" && messages[currentChatUser.id])
+        {
+            console.log("All the notifications : ", messages[currentChatUser.id])
+            messages[currentChatUser.id].forEach(msg => {
+                if (msg.type === 'chat_message') {
+                    renderConversationBalloon(msg.message, msg.senderId === actualUser.id);
+                } else if (msg.type === 'send_invite' || msg.type === 'waiting_state' || msg.type === 'tournament_invite') {
+                    console.log("going in with ", msg);
+                    renderFriendRequestNotif(msg, currentChatUser.id);
+                }
+            });
+        }
     }
     let currentUserblocked = false;
-    const blockedFriends = await getBlockedFriends();
     blockedFriends.forEach((friend) =>
     {
         if (currentChatUser.id == friend.blocked.id)
@@ -1230,7 +1232,7 @@ export const renderBaseHomePage = async () =>
         const friends = await getFriends();
         const friendNotifications = await getFriendNotifications();
         const pendingRequests = await getPendingRequest();
-        const blockedFriends = await getBlockedFriends();
+        let blockedFriends = await getBlockedFriends();
         console.log("These are the blocked friends : ", blockedFriends);
         getProfileInfo();
         // renderFriendRequest();
@@ -1321,7 +1323,6 @@ export const renderBaseHomePage = async () =>
             const friends = await getFriends();
             const friendNotifications = await getFriendNotifications();
             const pendingRequests = await getPendingRequest();
-            const blockedFriends = await getBlockedFriends();
             renderFriendsList(friends, friendNotifications, pendingRequests, blockedFriends);
         });
 
@@ -1334,9 +1335,17 @@ export const renderBaseHomePage = async () =>
         socket = await getWebSocket();
         socket.addEventListener('message', async function(event)
         {
+            blockedFriends = await getBlockedFriends();
             const message = JSON.parse(event.data);
             if (message.type === 'chat_message')
             {
+                if (blockedFriends.some((friend) => friend.blocked.id == message.senderId)) {
+                    console.log("blocked, not rendering message");
+                    return; 
+                }
+                console.log("rendering message");
+                console.log(blockedFriends);
+                console.log(message.senderId);
                 if (!messages[message.senderId]) {
                     messages[message.senderId] = [];
                 }
@@ -1344,81 +1353,84 @@ export const renderBaseHomePage = async () =>
                 // console.log('Current chat user:', currentChatUser);
                 messages[message.senderId].push(message);
                 if (currentChatUser && message.senderId === currentChatUser.id)
-                {
-                    renderConversationBalloon(message.message, false);
+                    {
+                        renderConversationBalloon(message.message, false);
+                    }
+                    else
+                    {
+                        showRedDot(message.senderId);
+                        checkRedDot();
+                        //console.log('red dot should show now');
+                    }   
+                } else if ((message.type === 'send_invite' || message.firstInvite == 'true')) {
+                    // console.log('Received game invite:', message);
+                    const sender = message.type == 'send_invite' ? message.hostId : message.userId;
+                    if (blockedFriends.some((friend) => friend.blocked.id == sender)) { return; }
+                    if (!messages[sender]) {
+                        messages[sender] = [];
+                    }
+                    if (messages[sender].some(msg => (msg.type == 'waiting_state' && msg.matchId == message.matchId) || (msg.type == 'send_invite' && msg.matchId == message.matchId))) {
+                        return;
+                    }
+                    showRedDot(sender);
+                    checkRedDot();
+                    messages[sender].push(message);
+                    if (currentChatUser != null && (message.type == 'send_invite' && message.hostId == currentChatUser.id) || (message.type == 'waiting_state' && message.userId == currentChatUser.id)) {
+                        renderFriendRequestNotif(message, sender);
+                    }
+                } else if (message.type === 'waiting_state') {
+                    // console.log('Received waiting state:', message);
+                    if (blockedFriends.some((friend) => friend.blocked.id == message.userId)) { return; }
+                    if (!messages[message.userId]) {
+                        messages[message.userId] = [];
+                    }
+                    if (messages[message.userId].some(msg => (msg.type === 'waiting_state' && msg.matchId == message.matchId) || (msg.type === 'send_invite' && msg.matchId == message.matchId))) {
+                        return;
+                    }
+                    messages[message.userId].push(message);
+                    showRedDot(message.userId);
+                    checkRedDot();
+                    if (currentChatUser && message.userId == currentChatUser.id) {
+                        renderFriendRequestNotif(message, message.userId);
+                    }
                 }
-                else
+                else if (message.type === 'friendRequest')
                 {
+                    if (blockedFriends.some((friend) => friend.blocked.id == message.senderId)) { return; }
+                    const newfriendNotifications = await getFriendNotifications();
+                    renderFriendRequest(newfriendNotifications);
                     showRedDot(message.senderId);
                     checkRedDot();
-                    //console.log('red dot should show now');
-                }   
-            } else if ((message.type === 'send_invite' || message.firstInvite == 'true')) {
-                // console.log('Received game invite:', message);
-                const sender = message.type == 'send_invite' ? message.hostId : message.userId;
-                if (!messages[sender]) {
-                    messages[sender] = [];
                 }
-                if (messages[sender].some(msg => (msg.type == 'waiting_state' && msg.matchId == message.matchId) || (msg.type == 'send_invite' && msg.matchId == message.matchId))) {
-                    return;
+                else if (message.type === 'friendRequestAccepted' || message.type === 'friendRequestRefused')
+                {
+                        const newfriends = await getFriends();
+                        const newfriendNotifications = await getFriendNotifications();
+                        const newpendingRequests = await getPendingRequest();
+                        console.log("This is the updated friends : " + newfriends);
+                        renderFriendsList(newfriends, newfriendNotifications, newpendingRequests, blockedFriends);
                 }
-                showRedDot(sender);
-                checkRedDot();
-                messages[sender].push(message);
-                if (currentChatUser != null && (message.type == 'send_invite' && message.hostId == currentChatUser.id) || (message.type == 'waiting_state' && message.userId == currentChatUser.id)) {
-                    renderFriendRequestNotif(message, sender);
+                else if (message.type === 'tournament_invite') {
+                    if (blockedFriends.some((friend) => friend.blocked.id == message.hostId)) { return; }
+                    if (!messages[message.hostId]) {
+                        messages[message.hostId] = [];
+                    }
+                    if (messages[message.hostId].some(msg => (msg.type === 'tournament_invite' && msg.tournamentId == message.tournamentId))) {
+                        return;
+                    }
+                    if (currentChatUser && message.hostId == currentChatUser.id) {
+                        renderFriendRequestNotif(message, message.hostId, "friendRequest");
+                    }
+                    messages[message.hostId].push(message);
+                    showRedDot(message.hostId);
+                    checkRedDot();
+                    console.log("trying to render the tournament request");
                 }
-            } else if (message.type === 'waiting_state') {
-                // console.log('Received waiting state:', message);
-                if (!messages[message.userId]) {
-                    messages[message.userId] = [];
-                }
-                if (messages[message.userId].some(msg => (msg.type === 'waiting_state' && msg.matchId == message.matchId) || (msg.type === 'send_invite' && msg.matchId == message.matchId))) {
-                    return;
-                }
-                messages[message.userId].push(message);
-                showRedDot(message.userId);
-                checkRedDot();
-                if (currentChatUser && message.userId == currentChatUser.id) {
-                    renderFriendRequestNotif(message, message.userId);
-                }
-            }
-            else if (message.type === 'friendRequest')
-            {
-                const newfriendNotifications = await getFriendNotifications();
-                renderFriendRequest(newfriendNotifications);
-                showRedDot(message.senderId);
-                checkRedDot();
-            }
-            else if (message.type === 'friendRequestAccepted' || message.type === 'friendRequestRefused')
-            {
-                const newfriends = await getFriends();
-                const newfriendNotifications = await getFriendNotifications();
-                const newpendingRequests = await getPendingRequest();
-                const blockedFriends = await getBlockedFriends();
-                console.log("This is the updated friends : " + newfriends);
-                renderFriendsList(newfriends, newfriendNotifications, newpendingRequests, blockedFriends);
-            }
-            else if (message.type === 'tournament_invite') {
-                if (!messages[message.hostId]) {
-                    messages[message.hostId] = [];
-                }
-                if (messages[message.hostId].some(msg => (msg.type === 'tournament_invite' && msg.tournamentId == message.tournamentId))) {
-                    return;
-                }
-                if (currentChatUser && message.hostId == currentChatUser.id) {
-                    renderFriendRequestNotif(message, message.hostId, "friendRequest");
-                }
-                messages[message.hostId].push(message);
-                showRedDot(message.hostId);
-                checkRedDot();
-                console.log("trying to render the tournament request");
-            }
-            else if (message.type === 'friend_disconnected')
-                changeBorderStatus(message.userId, false);
-            else if (message.type === 'friend_connected')
-                changeBorderStatus(message.userId, true);
-        });
+                else if (message.type === 'friend_disconnected' && blockedFriends.some((friend) => friend.blocked.id == message.userId) == false)
+                    changeBorderStatus(message.userId, false);
+                else if (message.type === 'friend_connected' && blockedFriends.some((friend) => friend.blocked.id == message.userId) == false)
+                    changeBorderStatus(message.userId, true);
+            });
     }
     else
     {
