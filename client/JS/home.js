@@ -1070,7 +1070,10 @@ async function renderFriendRequestNotif(jsonMessage, chatUserId)
 
     const requestUsername = document.createElement('div');
     requestUsername.classList.add('requestUsername');
-    requestUsername.textContent = chatUser.username;
+    let username = chatUser.username;
+    if (chatUser.username.length > 8)
+        username = chatUser.username.substring(0, 8) + "...";
+    requestUsername.textContent = username;
     friendRequest.appendChild(requestUsername);
 
     const requestPfp = document.createElement('div');
@@ -1192,7 +1195,10 @@ function renderFriendsList(friends, friendNotifications, pendingRequests, blocke
         console.log("This is the friend " + i + " " + friends[i]);
         const friendElement = document.createElement('li');
         friendElement.classList.add('friendItem');
-        friendElement.textContent = friends[i].username;
+        let username = friends[i].username;
+        if (friends[i].username.length > 8)
+            username = friends[i].username.substring(0, 8) + "...";
+        friendElement.textContent = username;
         friendElement.style.color = "cyan";
         friendElement.classList.add('friend');
         friendElement.classList.add('friend' + friends[i].id);
