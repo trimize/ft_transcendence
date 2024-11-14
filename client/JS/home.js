@@ -523,6 +523,7 @@ async function friendsListenersFunction(friendItems, friendItem)
     {
         playPongButton.style.display = 'none';
         playTicTacToeButton.style.display = 'none';
+        blockFriendButton.style.display = 'none';
         chatInput.disabled = true;
         chatInput.placeholder = "You need to be friends";
         notFriendMessage.style.display = 'block';
@@ -766,12 +767,6 @@ async function showChat() {
         }
     });
 
-    friendItems.forEach((friendItem) => {
-        friendItem.addEventListener('click', async function() {
-            friendsListenersFunction(friendItems, friendItem);
-        });
-    });
-
     showChatRoom.addEventListener('click', function() {
         currentChatUser = null;
         showFriends.style.display = 'block';
@@ -904,6 +899,7 @@ async function refuseFriendNotif(friend, element)
     const pendingRequests = await getPendingRequest();
     const blockedFriends = await getBlockedFriends();
     element.remove();
+    console.log("This is the friend notfiations : ", friendNotifications);
     for (let i = 0; i < friendNotifications.length; i++) {
         if (friendNotifications[i].sender.username == currentChatUser.username) {
             renderFriendRequestNotif(friendNotifications[i], friendNotifications[i].sender.id);
@@ -1211,8 +1207,13 @@ function renderFriendsList(friends, friendNotifications, pendingRequests, blocke
         friendElement.appendChild(pfp);
         friendElement.appendChild(redDot);
         friendsList.appendChild(friendElement);
+        friendElement.addEventListener('click', function()
+        {
+            const friendsList = document.querySelectorAll('.friendItem');
+            friendsListenersFunction(friendsList, friendElement);
+        });
     };
-    showChat();
+    //showChat();
 }
 
 const getProfileInfo = async () => {
@@ -1338,7 +1339,7 @@ export const renderBaseHomePage = async () =>
             renderFriendsList(friends, friendNotifications, pendingRequests, blockedFriends);
         });
 
-        // showChat();
+        showChat();
         socket = await getWebSocket();
         socket.addEventListener('message', async function(event)
         {
