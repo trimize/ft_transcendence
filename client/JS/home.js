@@ -484,7 +484,7 @@ async function renderConversationBalloon(message, isSender) {
     conversationDiv.prepend(balloon);
 }
 
-async function friendsListenersFunction(friendItems, friendItem)
+async function friendsListenersFunction(friendItems, friendItem, type)
 {
     const chatInput = document.getElementById('chatInput');
     const notFriendMessage = document.getElementById('notFriendMessage');
@@ -535,22 +535,30 @@ async function friendsListenersFunction(friendItems, friendItem)
     conversationDiv.innerHTML = '';
     // Check if the friend is in the list of friend notifications
 
-    const friendUsername = friendItem.textContent.trim();
-    currentChatUser = await getUser(friendUsername);
-    const friendrequests = await getFriendNotifications();
-    for (let i = 0; i < friendrequests.length; i++) {
-        if (friendrequests[i].sender.username == currentChatUser.username) {
-            renderFriendRequestNotif(friendrequests[i], friendrequests[i].sender.id);
-        }
-    }
-    if (messages[currentChatUser.id]) {
-        messages[currentChatUser.id].forEach(msg => {
-            if (msg.type === 'chat_message') {
-                renderConversationBalloon(msg.message, msg.senderId === actualUser.id);
-            } else if (msg.type === 'send_invite' || msg.type === 'waiting_state' || msg.type === 'tournament_invite') {
-                renderFriendRequestNotif(msg, currentChatUser.id);
+    if (type == "friendRequest")
+    {
+        const friendUsername = friendItem.textContent.trim();
+        currentChatUser = await getUser(friendUsername);
+        console.log("This is the current Chat user : ", currentChatUser);
+        const friendrequests = await getFriendNotifications();
+    
+        for (let i = 0; i < friendrequests.length; i++) {
+            if (friendrequests[i].sender.username == currentChatUser.username) {
+                console.log("going to render");
+                renderFriendRequestNotif(friendrequests[i], friendrequests[i].sender.id);
             }
-        });
+        }
+        if (messages[currentChatUser.id]) {
+            console.log("All the notifications : ", messages[currentChatUser.id])
+            messages[currentChatUser.id].forEach(msg => {
+                if (msg.type === 'chat_message') {
+                    renderConversationBalloon(msg.message, msg.senderId === actualUser.id);
+                } else if (msg.type === 'send_invite' || msg.type === 'waiting_state' || msg.type === 'tournament_invite') {
+                    console.log("going in with ", msg);
+                    renderFriendRequestNotif(msg, currentChatUser.id);
+                }
+            });
+        }
     }
     let currentUserblocked = false;
     const blockedFriends = await getBlockedFriends();
@@ -742,12 +750,6 @@ async function showChat() {
         }
     });
 
-    friendItems.forEach((friendItem) => {
-        friendItem.addEventListener('click', async function() {
-            friendsListenersFunction(friendItems, friendItem);
-        });
-    });
-
     showChatRoom.addEventListener('click', function() {
         currentChatUser = null;
         showFriends.style.display = 'block';
@@ -919,7 +921,7 @@ function renderPendingRequest(pendingRequests)
         pendingRequest.addEventListener('click', function()
         {
             const friendItems = document.querySelectorAll('.friendItem');
-            friendsListenersFunction(friendItems, pendingRequest);
+            friendsListenersFunction(friendItems, pendingRequest, "none");
         });
         friendsList.appendChild(pendingRequest);
     };
@@ -941,7 +943,7 @@ function renderBlockedFriends(blockedFriends)
         blockedfriend.addEventListener('click', function()
         {
             const friendItems = document.querySelectorAll('.friendItem');
-            friendsListenersFunction(friendItems, blockedfriend);
+            friendsListenersFunction(friendItems, blockedfriend, "none");
         });
         friendsList.appendChild(blockedfriend);
     };
@@ -1016,7 +1018,7 @@ function renderFriendRequest(friendNotifications)
         friendRequest.addEventListener('click', function()
         {
             const friendItems = document.querySelectorAll('.friendItem');
-            friendsListenersFunction(friendItems, friendRequest);
+            friendsListenersFunction(friendItems, friendRequest, "none");
         });
         friendsList.appendChild(friendRequest);
     };
@@ -1032,6 +1034,7 @@ async function renderFriendRequestNotif(jsonMessage, chatUserId)
         return;
     }
 
+    const invitationList = document.getElementById('invitationList');
     const chatUser = await fetchUserById(chatUserId);
     console.log(jsonMessage);
 
@@ -1069,7 +1072,7 @@ async function renderFriendRequestNotif(jsonMessage, chatUserId)
 
     if (!('type' in jsonMessage)) {
             console.log('No type');
-        messageText.textContent = "New friend request!"
+        messageText.textContent = "New friend request!";
         correct.addEventListener('click', () => acceptFriendNotif(jsonMessage.sender, friendRequest));
         cross.addEventListener('click', () => refuseFriendNotif(jsonMessage.sender, friendRequest));
     } else if (jsonMessage.type == 'send_invite' || (jsonMessage.type == 'waiting_state' && jsonMessage.firstInvite == 'true')) {
@@ -1077,6 +1080,8 @@ async function renderFriendRequestNotif(jsonMessage, chatUserId)
         correct.addEventListener('click', () => acceptGameInvite(jsonMessage, friendRequest));
         cross.addEventListener('click', () => refuseGameInvite(jsonMessage, friendRequest));
     } else if (jsonMessage.type == 'waiting_state') {
+        // console.log('Waiting state being rendered:', jsonMessage);
+        friendRequest.classList.add("gameRequestRendered");
         messageText.textContent = "Finish your " + (jsonMessage.game === 'tic-tac-toe' ? "Tic Tac Toe" : "Pong") + " game!";
         correct.addEventListener('click', () => acceptGameInvite(jsonMessage, friendRequest));
         cross.style.display = 'none';
@@ -1086,6 +1091,9 @@ async function renderFriendRequestNotif(jsonMessage, chatUserId)
         params.append('tournamentId', jsonMessage.tournamentId);
         correct.addEventListener('click', async () => {
             friendRequest.remove();
+            messages[jsonMessage.hostId] = messages[jsonMessage.hostId].filter(
+                msg => !(msg.type === 'tournament_invite' && msg.tournamentId == jsonMessage.tournamentId)
+            );
             const tournamentData = await getTournamentById(jsonMessage.tournamentId);
             if (!tournamentData.player2) {
                 sendMessage({type: 'tournament_invite_response', status: 'accepted', inviteeId: actualUser.id, hostId: jsonMessage.hostId});
@@ -1102,6 +1110,9 @@ async function renderFriendRequestNotif(jsonMessage, chatUserId)
         });
         cross.addEventListener('click', () => {
             friendRequest.remove();
+            messages[jsonMessage.hostId] = messages[jsonMessage.hostId].filter(
+                msg => !(msg.type === 'tournament_invite' && msg.tournamentId == jsonMessage.tournamentId)
+            );
             sendMessage({type: 'tournament_invite_response', tournamentId: jsonMessage.tournamentId, status: 'declined', hostId: jsonMessage.hostId, inviteeId: actualUser.id, inviteeName: actualUser.username});
         });
     }
@@ -1176,8 +1187,12 @@ function renderFriendsList(friends, friendNotifications, pendingRequests, blocke
         friendElement.appendChild(pfp);
         friendElement.appendChild(redDot);
         friendsList.appendChild(friendElement);
+        friendElement.addEventListener('click', function()
+        {
+            const friendItems = document.querySelectorAll('.friendItem');
+            friendsListenersFunction(friendItems, friendElement, "friendRequest");
+        });
     };
-    showChat();
 }
 
 const getProfileInfo = async () => {
@@ -1359,7 +1374,7 @@ export const renderBaseHomePage = async () =>
                 showRedDot(message.userId);
                 checkRedDot();
                 if (currentChatUser && message.userId == currentChatUser.id) {
-                    renderFriendRequestNotif(message, message.userId);
+                    renderFriendRequestNotif(message, message.userId, "friendRequest");
                 }
             }
             else if (message.type === 'friendRequest')
@@ -1385,12 +1400,13 @@ export const renderBaseHomePage = async () =>
                 if (messages[message.hostId].some(msg => (msg.type === 'tournament_invite' && msg.tournamentId == message.tournamentId))) {
                     return;
                 }
+                if (currentChatUser && message.hostId == currentChatUser.id) {
+                    renderFriendRequestNotif(message, message.hostId, "friendRequest");
+                }
                 messages[message.hostId].push(message);
                 showRedDot(message.hostId);
                 checkRedDot();
-                if (currentChatUser && message.hostId == currentChatUser.id) {
-                    renderFriendRequestNotif(message, message.hostId);
-                }
+                console.log("trying to render the tournament request");
             }
             else if (message.type === 'friend_disconnected')
                 changeBorderStatus(message.userId, false);

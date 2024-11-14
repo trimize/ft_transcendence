@@ -11,7 +11,6 @@
 
 .lobbyPlayerPfp
 {
-    background-image: url('../Assets/default_user.jpg');
     background-size: cover;
     width: 100px;
     height: 100px;
