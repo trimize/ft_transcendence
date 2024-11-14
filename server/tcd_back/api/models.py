@@ -35,9 +35,8 @@ class User(AbstractBaseUser):
     email = models.EmailField(unique=True)
     profile_pic = models.ImageField(upload_to='profile_pics/', default="profile_pics/default_user.jpg")
     friends = models.ManyToManyField('self', blank=True)
-    invitations_received = models.ManyToManyField('self', blank=True)
-    invitations_sent = models.ManyToManyField('self', blank=True)
-    blocked_friends = models.ManyToManyField('self', blank=True)
+    # invitations_received = models.ManyToManyField('self', blank=True)
+    # invitations_sent = models.ManyToManyField('self', blank=True)
     pong_ball = models.IntegerField(default=0)
     pong_slider = models.IntegerField(default=0)
     tic_tac_toe_sign = models.IntegerField(default=0)
@@ -78,6 +77,17 @@ class FriendInvitation(models.Model):
 
     def __str__(self):
         return f"Invitation from {self.sender} to {self.receiver} ({self.status})"
+
+class BlockedUser(models.Model):
+    id = models.AutoField(primary_key=True)
+    blocker = models.ForeignKey(User, on_delete=models.CASCADE, related_name='blocked_users')
+    blocked = models.ForeignKey(User, on_delete=models.CASCADE, related_name='blocked_by')
+
+    class Meta:
+        unique_together = ('blocker', 'blocked')
+
+    def __str__(self):
+        return f"{self.blocker.username} blocked {self.blocked.username}"
 
 class Match_Record(models.Model):
 	id = models.AutoField(primary_key=True)

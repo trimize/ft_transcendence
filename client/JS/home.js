@@ -342,7 +342,7 @@ function renderBaseHomeBlock()
                 </div>
                 <span id="inputRangeText">&nbsp;</span>
                 <div class="align-items-center justify-content-between" id="aiDiv">
-                    <label class="customizeGameTitles" for="aiHard">Enable powers</label>
+                    <label class="customizeGameTitles" for="aiHard">AI Hard Mode</label>
                     <label class="switch">
                         <input type="checkbox" id="aiHard">
                         <span class="slider round"></span>
@@ -509,10 +509,13 @@ async function friendsListenersFunction(friendItems, friendItem, type)
         playTicTacToeButton.style.display = 'block';
         blockFriendButton.style.display = 'block';
     }
+    else if (friendItem.classList.contains('blocked'))
+        blockFriendButton.style.display = 'block';
     else
     {
         playPongButton.style.display = 'none';
         playTicTacToeButton.style.display = 'none';
+        blockFriendButton.style.display = 'none';
         chatInput.disabled = true;
         chatInput.placeholder = "You need to be friends";
         notFriendMessage.style.display = 'block';
@@ -534,11 +537,11 @@ async function friendsListenersFunction(friendItems, friendItem, type)
     friendItem.style.backgroundColor = "rgba(130, 132, 134, 0.356)";
     conversationDiv.innerHTML = '';
     // Check if the friend is in the list of friend notifications
+    const friendUsername = friendItem.textContent.trim();
+    currentChatUser = await getUser(friendUsername);
 
     if (type == "friendRequest")
     {
-        const friendUsername = friendItem.textContent.trim();
-        currentChatUser = await getUser(friendUsername);
         console.log("This is the current Chat user : ", currentChatUser);
         const friendrequests = await getFriendNotifications();
     
@@ -549,10 +552,8 @@ async function friendsListenersFunction(friendItems, friendItem, type)
             }
         }
     }
-    else if (type == "Notif")
+    else if (currentChatUser && type == "Notif" && messages[currentChatUser.id])
     {
-        if (messages[currentChatUser.id]) {
-    }
         console.log("All the notifications : ", messages[currentChatUser.id])
         messages[currentChatUser.id].forEach(msg => {
             if (msg.type === 'chat_message') {
@@ -1230,6 +1231,7 @@ export const renderBaseHomePage = async () =>
         const friendNotifications = await getFriendNotifications();
         const pendingRequests = await getPendingRequest();
         const blockedFriends = await getBlockedFriends();
+        console.log("These are the blocked friends : ", blockedFriends);
         getProfileInfo();
         // renderFriendRequest();
         addEventListeners();
