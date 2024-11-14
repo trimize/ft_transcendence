@@ -479,3 +479,14 @@
 {
     background-color: rgba(182, 175, 175, 0.644);
 }
+
+#friendsListTournament {
+    display: flex;
+    width: 250px;
+    flex-direction: column;
+    margin-bottom: 0;
+    overflow-y: auto;
+    list-style: none;
+    padding: 0;
+    max-height: 100%;
+}

@@ -55,7 +55,7 @@ const renderTournamentPageHost = () => {
 	return `
 	<div id="friendsListDivTournament">
 			<div id="friendsTitle"></div>
-			<ul id="friendsList" style="display: none;">
+			<ul id="friendsListTournament">
 			</ul>
 		</div>
 		<div id="tournamentTitle">TOURNAMENT</div>
@@ -204,9 +204,11 @@ const addEventListeners = async () => {
     });
             });	
         } else {
+			console.log("No friends found");
 			const listItem = document.createElement('li');
 			listItem.classList.add('friendItemTournament');
 			listItem.textContent = 'No friends found';
+			friendsListTournament.appendChild(listItem); 
 		}
     } catch (error) {
         console.error('Failed to fetch user data:', error);
