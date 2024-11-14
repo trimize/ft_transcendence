@@ -449,12 +449,6 @@ function renderBaseHomeConnected()
                 <div id="notFriendMessage">This user is not your friend</div>
                 <div id="invitationDiv">
                     <ul id="invitationList">
-                    <!--<il class="friendInvitationElement">Tic-Tac-Toe
-                            <div class="requestPfp"></div>
-                            <div class="requestUsername"></div>
-                            <div class="correctDiv"></div>
-                            <div class="crossDiv"></div>
-                        </il>-->
                     </ul>
                 </div>
                 <div id="conversation">
@@ -465,7 +459,7 @@ function renderBaseHomeConnected()
                 <div id="buttonContainer">
                     <button id="playPongButton">Play Pong</button>
                     <button id="playTicTacToeButton">Play Tic-Tac-Toe</button>
-                    <button id="blockFriendButton">Block Friend</button>
+                    <button id="blockFriendButton">Block</button>
                     <button id="viewFriendButton">View Friend</button>
                 </div>
             </div>
@@ -578,6 +572,7 @@ async function friendsListenersFunction(friendItems, friendItem)
         {
             blockFriendButton.style.color = "green";
             blockFriendButton.style.border = "1px solid green";
+            blockFriendButton.textContent = "Unblock";
             currentUserblocked = true;
         }
     });
@@ -1318,7 +1313,7 @@ export const renderBaseHomePage = async () =>
                 notFriendMessage.style.display = 'block';
                 blockFriendButton.style.color = "green";
                 blockFriendButton.style.border = "1px solid green";
-                blockFriendButton.textContent = "Unblock Friend";
+                blockFriendButton.textContent = "Unblock";
             }
             else
             {
@@ -1331,7 +1326,7 @@ export const renderBaseHomePage = async () =>
                 blockFriendButton.style.display = 'block';
                 blockFriendButton.style.color = "red";
                 blockFriendButton.style.border = "1px solid red";
-                blockFriendButton.textContent = "Block Friend";
+                blockFriendButton.textContent = "Block";
             }
             const friends = await getFriends();
             const friendNotifications = await getFriendNotifications();
@@ -1344,12 +1339,6 @@ export const renderBaseHomePage = async () =>
             console.log(currentChatUser);
             if (currentChatUser)
                 window.location.href = `/profile?id=${currentChatUser.id}`;
-        });
-
-        viewFriendButton.addEventListener('click', async () => {
-            console.log(currentChatUser);
-            if (currentChatUser)
-                window.location.href = `/profile?id=${currentChatUser.id}/`;
         });
 
         showChat();

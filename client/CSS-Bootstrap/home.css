@@ -656,8 +656,4 @@ input:checked + .slider:before
     color: red;
 }
 
-#viewFriendButton {
-    position: absolute;
-    left: -120px;
-}
 
