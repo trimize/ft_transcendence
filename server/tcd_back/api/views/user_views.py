@@ -7,7 +7,7 @@ from rest_framework.decorators import api_view, permission_classes, parser_class
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
-from ..models import User, Match_Record, FriendInvitation
+from ..models import User, Match_Record, FriendInvitation, BlockedUser
 from ..serializer import UserSerializer, FriendInvitationSerializer
 import random
 
@@ -129,7 +129,7 @@ def send_friend_request(request, friend_username):
     if FriendInvitation.objects.filter(sender=user, receiver=friend, status='pending').exists():
         print("here3")
         return Response(status=status.HTTP_400_BAD_REQUEST)
-    if user.blocked_friends.filter(pk=friend.id).exists():
+    if BlockedUser.objects.filter(blocker=user, blocked=friend).exists():
         print("here4")
         return Response(status=status.HTTP_400_BAD_REQUEST)
     
@@ -180,7 +180,7 @@ def add_friend(request, new_friend):
     if not FriendInvitation.objects.filter(sender=friend, receiver=user, status='pending').exists():
         print("got here 3")
         return Response(status=status.HTTP_400_BAD_REQUEST)
-    if user.blocked_friends.filter(pk=friend.id).exists():
+    if BlockedUser.objects.filter(blocker=user, blocked=friend).exists():
         print("got here 4")
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -218,14 +218,15 @@ def block_friend(request, friend):
 
     serializer = UserSerializer(friend)
 
-    if user.blocked_friends.filter(pk=friend.id).exists():
-        user.blocked_friends.remove(friend)
-        user.friends.add(friend)
-        user.save()
+    # Check if the friend is already blocked
+    if BlockedUser.objects.filter(blocker=user, blocked=friend).exists():
+        # Unblock the friend
+        BlockedUser.objects.filter(blocker=user, blocked=friend).delete()
         return Response(serializer.data)
 
+    # Block the friend
     user.friends.remove(friend)
-    user.blocked_friends.add(friend)
+    BlockedUser.objects.create(blocker=user, blocked=friend)
     user.save()
     return Response(serializer.data)
 
@@ -317,6 +318,8 @@ def get_friends(request):
 @permission_classes([IsAuthenticated])
 def get_blocked_friends(request):
     user = request.user
-    blocked_friends = user.blocked_friends.all()
-    serializer = UserSerializer(blocked_friends, many=True)
+    blocked_users = BlockedUser.objects.filter(blocker=user)
+    serializer = UserSerializer(blocked_users, many=True)
+    print("This is the blocked users")
+    print(blocked_users_serialized)
     return Response(serializer.data)
