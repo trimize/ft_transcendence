@@ -1346,7 +1346,13 @@ export const renderBaseHomePage = async () =>
                 window.location.href = `/profile?id=${currentChatUser.id}`;
         });
 
-        // showChat();
+        viewFriendButton.addEventListener('click', async () => {
+            console.log(currentChatUser);
+            if (currentChatUser)
+                window.location.href = `/profile?id=${currentChatUser.id}/`;
+        });
+
+        showChat();
         socket = await getWebSocket();
         socket.addEventListener('message', async function(event)
         {

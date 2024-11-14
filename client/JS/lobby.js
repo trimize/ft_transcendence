@@ -46,11 +46,11 @@ function lobbyHtml()
 		<div id="lobbyDiv">
 			<div id="lobbyPlayer1">
 				<div class="lobbyPlayerPfp" id="lobbyPlayer1Pfp"></div>
-				<div class="lobbyPlayerUsername" id="lobbyPlayer1Username">toto</div>
+				<div class="lobbyPlayerUsername" id="lobbyPlayer1Username"></div>
 			</div>
 			<div id="lobbyPlayer2">
 				<div class="lobbyPlayerPfp" id="lobbyPlayer2Pfp"></div>
-				<div class="lobbyPlayerUsername" id="lobbyPlayer2Username">to</div>
+				<div class="lobbyPlayerUsername" id="lobbyPlayer2Username"></div>
 			</div>
 			<div id="lobbyStatusText">Waiting for player ..</div>
 		</div>
