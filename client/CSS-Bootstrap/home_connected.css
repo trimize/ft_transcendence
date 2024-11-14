@@ -1,21 +1,20 @@
-#profileDiv
-{
-    position: absolute;
-    right: 20px;
-    top: 20px;
-    width: 140px;
-    height: 80px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    font-family: "Roboto", sans-serif;
-    font-size: 25px;
-    color: white;
-    border-radius: 45px;
-    transition: background-color ease 0.4s;
+#profileDiv {
+	position: absolute;
+	right: 20px;
+	top: 20px;
+	width: auto;
+	height: 80px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	text-align: center;
+	font-family: "Roboto", sans-serif;
+	font-size: 25px;
+	color: white;
+	border-radius: 45px;
+	transition: background-color ease 0.4s;
+	max-width: 1500px;
 }
-
 #profileDiv:hover
 {
     background-color: rgba(119, 117, 117, 0.363);
@@ -23,13 +22,12 @@
     text-decoration: none;
 }
 
-#profilePicture
-{
-    background-size: cover;
-    height: 70%;
-    width: 40%;
-    border-radius: 50%;
-    margin-right: 30px;
+#profilePicture {
+	background-size: cover;
+	height: 60px;
+	width: 60px;
+	border-radius: 50%;
+	margin-right: 30px;
 }
 
 #friendsListDiv

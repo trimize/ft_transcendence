@@ -15,12 +15,13 @@ import { DEFAULT_PROFILE_PIC, BACKEND_URL } from "./appconfig.js";
 import { closeWebSocket, getWebSocket } from "./singletonSocket.js";
 
 let socket;
+let userData;
 
 const renderProfilePage = () => {
   return `
     <a id="backButtonEdit"></a>
         <div id="pfpDiv">
-                <img alt="Profile picture" id="pfp" src="${DEFAULT_PROFILE_PIC}">
+                <img id="pfp">
             </div>
             <div id="pfDiv">
                 <div id="pfBackground"></div>
@@ -51,7 +52,7 @@ const renderEditProfileForm = (userData) => {
   return `
     <a id="backButtonEdit" href="/profile"></a>
             <div id="pfpDiv">
-                <div id="pfp"></div>
+                <img id="pfp"></img>
             </div>
             <div id="pfDiv">
                 <div id="pfBackground"></div>
@@ -98,7 +99,7 @@ const loadProfilePage = async () => {
     const lossesText = document.getElementById('lossesText');
     const username = document.getElementById('username');
     const email = document.getElementById('email');
-    const userData = await fetchUserData();
+    userData = await fetchUserData();
     winsText.textContent = userData.wins;
     lossesText.textContent = userData.losses;
     username.textContent = userData.username;
@@ -162,6 +163,8 @@ const attachEditFormEventListeners = () => {
   const anonymiseButton = document.getElementById("anonymizeBtn");
   const deleteButton = document.getElementById("deleteBtn");
   const notificationAnonym = document.getElementById("notificationAnonym");
+  const profilePicture = document.getElementById("pfp");
+  profilePicture.src = `${BACKEND_URL}${userData.profile_pic}`;
   document
     .getElementById("editProfileForm")
     .addEventListener("submit", async function (event) {

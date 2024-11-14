@@ -1,6 +1,7 @@
 import { updateUserData, fetchUserData } from "./fetchFunctions.js";
 import { setup2FA, verify2FA } from "./fetchFunctionsUsers.js";
 import { createNavbar } from "./utils.js";
+import { BACKEND_URL } from "./appconfig.js"
 
 document.addEventListener("DOMContentLoaded", async function () {
   try {
