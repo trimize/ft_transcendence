@@ -3,7 +3,7 @@ export const getSocket = () => {
     let socket = null;
     if (token)
     {
-        socket = new WebSocket('ws://localhost:8000/ws/api/');
+        socket = new WebSocket('ws://localhost:8000/wss/api/');
         socket.onopen = () => {
           console.log('WebSocket connection opened');
           // You can send an initial message if needed
