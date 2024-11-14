@@ -187,6 +187,7 @@ const addEventListeners = async () => {
 				const inviteeInfo = await getUser(username);
 				const message = {
 					"type": "tournament_invite",
+					"game": game,
 					"tournamentId": tournamentId,
 					"hostId": user.id,
 					"inviteeId": inviteeInfo.id,
@@ -313,14 +314,14 @@ const renderPlayButtons = async () => {
 			playButtonMatch1.addEventListener('click', async () => {
 				renderPlayButton(player1.id, player2.id);
 			});
-			return;
+			// return;
 		} else if ((user.id == player3.id || user.id == player4.id) && match2.end_time == null) {
 			match_id = tournamentData.match2;
 			playButtonMatch2.style.display = 'block';
 			playButtonMatch2.addEventListener('click', async () => {
 				renderPlayButton(player3.id, player4.id);
 			});
-			return;
+			// return;
 		}
 		if (!tournamentData.final_match || !tournamentData.playoff)
 			renderSecondRound();
@@ -483,7 +484,7 @@ const receiveInfoFromSocket = (socket) => {
 					inviteButton.textContent = 'Invite';
 					inviteButton.disabled = false;
 				}
-				return;
+				// return;
 			}
 		} else if (msg.type === 'tournament_update') {
 			//console.log('Tournament update received:', msg);
@@ -683,7 +684,7 @@ export const renderTournament = async () => {
 	const host = await fetchUserById(tournamentData.player1);
 	if (!user || !tournamentData || !host) {
 		console.log('Failed to fetch tournament data');
-		return;
+		// return;
 	}
 	if (user.id == tournamentData.player1 && (!tournamentData.player2 || !tournamentData.player3 || !tournamentData.player4)) {
 		document.getElementById('content').innerHTML = renderTournamentPageHost();
