@@ -12,8 +12,10 @@ let matchId;
 let matchData;
 let finish = false;
 let socket;
+let frames_ahead = 500;
 //const usernameInput = document.getElementById('usernameInput');
 
+let predictedPosition = {};
 let aiCalc = false;
 let ai_ball_info;
 let move_up = true;
@@ -109,7 +111,7 @@ export const renderPong = async () =>
 	const urlParams = new URLSearchParams(window.location.search);
 	if (!urlParams.has('matchId'))
 	{
-		console.log("it is offline");
+		//console.log("it is offline");
 		offline = urlParams.get('offline') == 'true' ? true : false;
 		ball_step = parseInt(urlParams.get('ballSpeed'), 10);
 		power = urlParams.get('powers') == 'true' ? true : false;
@@ -120,7 +122,7 @@ export const renderPong = async () =>
 	}
 	else
 	{
-		console.log("it is online");
+		//console.log("it is online");
 		matchId = urlParams.get('matchId');
 		userInfo = await fetchUserData();
 		matchData = await fetchMatch(matchId);
@@ -128,7 +130,7 @@ export const renderPong = async () =>
 		{
 			const errorParam = new URLSearchParams();
 			errorParam.append('alert', 'match_finished');
-			window.location = `/?${lobbyParams.toString()}`;
+			window.location = `/?${errorParam.toString()}`;
 		}
 		socket = await getWebSocket();
 		if (matchData.match_type == "singleplayer")
@@ -264,7 +266,7 @@ export const renderPong = async () =>
 						if (newTop > parentHeight - rectangle2pHeight)
 							newTop = parentHeight - rectangle2pHeight;
 					}
-					console.log("I am trying to update my position");
+					//console.log("I am trying to update my position");
 					const matchData =
 					{
 						type: "match_update",
@@ -389,10 +391,6 @@ function predictBallPosition(ai_ball_info, framesAhead) {
     let futureX = ai_ball_info.ballX;
     let futureDeltaY = ai_ball_info.deltaY;
     let futureDeltaX = ai_ball_info.deltaX;
-	let defaultY = ai_ball_info.ballY;
-    let defaultX = ai_ball_info.ballX;
-    let defaultDeltaY = ai_ball_info.deltaY;
-    let defaultDeltaX = ai_ball_info.deltaX;
     let speedMultiplier = 1.0;
 	//const ballProjection = document.getElementById('ballProjection');
 	//ballProjection.classList.add("theballProjection");
@@ -404,42 +402,37 @@ function predictBallPosition(ai_ball_info, framesAhead) {
         // Calculate speed change based on previous interval
         speedMultiplier = Math.sqrt(
             (futureDeltaX ** 2 + futureDeltaY ** 2) /
-            (previousBallInfo.deltaX ** 2 + previousBallInfo.deltaY ** 2)
+            (previousBallInfo.futureDeltaX ** 2 + previousBallInfo.futureDeltaY ** 2)
         );
     }
+	//console.log("This is the speed multiplier", speedMultiplier);
 
     // Predict position over `framesAhead`, adjusting for speed
     for (let i = 0; i < framesAhead; i++) {
         futureY += futureDeltaY;
-		//futureY *= speedMultiplier;
+		futureY *= speedMultiplier;
         futureX += futureDeltaX;
-		if (defaultX != ai_ball_info.ballX)
-			futureX = ai_ball_info.ballX;
-		if (defaultY != ai_ball_info.ballY)
-			futureY = ai_ball_info.ballY;
-		if (defaultDeltaX != ai_ball_info.deltaX)
-			futureDeltaX = ai_ball_info.deltaX;
-		if (defaultDeltaY != ai_ball_info.deltaY)
-			futureDeltaY = ai_ball_info.deltaY;
+		futureX *= speedMultiplier;
+
 		//const newPoint = document.createElement('div');
-		//newPoint.classList.add("theballProjection");
 		//newPoint.style.top = `${futureY}px`;
 		//newPoint.style.left = `${futureX}px`
-		contentArea.append(newPoint);
-		//futureX *= speedMultiplier;
+		//newPoint.classList.add('theballProjection');
+		//contentArea.append(newPoint);
 		//console.log("ai calculating", futureX);
+		//ballProjection.style.top = `${futureY}px`;
         if (futureY <= 0 || futureY >= player.parentElement.clientHeight - squareRect.height) {
             futureDeltaY = -futureDeltaY;
-			console.log("touching above or below : ", futureY);
+			//console.log("touching above or below : ", futureY);
         }
 		if (futureX >= ParentRect.right - 50 - margins)
 		{
-			console.log("touching the end : ", futureX);
+			//console.log("touching the end : ", futureX);
 			break ;
 		}
 		if (futureX + margins <= (ParentRect.left - 10))
 		{
-			console.log("player touched");
+			//console.log("player touched");
 			futureDeltaX = -futureDeltaX;
 		}
     }
@@ -835,12 +828,12 @@ async function startMovingSquare()
 		// Ball bounces if near enough to the player
 		// Uses the power of the player if used to make the ball faster
 
-		if (squareRect.bottom <= playerRect.bottom + 50 && squareRect.top + 50 >= playerRect.top && squareRect.left <= playerRect.right + 20 && bounce_bool && squareRect.left >= playerRect.right - 20)
+		if (squareRect.bottom <= playerRect.bottom + 35 && squareRect.top + 35 >= playerRect.top && squareRect.left <= playerRect.right + 10 && bounce_bool && squareRect.left >= playerRect.right - 10)
 		{
 			if (ball_acc)
 				ball_step += 1;
 			deltaX *= -1;
-			console.log(ball_step);
+			//console.log(ball_step);
 			player_touch++;
 			player_consec_touch++;
 			bounce_bool = false;
@@ -861,7 +854,7 @@ async function startMovingSquare()
 
 		// Ball bounces if near enough to the enemy
 		// Makes the ball slower again if the player used his power and touched the ball
-		if (squareRect.bottom <= enemyRect.bottom + 50 && squareRect.top + 50 >= enemyRect.top && squareRect.right >= enemyRect.left - 20 && bounce_bool && squareRect.right <= enemyRect.left + 20)
+		if (squareRect.bottom <= enemyRect.bottom + 35 && squareRect.top + 35 >= enemyRect.top && squareRect.right >= enemyRect.left - 10 && bounce_bool && squareRect.right <= enemyRect.left + 10)
 		{
 			deltaX *= -1;
 			if (ball_acc && bounce_bool)
@@ -880,7 +873,7 @@ async function startMovingSquare()
 			}
 			if (ball_powered && !ball_power_enemy_touch && power && enemy_used_ball_power)
 			{
-				console.log("player 2 used ball power");
+				//console.log("player 2 used ball power");
 				ball_step = ball_step + 4;
 				ball_power_enemy_touch = true;
 			}
@@ -897,20 +890,16 @@ async function startMovingSquare()
 
 		if (newLeftPosition >= centerX && single && deltaX > 0)
 		{
-
-			// The AI has 5 frames in advance to try and predict the ball direction
-			let predictedPosition = {};
-			//ai_ball_info.ballX = newLeftPosition;
-			//ai_ball_info.ballY = newTopPosition;
-			let frames_ahead = 500;
-			predictedPosition = predictBallPosition(ai_ball_info, frames_ahead);
+			ai_ball_info.ballX = newLeftPosition;
+			ai_ball_info.ballY = newTopPosition;
+			ai_ball_info.deltaX = deltaX;
+			ai_ball_info.deltaY = deltaY;
 			if (aiCalc == false)
 			{
+				predictedPosition = predictBallPosition(ai_ball_info, frames_ahead);
 				aiCalc = true;
 			}
 			//console.log(predictedPosition.futureY);
-			document.getElementById('ballProjection').style.top = `${predictedPosition.futureY}px`;
-            const enemyMidPoint = enemyRect.top + enemyRect.height / 2;
 			// Self-explanatory, handles the ai's powers
 			if (power)
 				handleAIPowers(predictBallPosition.futureY);
@@ -919,7 +908,7 @@ async function startMovingSquare()
 			// and down frenetically
             //console.log(predictedPosition.futureY);
             //console.log(newTopPosition);
-			if (predictedPosition.futureY > enemyMidPoint && move_down)
+			if (predictedPosition.futureY >= enemyRect.top - 45 && move_down == true)
 			{
 				enemyY += enemy_step;
 				if (enemyY > enemy.parentElement.clientHeight - enemy.clientHeight)
@@ -929,14 +918,17 @@ async function startMovingSquare()
 				setTimeout(() => 
 				{
 					move_down = true;
+				}, 70);
+				setTimeout(() => 
+				{
 					move_up = true;
-				}, 100);
+				}, 350);
 			}
 
 			// AI moves down here, also move_down is a boolean that makes sure the AI doesn't go up
 			// and down frenetically
 
-			else if (predictedPosition.futureY < enemyMidPoint && move_up)
+			else if (predictedPosition.futureY + 45 < enemyRect.top - 45 && move_up == true)
 			{
 				enemyY -= enemy_step;
 				if (enemyY <= 0) 
@@ -945,9 +937,12 @@ async function startMovingSquare()
 				move_down = false;
 				setTimeout(() => 
 				{
-					move_down = true;
 					move_up = true;
-				}, 100);
+				}, 70);
+				setTimeout(() => 
+				{
+					move_down = true;
+				}, 350);
 			}
 			enemy.style.top = `${enemyY}px`;
 
@@ -987,11 +982,11 @@ async function startMovingSquare()
 		}
 		else
 		{
-			console.log("real number", newLeftPosition);
+			//console.log("real number", newLeftPosition);
 			if (newLeftPosition + margins >= ParentRect.right - 50)
 			{
 				score_player++;
-				console.log('Player 1 Scored !');
+				//console.log('Player 1 Scored !');
 				enemy_consec_touch = 0;
 				if (turn_ball == 1)
 					turn_ball *= -1;
@@ -1073,7 +1068,7 @@ async function startMovingSquare()
 						let tournamentData = await get_tournament_from_match(matchId);
 						if (tournamentData != null)
 						{
-							console.log('got here');
+							//console.log('got here');
 							document.getElementById('pongMainMenu').style.display = 'none';
 							const pongTournament = document.getElementById('pongTournament');
 							const params = new URLSearchParams();
@@ -1314,7 +1309,7 @@ async function handlingSocketEvents()
 			}
 			if (message.finish !== undefined && userInfo.id == player2Id)
 			{
-				console.log('trying to finish game');
+				//console.log('trying to finish game');
 				matchData = await fetchMatch(matchId);
 				document.getElementById('winnerPongPlayer').textContent = matchData.player1_score > matchData.player2_score ? player1_info.username : player2_info.username;
 				finish = true;
@@ -1323,7 +1318,7 @@ async function handlingSocketEvents()
 				let tournamentData = await get_tournament_from_match(matchId);
 				if (tournamentData != null)
 				{
-					console.log('got here');
+					//console.log('got here');
 					document.getElementById('pongMainMenu').style.display = 'none';
 					const pongTournament = document.getElementById('pongTournament');
 					const params = new URLSearchParams();

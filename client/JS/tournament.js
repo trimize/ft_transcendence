@@ -178,31 +178,38 @@ const addEventListeners = async () => {
                 listItem.appendChild(inviteButton);
                 usersListElement.appendChild(listItem);
 				inviteButtonsMap.set(friend, inviteButton);
-				const inviteButtons = document.querySelectorAll('.friendItemInvite');
-    			inviteButtons.forEach(inviteButton => {
-        		inviteButton.addEventListener('click', async () => {
-				inviteButton.classList.add('inactive');
-            	inviteButton.textContent = 'Waiting...';
-            	inviteButton.disabled = true;
-				const inviteeInfo = await getUser(username);
-				const message = {
-					"type": "tournament_invite",
-					"game": game,
-					"tournamentId": tournamentId,
-					"hostId": user.id,
-					"inviteeId": inviteeInfo.id,
+				inviteButton.classList.add(`user${friend}`);
+				if (friend == tournamentData.player2 || friend == tournamentData.player3 || friend == tournamentData.player4) {
+					inviteButton.textContent = "Joined";
+					inviteButton.classList.add('inactive');
+            		inviteButton.disabled = true;
+					inviteButton.classList.add('player');
 				}
-				const inviteInterval = setInterval(() => {
-				sendMessage(message);
-				if (accepted || declined)
+				else
 				{
-					accepted = false;
-					declined = false;
-					clearInterval(inviteInterval);
+					inviteButton.addEventListener('click', async () => {
+						inviteButton.classList.add('inactive');
+						inviteButton.textContent = 'Waiting...';
+						inviteButton.disabled = true;
+						const inviteeInfo = await fetchUserById(friend);
+						const message = {
+							"type": "tournament_invite",
+							"game": game,
+							"tournamentId": tournamentId,
+							"hostId": user.id,
+							"inviteeId": inviteeInfo.id,
+						}
+						const inviteInterval = setInterval(() => {
+							sendMessage(message);
+							if (accepted || declined)
+							{
+								accepted = false;
+								declined = false;
+								clearInterval(inviteInterval);
+							}
+						}, 1000);
+					});
 				}
-			}, 1000);
-        });
-    });
             });	
         } else {
 			console.log("No friends found");
@@ -211,7 +218,9 @@ const addEventListeners = async () => {
 			listItem.textContent = 'No friends found';
 			friendsListTournament.appendChild(listItem); 
 		}
-    } catch (error) {
+    }
+	catch (error)
+	{
         console.error('Failed to fetch user data:', error);
     }
 }
@@ -260,6 +269,7 @@ const renderPlayButtons = async () => {
 	document.getElementById('player2').textContent = player2.username;
 	document.getElementById('player3').textContent = player3.username;
 	document.getElementById('player4').textContent = player4.username;
+	showNotification("Players can go into matches");
 	const playButtonMatch1 = document.getElementById('playButtonMatch1');
 	const playButtonMatch2 = document.getElementById('playButtonMatch2');
 	if (tournamentData.final_match)
@@ -668,19 +678,6 @@ export const renderTournament = async () => {
 	console.log("This is the tournament data : ", tournamentData);
 	if (tournamentData.player1)
 		player1 = await fetchUserById(tournamentData.player1);
-	if (tournamentData.player2)
-		player2 = await fetchUserById(tournamentData.player2);
-	if (tournamentData.player3)
-		player3 = await fetchUserById(tournamentData.player3);
-	if (tournamentData.player4)
-		player4 = await fetchUserById(tournamentData.player4);
-	powers = tournamentData.powers;
-	game = tournamentData.game;
-	if (game == "pong")
-	{
-		ball_acc = tournamentData.ball_acc;
-		ball_speed = tournamentData.ball_speed;
-	}
 	const host = await fetchUserById(tournamentData.player1);
 	if (!user || !tournamentData || !host) {
 		console.log('Failed to fetch tournament data');
@@ -694,13 +691,39 @@ export const renderTournament = async () => {
 		document.getElementById('content').innerHTML = renderTournamentPageInvitee();
 		document.getElementById('player1').textContent = host.username;
 	}
+	if (tournamentData.player2)
+	{
+		player2 = await fetchUserById(tournamentData.player2);
+		document.getElementById('player2').textContent = player2.username;
+	}
+	if (tournamentData.player3)
+	{
+		player3 = await fetchUserById(tournamentData.player3);
+		document.getElementById('player3').textContent = player3.username;
+	}
+	if (tournamentData.player4)
+	{
+		player4 = await fetchUserById(tournamentData.player4);
+		document.getElementById('player4').textContent = player4.username;
+	}
+	powers = tournamentData.powers;
+	game = tournamentData.game;
+	if (game == "pong")
+	{
+		ball_acc = tournamentData.ball_acc;
+		ball_speed = tournamentData.ball_speed;
+	}
+
+	console.log(tournamentData.match1);
+	console.log(tournamentData.match2);
+	console.log(tournamentData.start_time);
 
 	if (user.id == tournamentData.player1 && tournamentData.match1 == null && tournamentData.match2 == null && tournamentData.start_time == null)
 		sendData();
 
 	const showButtons = setInterval(async () => 
 	{
-		if (player1 && player2 && player3 && player4)
+		if (player1.id && player2 && player3 && player4)
 		{
 			if (user.id == player1.id && tournamentData.start_time == null)
 			{
@@ -714,7 +737,8 @@ export const renderTournament = async () => {
 			console.log("I am in the show buttons");
 			renderPlayButtons();
 		}
+		else
+			showNotification("Waiting for other players");
 	}, 1000);
-	// showButtons();
 	receiveInfoFromSocket(socket);
 }

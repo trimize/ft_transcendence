@@ -156,7 +156,6 @@ const addEventListeners = () => {
                             ball_acc: ballAcc.checked,
                             ball_speed: theBallSpeed,
                             game: gameChosen,
-                            start_time: getCurrentTime(),
                         };
                     }
                     else
@@ -165,7 +164,6 @@ const addEventListeners = () => {
                             player1: actualUser.id,
                             powers: powers.checked,
                             game: gameChosen,
-                            start_time: getCurrentTime(),
                         };
                     }
                     const newTournament = await createTournament(tournamentBody);
