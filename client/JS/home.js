@@ -502,8 +502,6 @@ async function friendsListenersFunction(friendItems, friendItem, type)
     const conversationDiv = document.getElementById('conversation');
     const invitationList = document.getElementById('invitationList');
     const childsToRemove = invitationList.querySelectorAll('.friendInvitationElement');
-    console.log("childs to remove");
-    console.log(childsToRemove);
     childsToRemove.forEach(child => child.remove());
     if (friendItem.classList.contains('friend'))
     {
@@ -1034,7 +1032,7 @@ function renderFriendRequest(friendNotifications)
         friendRequest.addEventListener('click', function()
         {
             const friendItems = document.querySelectorAll('.friendItem');
-            friendsListenersFunction(friendItems, friendRequest, "notif");
+            friendsListenersFunction(friendItems, friendRequest, "friendRequest");
         });
         friendsList.appendChild(friendRequest);
     };
