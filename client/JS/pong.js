@@ -1066,14 +1066,15 @@ async function startMovingSquare()
 						};
 						sendMessage(matchData)
 						let tournamentData = await get_tournament_from_match(matchId);
-						if (tournamentData != null)
+						if (tournamentData.id != 0)
 						{
-							//console.log('got here');
+							console.log('trying to show tournament button');
 							document.getElementById('pongMainMenu').style.display = 'none';
 							const pongTournament = document.getElementById('pongTournament');
 							const params = new URLSearchParams();
 							params.append('tournamentId', tournamentData.id);
 							pongTournament.href = `/tournament?${params.toString()}`;
+
 						}
 						else
 							document.getElementById('pongTournament').style.display = "none";
@@ -1316,7 +1317,7 @@ async function handlingSocketEvents()
 				const endPongDiv = document.getElementById("endPongDiv");
 				endPongDiv.style.display = 'block';
 				let tournamentData = await get_tournament_from_match(matchId);
-				if (tournamentData != null)
+				if (tournamentData.id != 0)
 				{
 					//console.log('got here');
 					document.getElementById('pongMainMenu').style.display = 'none';
@@ -1325,6 +1326,8 @@ async function handlingSocketEvents()
 					params.append('tournamentId', tournamentData.id);
 					pongTournament.href = `/tournament?${params.toString()}`;
 				}
+				else
+					document.getElementById('pongTournament').style.display = "none";
 				let opacity = 0;
 				let endDivAnim = setInterval(function()
 				{

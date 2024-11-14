@@ -63,19 +63,26 @@ export async function renderLobby()
 	const urlParams = new URLSearchParams(window.location.search);
 	user = await fetchUserData();
 	socket = await getWebSocket();
-	matchData = await fetchMatch(urlParams.get('matchId'));
-	console.log("Match is: ");
-	console.log(matchData);
 	matchmaking = urlParams.get('matchmaking');
+	if (matchmaking != "true")
+	{
+		matchData = await fetchMatch(urlParams.get('matchId'));
+		console.log("Match is: ");
+		console.log(matchData);
+		powers = matchData.powers;
+		game = matchData.game;
+	}
+	else
+		game = urlParams.get('game');
+
 	firstInvite = urlParams.has('firstInvite') ? urlParams.get('firstInvite') : false;
 	
-	powers = matchData.powers;
-	if (game == 'pong') {
+	if (game == 'pong' && matchmaking != "true") {
 		ball_speed = matchData.ball_speed;
 		ball_acc = matchData.ball_acc;
 		game = 'pong';
 	}
-	else
+	else if (matchmaking != "true")
 		game = 'tic-tac-toe';
 
 	document.getElementById('content').innerHTML = lobbyHtml();
@@ -88,7 +95,7 @@ export async function renderLobby()
 	player1PfpDiv.style.backgroundImage = `url(${BACKEND_URL}${user.profile_pic})`;
 	
 	
-	if (!matchmaking) {
+	if (matchmaking != "true") {
 		if (matchData.end_time != null) {
 			const homeParams = new URLSearchParams();
 			homeParams.append('alert', 'match_finished');
@@ -105,7 +112,7 @@ export async function renderLobby()
 	}
 	
 	
-	if (matchmaking) {
+	if (matchmaking == "true") {
 		const messageData = {
 			"type": "matchmaking",
 			"playerId": user.id,
@@ -114,6 +121,7 @@ export async function renderLobby()
 		console.log("sending matchmaking message");
 		console.log(messageData);
 		sendMessage(messageData);
+		
 	} else {
 
 		if (user.id != matchData.player1 && user.id != matchData.player2) {
@@ -126,7 +134,7 @@ export async function renderLobby()
 
 	socketListener();
 
-	if (!matchmaking) {
+	if (matchmaking != "true") {
 		waitingState();
 	}
 
@@ -164,7 +172,7 @@ async function socketListener()
 			}
 			stopWaitingState();
 
-			if (matchmaking) {
+			if (matchmaking == "true") {
 				matchData = await fetchMatch(message.matchId);
 				console.log("matchData");
 				console.log(matchData);
@@ -192,6 +200,29 @@ async function socketListener()
 			const homeParams = new URLSearchParams();
 			homeParams.append('alert', 'match_refused');
 			window.location.href = `/home?${homeParams.toString()}`;
+		}
+		else if (message.type == 'matchmaking' && message.playerId != user.id && message.game == game)
+		{
+			const body = {
+				game: message.game,
+				player1: message.playerId,
+				player2: user.id,
+			}
+			matchData = await createGame(body);
+			player1 = await fetchUserById(message.playerId);
+			player2 = await fetchUserById(user.id);
+			const messageData = {
+				"type": "allons-y",
+				"player1": player1.id,
+				"player2": player2.id,
+				"matchId": matchData.id
+			}
+			sendMessage(messageData);
+			const game_update_message = {
+				"id": matchData.id,
+				"start_time": new Date()
+			};
+			await updateGame(game_update_message);
 		}
 	});
 }

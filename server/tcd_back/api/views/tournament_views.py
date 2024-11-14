@@ -63,7 +63,7 @@ def get_tournament_from_match(request, pk):
     ).first()  # Use .first() to get a single object if it exists
 
     if not tournament:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+        return Response({"id": 0})
     
     return Response(TournamentSerializer(tournament).data)
 
