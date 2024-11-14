@@ -3,5 +3,5 @@ from . import consumers
 from .consumers import SocketConsumer
 
 websocket_urlpatterns = [
-    path(r'wss/api/', SocketConsumer.as_asgi()),
+    path(r'ws/api/', SocketConsumer.as_asgi()),
 ]

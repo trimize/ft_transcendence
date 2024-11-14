@@ -5,7 +5,7 @@ let socket = null;
 
 export async function getWebSocket() {
     if (!socket || socket.readyState === WebSocket.CLOSED) {
-        socket = new WebSocket(localStorage.getItem('websocket_url'));
+        socket = new WebSocket(WEBSOCKET_URL);
 
         return new Promise((resolve, reject) => {
             socket.addEventListener('open', async () => {

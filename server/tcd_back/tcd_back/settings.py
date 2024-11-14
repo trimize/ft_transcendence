@@ -57,13 +57,13 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'api',
     'rest_framework',
-    'corsheaders',
     'django_otp',
     'django_otp.plugins.otp_totp',
     'django_otp.plugins.otp_email',
     'two_factor',
     'two_factor.plugins.phonenumber',
     'two_factor.plugins.email',
+    'corsheaders',
 ]
 
 ASGI_APPLICATION = 'tcd_back.asgi.application'
@@ -85,7 +85,16 @@ LOGIN_URL = 'two_factor:login'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
-CORS_ALLOW_HEADERS = '*'
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'content-type',
+    'x-csrftoken',
+    'authorization',
+    'Authorization',
+    'origin',
+    'x-requested-with',
+    'user-agent',
+]
 
 # Optional: Allow credentials
 CORS_ALLOW_CREDENTIALS = True
@@ -93,7 +102,7 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8080",
     "https://localhost:4443",
-    "https://10.32.7.12:4443",
+    "https://10.31.4.2:4443",
 ]
 
 ROOT_URLCONF = 'tcd_back.urls'
