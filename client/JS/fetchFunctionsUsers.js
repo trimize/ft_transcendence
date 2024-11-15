@@ -1,20 +1,27 @@
 import { securelyGetAccessToken } from "./fetchFunctions.js"
 import { BACKEND_URL } from "./appconfig.js";
 
-export const setup2FA = async () => {
+export const setup2FA = async (otpToken = null) => {
 	const accessToken = await securelyGetAccessToken();
+	const body = otpToken ? JSON.stringify({ token: otpToken }) : '';
+	console.log("body");
+	console.log(body);
 	try {
 		let response = await fetch(`${BACKEND_URL}/api/setup_2fa/`, {
 			method: "POST",
 			headers: {
 				Authorization: `Bearer ${accessToken}`,
+				"Content-Type": "application/json",
 			},
-		});
-		if (!response.ok) throw new Error("Failed to setup 2FA");
+			body: body,
+		});       
+		if (!response.ok) {
+            throw new Error(data.message || "Failed to setup 2FA");
+        }
 		const data = await response.json();
-		return data;
+        return data;
 	} catch (error) {
-		console.error(error.message);
+		return { message: "Invalid token" };
 	}
 }
 
@@ -27,7 +34,7 @@ export const verify2FA = async (otpToken) => {
 				Authorization: `Bearer ${accessToken}`,
 				"Content-Type": "application/json",
 			},
-			body: JSON.stringify({ otp_token: otpToken }),
+			body: JSON.stringify({ token: otpToken }),
 		});
 		if (!response.ok) throw new Error("Failed to verify 2FA");
 		const data = await response.json();

@@ -132,9 +132,9 @@ const renderEditProfileForm = (userData) => {
             <div id="twofaSetupContainer">
                 <h3 class="text-center" id="twoFaTitle">Setup 2-Factor Authentication</h3>
                 <img id="qrCode" src="" alt="QR Code" class="img-fluid mb-3">
-                <div class="form-group" id="verify2fA">
+                <div class="form-group" id="verify2fADiv">
                     <input type="text" class="inputEditProfile" id="otpToken">
-                    <button type="button" id="verify2FA">Verify 2FA</button>
+                    <button type="button" id="setup2FAcheck">Verify 2FA</button>
                 </div>
             </div>
             <div id="bg"></div>`;
@@ -307,27 +307,31 @@ const attachEditFormEventListeners = () => {
       }
     });
 
-  document
-    .getElementById("verify2FA")
-    .addEventListener("click", async function () {
-      const otpToken = document.getElementById("otpToken").value;
-      try {
-        const data = await verify2FA(otpToken);
-        if (data) {
-          alert("2FA setup successful");
-          document.getElementById("twofaSetupContainer").style.display = "none";
-        } else {
-          alert("2FA setup failed: " + data.message);
+  document.getElementById("setup2FAcheck").addEventListener("click", async function () {
+    console.log("setup2FAcheck clicked");
+    const otpToken = document.getElementById("otpToken").value;
+        if (!otpToken) {
+          alert("Please enter the OTP token");
+          return;
         }
-      } catch (error) {
-        console.error("Error verifying 2FA:", error);
-      }
-    });
+        try {
+          const data = await setup2FA(otpToken);
+          if (data.message === "2FA setup complete") {
+            alert("2FA setup successful");
+            document.getElementById("twofaSetupContainer").style.display = "none";
+            return;
+          } else if (data.message === "Invalid token") {
+            alert("2FA setup failed: Invalid 2FA token");
+            return;
+          }
+        } catch (error) {
+          console.error("Error verifying 2FA:", error);
+        }
+  });
 };
 
 export const renderProfile = async () => {
   socket = await getWebSocket();
-  console.log(params.get("id"));
   if (params.get("id")) {
     renderFriendProfile(params.get("id"));
   } else {

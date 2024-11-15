@@ -14,20 +14,25 @@ import base64
 def setup_2fa(request):
 	user = request.user
 	device, created = TOTPDevice.objects.get_or_create(user=user, name='default')
+	device.confirmed = False
+	device.save()
 
-	token = request.POST.get('otp_token')
+	token = request.data.get('token')
 	if token and device.verify_token(token):
 		# 2FA token is valid, confirm device
-		console.log('2FA token is valid, confirm device')
 		device.confirmed = True
 		device.save()
 		return Response({'message': '2FA setup complete'}, status=status.HTTP_200_OK)
+	elif token:
+		return Response({'message': 'Invalid 2FA token'}, status=status.HTTP_401_UNAUTHORIZED)
 
 	qr_code_url = device.config_url
 	qr_code = make_qr(qr_code_url)
 	stream = BytesIO()
 	qr_code.save(stream, "PNG")
 	qr_code_img = base64.b64encode(stream.getvalue()).decode('utf-8')
+
+	print(device.confirmed)
 
 	return Response({'qr_code_img': qr_code_img}, status=status.HTTP_200_OK) #QRCode is an image encoded in base64
 
