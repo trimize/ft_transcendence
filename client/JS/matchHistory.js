@@ -123,7 +123,7 @@ async function populateUnfinishedMatches(userData) {
         const myScore = match.player1 === userData.id ? match.player1_score : match.player2_score;
         const opponentScore = match.player1 === userData.id ? match.player2_score : match.player1_score;
         const opponent = await getOpponent(match, userData);
-        if (opponent === "deleted") {
+        if (opponent === "Deleted User") {
             return;
         }
         const params = new URLSearchParams();
@@ -158,7 +158,7 @@ async function getOpponent(match, userData) {
     else if (opponent === null && match.match_type == 'local_multiplayer') {
         return "Local player";}
         else if (opponent === null && match.match_type == 'online_multiplayer') {
-            return "deleted";
+            return "Deleted User";
         } else {
         opponent = await fetchUserById(opponent);
         return opponent.username;
