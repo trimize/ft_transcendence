@@ -207,7 +207,7 @@ function checkers(change) {
 
         const isEnd = (player1score >= 3 || player2score >= 3);
 
-        if (actualUser.id == host && !isOffline) {
+        if (!isOffline && actualUser.id == host) {
             console.log('Updating game');
             const game_update_body = {
                 id: matchId,

@@ -255,6 +255,7 @@ const attachEditFormEventListeners = () => {
     try {
       await deleteUser();
       window.location.href = "/home";
+      localStorage.clear();
     } catch (error) {
       console.error("Error deleting user:", error);
     }
