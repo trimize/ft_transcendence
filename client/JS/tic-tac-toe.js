@@ -589,8 +589,8 @@ export const renderTTT = async () => {
 
         
         
-        player1.textContent = actualUser.id == host ? 'You' : player2Data.username;
-        player2.textContent = actualUser.id == invitee ? 'You' : player1Data.username;
+        player1.textContent = actualUser.id == host ? 'You' : player1Data.username;
+        player2.textContent = actualUser.id == invitee ? 'You' : player2Data.username;
     }
     
     const scoreDiv = document.getElementById('scoreTTT');
