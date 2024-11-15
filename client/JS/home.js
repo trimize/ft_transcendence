@@ -502,6 +502,7 @@ async function friendsListenersFunction(friendItems, friendItem, type)
     childsToRemove.forEach(child => child.remove());
     if (friendItem.classList.contains('friend'))
     {
+        blockFriendButton.textContent = "Block";
         notFriendMessage.style.display = 'none';
         chatInput.disabled = false;
         chatInput.placeholder = "Type away..";
@@ -511,6 +512,7 @@ async function friendsListenersFunction(friendItems, friendItem, type)
     }
     else if (friendItem.classList.contains('blocked'))
     {
+        blockFriendButton.textContent = "Unblock";
         blockFriendButton.style.display = 'block';
         playPongButton.style.display = 'none';
         playTicTacToeButton.style.display = 'none';
