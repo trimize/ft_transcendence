@@ -437,7 +437,20 @@ function checkWinner() {
             winners.push(player);
         }
     });
-    Player_4
+
+    if (winners.length === 2) {
+        return 'D'; // Draw
+    } else if (winners.length === 1) {
+        return winners[0]; // Return the winner ('X' or 'O')
+    } else {
+        return null; // No winners
+    }
+}
+
+function resetVar() {
+    isRoundOver = false;
+}
+
 function resetGame() {
     const gameMessageElement = document.getElementById('game-messageTTT');
 
@@ -615,7 +628,7 @@ export const renderTTT = async () => {
             }
             if (player1Data.tic_tac_toe_sign == 0) {
                 player1sign = 'X';
-            } 
+            }
         }
             
         if (!actualUser) {
