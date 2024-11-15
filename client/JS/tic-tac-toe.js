@@ -136,7 +136,7 @@ function endGame(winner) {
         winnerPlayer = winner === 'X' ? player1Data : player2Data;
         message.textContent = `${winnerPlayer.username} won!`;
         const gif = document.createElement('img');
-        gif.src = `${BACKEND_URL}${images[winnerPlayer.tic_tac_toe_background]}`;
+        gif.src = `${BACKEND_URL}${images[winnerPlayer.tic_tac_toe_background - 1]}`;
         gif.alt = 'Victory GIF';
         gif.classList.add('victoryGif');
         modal.appendChild(message);
@@ -184,8 +184,18 @@ function checkers(change) {
 
     if (winner && winner !== 'D') {
         isRoundOver = true;
-        console.log('Winner: ' + winner);
-        gameMessageElement.textContent = `${winner} wins!`;
+
+        if (type == 'online_multiplayer') {
+            const winnerPlayer = winner === 'X' ? player1Data.username : player2Data.username;
+            gameMessageElement.textContent = `${winnerPlayer} wins!`;
+        } else if (type == 'singleplayer') {
+            const winnerPlayer = winner === 'X' ? 'You' : 'AI';
+            gameMessageElement.textContent = `${winnerPlayer} won!`;
+        } else {
+            const winnerPlayer = winner === 'X' ? 'Player 1' : 'Player 2';
+            gameMessageElement.textContent = `${winnerPlayer} wins!`;
+        }
+
         gameMessageElement.style.display = 'block';
         if (winner === 'X') {
             player1score++;
