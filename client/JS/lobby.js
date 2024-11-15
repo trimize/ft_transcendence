@@ -151,6 +151,11 @@ async function socketListener()
 			if (message.opponentId == user.id && matchData.id == message.matchId)
 			{
 				stopWaitingState();
+				const game_update_message = {
+					"id": matchData.id,
+					"start_time": new Date()
+				};
+				await updateGame(game_update_message);
 				const messageData = {
 					"type": "allons-y",
 					"player1": player1.id,
@@ -158,11 +163,6 @@ async function socketListener()
 					"matchId": matchData.id
 				}
 				sendMessage(messageData);
-				const game_update_message = {
-					"id": matchData.id,
-					"start_time": new Date()
-				};
-				await updateGame(game_update_message);
 			}
 		} else if (message.type == 'allons-y')
 		{
