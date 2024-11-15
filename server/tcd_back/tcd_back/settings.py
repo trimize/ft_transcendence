@@ -94,15 +94,18 @@ CORS_ALLOW_HEADERS = [
     'origin',
     'x-requested-with',
     'user-agent',
+    'Access-Control-Allow-Origin'
 ]
 
 # Optional: Allow credentials
 CORS_ALLOW_CREDENTIALS = True
 
+cors_allowed_ip = os.environ.get('HOST_IP') 
+
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:8080",
-    "https://localhost:4443",
-    "https://10.24.103.5:4443",
+    # f"http://{cors_allowed_ip}:8080",
+    f"https://{cors_allowed_ip}:8443",
+     f"https://{cors_allowed_ip}:4443",
 ]
 
 ROOT_URLCONF = 'tcd_back.urls'
