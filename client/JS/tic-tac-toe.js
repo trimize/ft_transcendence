@@ -359,6 +359,9 @@ function handleDrop(event) {
 		alert('You have already switched on this match!');
 		return;
 	}
+    if (gameState[draggedCellIndex] == null) {
+        return;
+    }
     const cell = event.target.closest('.cell');
     const targetCellIndex = cell.getAttribute('data-index');
     switchCells(draggedCellIndex, targetCellIndex);
@@ -376,7 +379,9 @@ function handleDropOnline(event) {
 		alert('You have already switched on this match!');
 		return;
 	}
-
+    if (gameState[draggedCellIndex] == null) {
+        return;
+    }
     const cell = event.target.closest('.cell');
     const targetCellIndex = cell.getAttribute('data-index');
 
