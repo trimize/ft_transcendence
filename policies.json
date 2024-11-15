@@ -1,0 +1,10 @@
+{
+    "policies": {
+        "Certificates": {
+            "Install": [
+                "/home/trimize/Documents/ft_transcendence/client/ssl/nginx.crt"
+            ]
+        }
+    }
+}
+  

@@ -971,9 +971,10 @@ function checkRedDot()
     const friendsList = document.getElementById('friendsList');
     const allFriendsElements = friendsList.querySelectorAll('.friendItem');
     allFriendsElements.forEach(child => {
-        if (child.querySelector('.redDot').style.display == 'block' && document.getElementById('showFriends').style.right != "248px")
+        if (child.classList.contains('friend'))
         {
-            document.getElementById('notifShowFriends').style.display = 'block';
+            if (child.querySelector('.redDot').style.display == 'block' && document.getElementById('showFriends').style.right != "248px")
+                document.getElementById('notifShowFriends').style.display = 'block';
         }
     });
 }
