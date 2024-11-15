@@ -187,28 +187,33 @@ const addEventListeners = async () => {
 				}
 				else
 				{
+					console.log("it is not inactive");
 					inviteButton.addEventListener('click', async () => {
-						inviteButton.classList.add('inactive');
-						inviteButton.textContent = 'Waiting...';
-						inviteButton.disabled = true;
-						const inviteeInfo = await fetchUserById(friend);
-						const message = {
-							"type": "tournament_invite",
-							"game": game,
-							"tournamentId": tournamentId,
-							"hostId": user.id,
-							"inviteeId": inviteeInfo.id,
-						}
-						const inviteInterval = setInterval(() => {
-							sendMessage(message);
-							console.log("trying to invite");
-							if (accepted || declined)
-							{
-								accepted = false;
-								declined = false;
-								clearInterval(inviteInterval);
+						if (inviteButton.classList.contains('inactive') == false)
+						{
+							console.log("NOT INACTIVE");
+							inviteButton.classList.add('inactive');
+							inviteButton.textContent = 'Waiting...';
+							inviteButton.disabled = true;
+							const inviteeInfo = await fetchUserById(friend);
+							const message = {
+								"type": "tournament_invite",
+								"game": game,
+								"tournamentId": tournamentId,
+								"hostId": user.id,
+								"inviteeId": inviteeInfo.id,
 							}
-						}, 1000);
+							const inviteInterval = setInterval(() => {
+								sendMessage(message);
+								console.log("trying to invite");
+								if (accepted || declined)
+								{
+									accepted = false;
+									declined = false;
+									clearInterval(inviteInterval);
+								}
+							}, 1000);
+						}
 					});
 				}
             });	

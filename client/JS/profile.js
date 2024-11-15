@@ -43,28 +43,28 @@ const getFriendProfile = () => {
 
 const renderFriendProfile = async (id) => {
   document.getElementById("content").innerHTML = getFriendProfile();
-    try {
-          const winsText = document.getElementById('winsText');
-          const lossesText = document.getElementById('lossesText');
-          const username = document.getElementById('username');
-          const email = document.getElementById('email');
-          const profilePicture = document.getElementById('pfp');
-          userData = await fetchUserById(id);
-          console.log(userData);
-          winsText.textContent = userData.wins;
-          lossesText.textContent = userData.losses;
-          username.textContent = userData.username;
-          email.textContent = userData.email;
-          if (userData.profile_pic !== null)
-            profilePicture.src = `${BACKEND_URL}${userData.profile_pic}`;
-          else profilePicture.src = DEFAULT_PROFILE_PIC;
-      } catch (error) {
-        console.error("Failed to load profile data:", error);
-      }
-      document.getElementById("backButtonEdit").addEventListener("click", () => {
-        window.location.href = "/home";
-      })
-          };
+  try {
+        const winsText = document.getElementById('winsText');
+        const lossesText = document.getElementById('lossesText');
+        const username = document.getElementById('username');
+        const email = document.getElementById('email');
+        const profilePicture = document.getElementById('pfp');
+        userData = await fetchUserById(id);
+        console.log(userData);
+        winsText.textContent = userData.wins;
+        lossesText.textContent = userData.losses;
+        username.textContent = userData.username;
+        email.textContent = userData.email;
+        if (userData.profile_pic !== null)
+          profilePicture.src = `${BACKEND_URL}${userData.profile_pic}`;
+        else profilePicture.src = DEFAULT_PROFILE_PIC;
+  } catch (error) {
+    console.error("Failed to load profile data:", error);
+  }
+  document.getElementById("backButtonEdit").addEventListener("click", () => {
+    window.location.href = "/home";
+  })
+};
 
 const renderProfilePage = () => {
   return `

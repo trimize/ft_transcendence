@@ -284,6 +284,7 @@ def anonymize_user(request):
     user = request.user
     user.username = f'anon_{user.id}'
     user.email = user.username + '@42.fr'
+    user.profile_pic = "profile_pics/default_user.jpg"
     user.save()
 
     user_data = {
