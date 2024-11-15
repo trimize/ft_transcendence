@@ -149,7 +149,7 @@ def refuse_friend_request(request, friend):
         return Response(status=status.HTTP_404_NOT_FOUND)
     
     try:
-        invitation = FriendInvitation.objects.get(sender=friend, receiver=user)
+        invitation = FriendInvitation.objects.get(sender=friend, receiver=user, status='pending')
         invitation.status = 'refused'
         invitation.save()
     except FriendInvitation.DoesNotExist:

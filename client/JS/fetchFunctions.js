@@ -351,7 +351,7 @@ export async function refuseFriendRequest(friend_id) {
 	  const userData = await response.json();
 	  return userData;
 	} catch (error) {
-	  console.error(error.message);
+	//  console.error(error.message);
 	}
 }
 

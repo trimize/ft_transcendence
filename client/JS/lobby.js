@@ -199,7 +199,7 @@ async function socketListener()
 		{
 			stopWaitingState();
 			const homeParams = new URLSearchParams();
-			homeParams.append('alert', 'match_refused');
+			homeParams.append('alert', 'match_rejected');
 			window.location.href = `/home?${homeParams.toString()}`;
 		}
 		else if (message.type == 'matchmaking' && message.playerId != user.id && message.game == game)
