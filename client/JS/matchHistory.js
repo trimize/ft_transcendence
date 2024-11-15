@@ -122,6 +122,9 @@ async function populateUnfinishedMatches(userData) {
         const game = match.game == 'tic-tac-toe' ? 'Tic Tac Toe' : 'Pong';
         const myScore = match.player1 === userData.id ? match.player1_score : match.player2_score;
         const opponentScore = match.player1 === userData.id ? match.player2_score : match.player1_score;
+        if (match.player1 == null || match.player2 === null) {
+            return;
+        }
         const opponent = await getOpponent(match, userData);
         const params = new URLSearchParams();
         params.append('matchId', match.id);
