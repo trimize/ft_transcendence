@@ -303,6 +303,11 @@ def delete_account(request):
 
     Match_Record.objects.filter(player1=user).update(player1=None)
     Match_Record.objects.filter(player2=user).update(player2=None)
+    FriendInvitation.objects.filter(sender=user).delete()
+    FriendInvitation.objects.filter(receiver=user).delete()
+    BlockedUser.objects.filter(blocker=user).delete()
+    BlockedUser.objects.filter(blocked=user).delete()
+    user.friends.clear()
 
     user.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
