@@ -15,8 +15,9 @@ document.addEventListener("DOMContentLoaded", async function () {
 });
 
 document.getElementById("setup2FA").addEventListener("click", async function () {
+  const otpToken = document.getElementById("otpToken").value;
   try {
-    const data = await setup2FA();
+    const data = await setup2FA(otpToken);
     const base64Image = data.qr_code_img.trim();
     if (base64Image) {
       document.getElementById(
@@ -33,6 +34,10 @@ document.getElementById("setup2FA").addEventListener("click", async function () 
 
 document.getElementById("verify2FA").addEventListener("click", async function () {
   const otpToken = document.getElementById("otpToken").value;
+  if (!otpToken) {
+    alert("Please enter the OTP token");
+    return;
+  }
   try {
     const data = await verify2FA(otpToken);
     if (data) {
