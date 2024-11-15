@@ -122,10 +122,10 @@ async function populateUnfinishedMatches(userData) {
         const game = match.game == 'tic-tac-toe' ? 'Tic Tac Toe' : 'Pong';
         const myScore = match.player1 === userData.id ? match.player1_score : match.player2_score;
         const opponentScore = match.player1 === userData.id ? match.player2_score : match.player1_score;
-        if (match.player1 == null || match.player2 === null) {
+        const opponent = await getOpponent(match, userData);
+        if (opponent === "deleted") {
             return;
         }
-        const opponent = await getOpponent(match, userData);
         const params = new URLSearchParams();
         params.append('matchId', match.id);
         params.append('game', match.game);
@@ -158,7 +158,7 @@ async function getOpponent(match, userData) {
     else if (opponent === null && match.match_type == 'local_multiplayer') {
         return "Local player";}
         else if (opponent === null && match.match_type == 'online_multiplayer') {
-            return "Anonymous user";
+            return "deleted";
         } else {
         opponent = await fetchUserById(opponent);
         return opponent.username;
