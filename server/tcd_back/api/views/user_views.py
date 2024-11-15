@@ -7,7 +7,7 @@ from rest_framework.decorators import api_view, permission_classes, parser_class
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
-from ..models import User, Match_Record, FriendInvitation, BlockedUser
+from ..models import User, Match_Record, FriendInvitation, BlockedUser, Tournament
 from ..serializer import UserSerializer, FriendInvitationSerializer, BlockedUserSerializer
 import random
 
@@ -307,6 +307,13 @@ def delete_account(request):
     FriendInvitation.objects.filter(receiver=user).delete()
     BlockedUser.objects.filter(blocker=user).delete()
     BlockedUser.objects.filter(blocked=user).delete()
+    Tournament.objects.filter(player1=user).delete()
+    Tournament.objects.filter(player2=user).delete()
+    Tournament.objects.filter(player3=user).delete()
+    Tournament.objects.filter(player4=user).delete()
+    Tournament.objects.filter(first_place=user).delete()
+    Tournament.objects.filter(second_place=user).delete()
+    Tournament.objects.filter(third_place=user).delete()
     user.friends.clear()
 
     user.delete()
