@@ -510,7 +510,11 @@ async function friendsListenersFunction(friendItems, friendItem, type)
         blockFriendButton.style.display = 'block';
     }
     else if (friendItem.classList.contains('blocked'))
+    {
         blockFriendButton.style.display = 'block';
+        playPongButton.style.display = 'none';
+        playTicTacToeButton.style.display = 'none';
+    }
     else
     {
         playPongButton.style.display = 'none';

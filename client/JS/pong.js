@@ -983,7 +983,7 @@ async function startMovingSquare()
 		else
 		{
 			//console.log("real number", newLeftPosition);
-			if (newLeftPosition + margins >= ParentRect.right - 50)
+			if (newLeftPosition + margins >= ParentRect.right - 50 && finish == false)
 			{
 				score_player++;
 				//console.log('Player 1 Scored !');
