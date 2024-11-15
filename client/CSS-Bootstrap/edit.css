@@ -154,10 +154,11 @@
     left: calc(100% - 50vw - 15vw);
 }
 
-#otpToken
-{
-    left: 200px;
+#otpToken {
+    left: calc(100% - 50vw - 75px);
     width: 150px;
+    position: absolute;
+    top: 600px;
 }
 
 #verify2FA
@@ -254,4 +255,11 @@
 .custom-file-label
 {
     color: rgba(240, 248, 255, 0);
+}
+
+#setup2FAcheck {
+    position: absolute;
+    width: 120px;
+    left: calc(100% - 50vw - 60px);
+    top: 700px;
 }
